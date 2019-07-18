@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+table, td {
+  border: 1px solid black;
+}
+</style>
+</head>
+<body>
+
+<p>Click the button to add a new row at the first position of the table and then add cells and content.</p>
+
+<table id="myTable">
+  <tr>
+    <td>ESP NUMBERS</td>
+    <td>Plug 1</td>
+    <td>Plug 2</td>
+    <td>Plug 3</td>
+    <td>Plug 4</td>
+  </tr>
+  <tr>
+    <td>ESP01</td>
+    <td><a href="http://192.168.0.158:80/onOff?plug=1">Blah 1</a></td>
+  	<td><a href="http://192.168.0.158:80/onOff?plug=2">link 2</a></td>
+  	<td><a href="http://192.168.0.158:80/onOff?plug=3">link 3</a></td>
+    <td><a href="http://192.168.0.158:80/onOff?plug=4">link 4</a></td>
+  </tr>
+  <tr>
+  	<td>ESP02</td>
+  	<td><a href="#5">Blah 2</a></td>
+  	<td><a href="#6">link 2</a></td>
+  	<td><a href="#7">link 3</a></td>
+    <td><a href="#8">link 4</a></td>
+  </tr>
+  <tr>
+  	<td>ESP03</td>
+  	<td><a href="#9">Blah 3</a></td>
+  	<td><a href="#10">link 2</a></td>
+  	<td><a href="#11">link 3</a></td>
+    <td><a href="#12">link 4</a></td>
+  </tr>
+</table>
+<br>
+
+<button onclick="myFunction()">Try it</button>
+
+<script>
+var count = 3;
+var t_url = "http://192.168.0.158:80/onOff?plug=1";
+function myFunction() {
+  var table = document.getElementById("myTable");
+  count++;
+  var row = table.insertRow(count);
+  
+  var cell1 = row.insertCell(0);
+  var cell2 = row.insertCell(1);
+  var cell3 = row.insertCell(2);
+  var cell4 = row.insertCell(3);
+  var cell5 = row.insertCell(4);
+
+  var n = count.toString();
+  if(count<10){
+    var existingId = 'ESP0';
+  } else{
+    var existingId = 'ESP';
+  }
+  var res = existingId.concat(n);
+  
+  var final = myFunction2();
+  var final2 = myFunction3();
+  var final3 = myFunction4();
+  var final4 = myFunction5();
+  num++;
+
+  cell1.innerHTML = res;
+  cell2.innerHTML = final;
+  cell3.innerHTML = final2;
+  cell4.innerHTML = final3;
+  cell5.innerHTML = final4;
+}
+var num =158;
+function myFunction2(){
+  var str1 = '<a href="http://192.168.0.';
+  var str2 = ':80/onOff?plug=1">maybe</a>';
+  str1 = str1.concat(num.toString());
+  var final = str1.concat(str2.toString());
+  return final;
+}
+
+function myFunction3(){
+  var str1 = '<a href="http://192.168.0.';
+  var str2 = ':80/onOff?plug=2">maybe</a>';
+  str1 = str1.concat(num.toString());
+  var final = str1.concat(str2.toString());
+  return final;
+}
+
+function myFunction4(){
+  var str1 = '<a href="http://192.168.0.';
+  var str2 = ':80/onOff?plug=3">maybe</a>';
+  str1 = str1.concat(num.toString());
+  var final = str1.concat(str2.toString());
+  return final;
+}
+
+function myFunction5(){
+  var str1 = '<a href="http://192.168.0.';
+  var str2 = ':80/onOff?plug=4">maybe</a>';
+  str1 = str1.concat(num.toString());
+  var final = str1.concat(str2.toString());
+  return final;
+}
+</script>
+
+</body>
+</html>
