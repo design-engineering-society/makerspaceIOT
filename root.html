@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Hello World!!!</h1>
+    <button onclick='onOff()'>onOff</button>
+    <button onclick='updateESP()'>update</button>
+    <script>
+
+    function onOff() {
+
+        console.log("onOff");
+        var xhr = new XMLHttpRequest();
+        xhr.onload = function () {
+
+            if (this.status == 200) {
+                var data = this.responseText;//JSON.parse(this.responseText);
+                console.log(data);
+            }
+        };
+
+        xhr.open('GET', 'http://192.168.0.158:80/onOff?plug=3', true);
+        xhr.send();
+    }
+
+    function updateESP() {
+
+        console.log("updateESP");
+        var xhr = new XMLHttpRequest();
+        xhr.onload = function () {
+
+            if (this.status == 200) {
+                var data = this.responseText;//JSON.parse(this.responseText);
+            }
+        };
+        xhr.open("POST", 'http://192.168.0.158:80/update', true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.send(JSON.stringify({
+            "IP": "192.168.0.158",
+            "description": "3D Printer Rack NEW",
+            "masterIP": "192.168.0.254",
+            "plug1": "3D Printer 5",
+            "plug2": "3D Printer 6",
+            "plug3": "3D Printer 7",
+            "plug4": "3D Printer 8"
+        }));
+    }
+    </script>
+</body>
+</html>
