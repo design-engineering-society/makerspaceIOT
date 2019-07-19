@@ -14,6 +14,7 @@
 //===============================================================
 
 #include "D:\Documents\Makerspace Internship\Programming\Arduino\ESP8266Config2\ESP8266Config2.ino"
+#include "D:\Documents\Makerspace Internship\Programming\Arduino\ESP8266Utility\ESP8266Utility.ino"
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
 #include <WiFiClient.h>
@@ -77,6 +78,7 @@ void handleUpdate() {
   cfg.initialised = "true";
   cfg.IP = json["IP"].as<String>();
   cfg.description = json["description"].as<String>();
+  cfg.routerIP = json["routerIP"].as<String>();
   cfg.masterIP = json["masterIP"].as<String>();
   cfg.plug1Lbl = json["plug1Lbl"].as<String>();
   cfg.plug2Lbl = json["plug2Lbl"].as<String>();
@@ -91,6 +93,7 @@ void handleUpdate() {
   doc["initialised"] = "true";
   doc["IP"] = cfg.IP;
   doc["description"] = cfg.description;
+  doc["routerIP"] = cfg.routerIP;
   doc["masterIP"] = cfg.masterIP;
   doc["plug1Lbl"] = cfg.plug1Lbl;
   doc["plug2Lbl"] = cfg.plug2Lbl;
@@ -110,6 +113,7 @@ void handleConfigInfo() {
   doc["initialised"] = "true";
   doc["IP"] = cfg.IP;
   doc["description"] = cfg.description;
+  doc["routerIP"] = cfg.routerIP;
   doc["masterIP"] = cfg.masterIP;
   doc["plug1Lbl"] = cfg.plug1Lbl;
   doc["plug2Lbl"] = cfg.plug2Lbl;
@@ -147,6 +151,29 @@ void handleNotFound(){
 }
 
 //===============================================================
+// Request Sending
+//===============================================================
+
+void sendInit() {
+
+  HTTPClient http;
+
+  Serial.println("http://" + cfg.masterIP + ":5000/init"); // ("http://" + cfg.masterIP + ":5000/init")
+  http.begin("http://192.168.0.110:5000/init");
+  int httpCode = http.GET();
+   
+  if (httpCode > 0) {
+   
+    String payload = http.getString();
+    Serial.println(payload);
+    
+    cfg.initialised = "true";
+    writeConfig();
+  }
+  http.end();
+}
+
+//===============================================================
 // Setup and Loop
 //===============================================================
 
@@ -162,6 +189,17 @@ void setup () {
 
   //File System (setupConfig2.ino)
   setupFS();
+
+  WiFi.disconnect(); //Prevent connecting to wifi based on previous configuration
+  
+  if (cfg.initialised == "true") { //Static IP address configuration
+    Serial.println("Initialised! Setting up WiFi config");
+    IPAddress staticIP(octet(cfg.IP, 1), octet(cfg.IP, 2), octet(cfg.IP, 3), octet(cfg.IP, 4));
+    IPAddress gateway(octet(cfg.routerIP, 1), octet(cfg.routerIP, 2), octet(cfg.routerIP, 3), octet(cfg.routerIP, 4));
+    IPAddress subnet(255, 255, 255, 0);
+    IPAddress dns(8, 8, 8, 8);
+    WiFi.config(staticIP, subnet, gateway, dns);
+  }
 
   // Connect to WiFi
   WiFi.begin(ssid, password);
@@ -181,6 +219,8 @@ void setup () {
   server.onNotFound(handleNotFound);
 
   server.begin();
+
+  sendInit();
 }
  
 void loop() {

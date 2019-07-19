@@ -20,6 +20,7 @@ struct Config {
   String initialised;
   String IP;
   String description;
+  String routerIP;
   String masterIP;
   String plug1Lbl;
   String plug2Lbl;
@@ -45,6 +46,7 @@ void loadConfig() {
   cfg.initialised = doc["initialised"] | "false";
   cfg.IP = doc["IP"] | "-";
   cfg.description = doc["description"] | "-";
+  cfg.routerIP = doc["routerIP"] | "192.168.0.254";
   cfg.masterIP = doc["masterIP"] | "192.168.0.110";
   cfg.plug1Lbl = doc["plug1Lbl"] | "-";
   cfg.plug2Lbl = doc["plug2Lbl"] | "-";
@@ -64,6 +66,7 @@ void writeConfig() {
   doc["initialised"] = cfg.initialised;
   doc["IP"] = cfg.IP;
   doc["description"] = cfg.description;
+  doc["routerIP"] = cfg.routerIP;
   doc["masterIP"] = cfg.masterIP;
   doc["plug1Lbl"] = cfg.plug1Lbl;
   doc["plug2Lbl"] = cfg.plug2Lbl;
@@ -82,6 +85,7 @@ void printConfig() {
   Serial.println("Initialised: " + cfg.initialised);
   Serial.println("IP: " + cfg.IP);
   Serial.println("Description: " + cfg.description);
+  Serial.println("RouterIP: " + cfg.routerIP);
   Serial.println("MasterIP: " + cfg.masterIP);
   Serial.println("Plug1Lbl: " + cfg.plug1Lbl);
   Serial.println("Plug2Lbl: " + cfg.plug2Lbl);
