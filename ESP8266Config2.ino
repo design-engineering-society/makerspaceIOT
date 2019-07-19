@@ -9,6 +9,10 @@
  * 
  */
 
+//===============================================================
+// File initialisation
+//===============================================================
+
 #include <ArduinoJson.h>
 #include <FS.h>
 
@@ -23,7 +27,11 @@ struct Config {
   String plug4Lbl;
 };
 
-Config cfg;                         // <- global configuration object
+Config cfg;
+
+//===============================================================
+// Config functions
+//===============================================================
 
 void loadConfig() {
   
@@ -81,6 +89,10 @@ void printConfig() {
   Serial.println("Plug4Lbl: " + cfg.plug4Lbl);
   Serial.println("------------------");  
 }
+
+//===============================================================
+// Filesystem Setup
+//===============================================================
 
 void setupFS() {
  
