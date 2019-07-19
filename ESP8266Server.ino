@@ -1,47 +1,59 @@
-#include "D:\Documents\Makerspace Internship\Programming\Arduino\setupConfig\setupConfig.ino"
+/*
+ * 19/07/2019
+ * Makerspace IoT Project
+ * ESP8266Server.ino
+ * 
+ * This file runs the main code for the ESP8266 NodeMCU microcontroller
+ * in the the Makerspace IoT project. It also includes code from
+ * ESP8266Config.ino
+ * 
+ */
+
+//===============================================================
+// File initialisation
+//===============================================================
+
+#include "D:\Documents\Makerspace Internship\Programming\Arduino\ESP8266Config\ESP8266Config.ino"
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
 #include <WiFiClient.h>
-#include <ESP8266WebServer.h>   // Include the WebServer library
+#include <ESP8266WebServer.h>
 #include <ESP8266mDNS.h>
 #include <ArduinoJson.h>
 
 const char* ssid = "TP-Link_6F62";
 const char* password = "78059757";
 
+int pinForPlug[5] = {0 , 16 , 5 , 4 , 2}; // Mapping from plugs to pin numners. E.g. pinForPlug[1] = 16
+
 // Server
-ESP8266WebServer server(80);
+ESP8266WebServer server(80); // Server object to handle server functions for ESP8266
 
-void switchPlug(String plug) {
+//===============================================================
+// Utility functions
+//===============================================================
 
-  switch (plug.toInt()) {
-    case 1: digitalWrite(16,!digitalRead(16)); break;
-    case 2: digitalWrite(5,!digitalRead(5)); break;
-    case 3: digitalWrite(4,!digitalRead(4)); break;
-    case 4: digitalWrite(2,!digitalRead(2)); break;
-    default: Serial.println("Invalid plug id"); break;
-  }
+void switchPlug(String plugToSwitch) { // Switches the state of pinForPlug[i]: ON <-> OFF
+
+  int i = plugToSwitch.toInt();
+  digitalWrite(pinForPlug[i],!digitalRead(pinForPlug[i]));
 }
 
-bool readPlug(String plug) {
+bool readPlug(String plugToRead) { // Returns 0 if pinForPlug[i] is OFF and 1 if pinForPlug[i] is ON
 
-  switch (plug.toInt()) {
-    case 1: return digitalRead(16); break;
-    case 2: return digitalRead(5); break;
-    case 3: return digitalRead(4); break;
-    case 4: return digitalRead(2); break;
-    default: return 0; break;
-  }
+  int i = plugToRead.toInt();
+  return digitalRead(pinForPlug[i]);
 }
+
+//===============================================================
+// Request Handling
+//===============================================================
 
 void handleOnOff() {
-  IPAddress IP = server.client().remoteIP();
-  char buff [4];
-  String IPTest = String(itoa(IP[0],buff,10)) + "." + itoa(IP[1],buff,10) + "." + itoa(IP[2],buff,10) + "." + itoa(IP[3],buff,10);
   String plug = server.arg("plug");
   switchPlug(plug);
-  Serial.println("A device with the IP " + IPTest + " sent a request to switch plug " + plug);
-
+  Serial.println("Plug " + plug + " switched");
+  
   char jsonData[2048];
   DynamicJsonDocument doc(1024);
   doc["plugSwitched"] = plug;
@@ -51,10 +63,6 @@ void handleOnOff() {
 
   server.sendHeader("Access-Control-Allow-Origin", "*");
   server.send(200, "text/plain", jsonString);
-}
-
-void handleNotFound(){
-  server.send(404, "text/plain", "404: Not found");
 }
 
 void handleUpdate() {
@@ -103,10 +111,10 @@ void handlePlugInfo() {
 
   char jsonData[2048];
   DynamicJsonDocument doc(1024);
-  doc["plug1"] = digitalRead(16) == 0? "OFF": "ON";
-  doc["plug2"] = digitalRead(5) == 0? "OFF": "ON";
-  doc["plug3"] = digitalRead(4) == 0? "OFF": "ON";
-  doc["plug4"] = digitalRead(2) == 0? "OFF": "ON";
+  doc["plug1"] = digitalRead(pinForPlug[1]) == 0? "OFF": "ON";
+  doc["plug2"] = digitalRead(pinForPlug[2]) == 0? "OFF": "ON";
+  doc["plug3"] = digitalRead(pinForPlug[3]) == 0? "OFF": "ON";
+  doc["plug4"] = digitalRead(pinForPlug[4]) == 0? "OFF": "ON";
   serializeJson(doc, jsonData);
   String jsonString = String(jsonData);
 
@@ -114,32 +122,39 @@ void handlePlugInfo() {
   server.send(200, "text/plain", jsonString);
 }
 
+void handleNotFound(){
+  server.send(404, "text/plain", "404: Not found");
+}
+
+//===============================================================
+// Setup and Loop
+//===============================================================
+
 void setup () {
 
-  pinMode(16, OUTPUT); // Plug 1
-  pinMode(5, OUTPUT);  // Plug 2
-  pinMode(4, OUTPUT);  // Plug 3
-  pinMode(2, OUTPUT);  // Plug 4
+  // Setup pins for plugs
+  pinMode(pinForPlug[1], OUTPUT); // Plug 1
+  pinMode(pinForPlug[2], OUTPUT); // Plug 2
+  pinMode(pinForPlug[3], OUTPUT); // Plug 3
+  pinMode(pinForPlug[4], OUTPUT); // Plug 4
 
   Serial.begin(115200);
 
-  // Set up File System (setupConfig.ino)
+  //File System (setupConfig.ino)
   setupFS();
-  // Read config: transfer data in file to variables in code
   readConfig();
   printConfig();
 
-  // Client
+  // Connect to WiFi
   WiFi.begin(ssid, password);
-   
   while (WiFi.status() != WL_CONNECTED) {
-   
     delay(1000);
     Serial.println("Connecting..");
   }
   Serial.println("Connected!");
   Serial.println(WiFi.localIP());
 
+  // Server routing
   server.on("/onOff", HTTP_GET, handleOnOff);
   server.on("/update", HTTP_POST, handleUpdate);
   server.on("/configInfo", HTTP_GET, handleConfigInfo);
