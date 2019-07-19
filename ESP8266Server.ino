@@ -73,6 +73,7 @@ void handleUpdate() {
     Serial.println("Not working hmmmmmm");
     return;
   }
+  
   initialised = "true";
   IP = json["IP"].as<String>();
   description = json["description"].as<String>();
@@ -84,8 +85,22 @@ void handleUpdate() {
   writeConfig();
   Serial.println("Updated config");
   printConfig();
+
+  char jsonData[2048];
+  DynamicJsonDocument doc(1024);
+  doc["initialised"] = "true";
+  doc["IP"] = IP;
+  doc["description"] = description;
+  doc["masterIP"] = masterIP;
+  doc["plug1"] = plug1;
+  doc["plug2"] = plug2;
+  doc["plug3"] = plug3;
+  doc["plug4"] = plug4;
+  serializeJson(doc, jsonData);
+  String jsonString = String(jsonData);
+  
   server.sendHeader("Access-Control-Allow-Origin", "*");
-  server.send(200, "text/plain", "UPDATED ESP: " + IP);
+  server.send(200, "text/plain", jsonString);
 }
 
 void handleConfigInfo() {
@@ -120,6 +135,11 @@ void handlePlugInfo() {
 
   server.sendHeader("Access-Control-Allow-Origin", "*");
   server.send(200, "text/plain", jsonString);
+}
+
+void handleCheck() {
+  server.sendHeader("Access-Control-Allow-Origin", "*");
+  server.send(200, "text/plain", "ESP " + IP + " Available");
 }
 
 void handleNotFound(){
@@ -159,6 +179,7 @@ void setup () {
   server.on("/update", HTTP_POST, handleUpdate);
   server.on("/configInfo", HTTP_GET, handleConfigInfo);
   server.on("/plugInfo", HTTP_GET, handlePlugInfo);
+  server.on("/check", HTTP_GET, handleCheck);
   server.onNotFound(handleNotFound);
 
   server.begin();

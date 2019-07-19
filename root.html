@@ -7,11 +7,12 @@
     <title>Document</title>
 </head>
 <body>
-    <h1>Hello World!!!</h1>
+    <h1>Makerspace IoT System Request Testing</h1>
     <button onclick='onOff()'>onOff</button>
     <button onclick='updateESP()'>update</button>
     <button onclick='configInfo()'>configInfo</button>
     <button onclick='plugInfo()'>plugInfo</button>
+    <button onclick='check()'>check</button>
     <script>
 
     function onOff() {
@@ -37,7 +38,7 @@
         xhr.onload = function () {
 
             if (this.status == 200) {
-                var data = this.responseText;//JSON.parse(this.responseText);
+                var data = JSON.parse(this.responseText);
                 console.log(data);
             }
         };
@@ -71,18 +72,33 @@
 
     function plugInfo() {
 
-    console.log("plugInfo");
-    var xhr = new XMLHttpRequest();
-    xhr.onload = function () {
+        console.log("plugInfo");
+        var xhr = new XMLHttpRequest();
+        xhr.onload = function () {
 
-        if (this.status == 200) {
-            var data = JSON.parse(this.responseText);
-            console.log(data);
-        }
-    };
-    xhr.open('GET', 'http://192.168.0.158:80/plugInfo', true);
-    xhr.send();
+            if (this.status == 200) {
+                var data = JSON.parse(this.responseText);
+                console.log(data);
+            }
+        };
+        xhr.open('GET', 'http://192.168.0.158:80/plugInfo', true);
+        xhr.send();
     }
-    </script>
+
+    function check() {
+
+        console.log("check");
+        var xhr = new XMLHttpRequest();
+        xhr.onload = function () {
+
+            if (this.status == 200) {
+                var data = this.responseText;
+                console.log(data);
+            }
+        };
+        xhr.open('GET', 'http://192.168.0.158:80/check', true);
+        xhr.send();
+    }
+</script>
 </body>
 </html>
