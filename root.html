@@ -10,6 +10,8 @@
     <h1>Hello World!!!</h1>
     <button onclick='onOff()'>onOff</button>
     <button onclick='updateESP()'>update</button>
+    <button onclick='configInfo()'>configInfo</button>
+    <button onclick='plugInfo()'>plugInfo</button>
     <script>
 
     function onOff() {
@@ -19,7 +21,7 @@
         xhr.onload = function () {
 
             if (this.status == 200) {
-                var data = this.responseText;//JSON.parse(this.responseText);
+                var data = JSON.parse(this.responseText);
                 console.log(data);
             }
         };
@@ -36,10 +38,11 @@
 
             if (this.status == 200) {
                 var data = this.responseText;//JSON.parse(this.responseText);
+                console.log(data);
             }
         };
         xhr.open("POST", 'http://192.168.0.158:80/update', true);
-        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.setRequestHeader('Content-Type', 'text/plain');
         xhr.send(JSON.stringify({
             "IP": "192.168.0.158",
             "description": "3D Printer Rack NEW",
@@ -49,6 +52,36 @@
             "plug3": "3D Printer 7",
             "plug4": "3D Printer 8"
         }));
+    }
+
+    function configInfo() {
+
+        console.log("configInfo");
+        var xhr = new XMLHttpRequest();
+        xhr.onload = function () {
+
+            if (this.status == 200) {
+                var data = JSON.parse(this.responseText);
+                console.log(data);
+            }
+        };
+        xhr.open('GET', 'http://192.168.0.158:80/configInfo', true);
+        xhr.send();
+    }
+
+    function plugInfo() {
+
+    console.log("plugInfo");
+    var xhr = new XMLHttpRequest();
+    xhr.onload = function () {
+
+        if (this.status == 200) {
+            var data = JSON.parse(this.responseText);
+            console.log(data);
+        }
+    };
+    xhr.open('GET', 'http://192.168.0.158:80/plugInfo', true);
+    xhr.send();
     }
     </script>
 </body>
