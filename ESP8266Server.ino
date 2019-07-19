@@ -13,7 +13,7 @@
 // File initialisation
 //===============================================================
 
-#include "D:\Documents\Makerspace Internship\Programming\Arduino\ESP8266Config\ESP8266Config.ino"
+#include "D:\Documents\Makerspace Internship\Programming\Arduino\ESP8266Config2\ESP8266Config2.ino"
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
 #include <WiFiClient.h>
@@ -74,14 +74,14 @@ void handleUpdate() {
     return;
   }
   
-  initialised = "true";
-  IP = json["IP"].as<String>();
-  description = json["description"].as<String>();
-  masterIP = json["masterIP"].as<String>();
-  plug1 = json["plug1"].as<String>();
-  plug2 = json["plug2"].as<String>();
-  plug3 = json["plug3"].as<String>();
-  plug4 = json["plug4"].as<String>();
+  cfg.initialised = "true";
+  cfg.IP = json["IP"].as<String>();
+  cfg.description = json["description"].as<String>();
+  cfg.masterIP = json["masterIP"].as<String>();
+  cfg.plug1Lbl = json["plug1Lbl"].as<String>();
+  cfg.plug2Lbl = json["plug2Lbl"].as<String>();
+  cfg.plug3Lbl = json["plug3Lbl"].as<String>();
+  cfg.plug4Lbl = json["plug4Lbl"].as<String>();
   writeConfig();
   Serial.println("Updated config");
   printConfig();
@@ -89,13 +89,13 @@ void handleUpdate() {
   char jsonData[2048];
   DynamicJsonDocument doc(1024);
   doc["initialised"] = "true";
-  doc["IP"] = IP;
-  doc["description"] = description;
-  doc["masterIP"] = masterIP;
-  doc["plug1"] = plug1;
-  doc["plug2"] = plug2;
-  doc["plug3"] = plug3;
-  doc["plug4"] = plug4;
+  doc["IP"] = cfg.IP;
+  doc["description"] = cfg.description;
+  doc["masterIP"] = cfg.masterIP;
+  doc["plug1Lbl"] = cfg.plug1Lbl;
+  doc["plug2Lbl"] = cfg.plug2Lbl;
+  doc["plug3Lbl"] = cfg.plug3Lbl;
+  doc["plug4Lbl"] = cfg.plug4Lbl;
   serializeJson(doc, jsonData);
   String jsonString = String(jsonData);
   
@@ -108,13 +108,13 @@ void handleConfigInfo() {
   char jsonData[2048];
   DynamicJsonDocument doc(1024);
   doc["initialised"] = "true";
-  doc["IP"] = IP;
-  doc["description"] = description;
-  doc["masterIP"] = masterIP;
-  doc["plug1"] = plug1;
-  doc["plug2"] = plug2;
-  doc["plug3"] = plug3;
-  doc["plug4"] = plug4;
+  doc["IP"] = cfg.IP;
+  doc["description"] = cfg.description;
+  doc["masterIP"] = cfg.masterIP;
+  doc["plug1Lbl"] = cfg.plug1Lbl;
+  doc["plug2Lbl"] = cfg.plug2Lbl;
+  doc["plug3Lbl"] = cfg.plug3Lbl;
+  doc["plug4Lbl"] = cfg.plug4Lbl;
   serializeJson(doc, jsonData);
   String jsonString = String(jsonData);
 
@@ -139,7 +139,7 @@ void handlePlugInfo() {
 
 void handleCheck() {
   server.sendHeader("Access-Control-Allow-Origin", "*");
-  server.send(200, "text/plain", "ESP " + IP + " Available");
+  server.send(200, "text/plain", "ESP " + cfg.IP + " Available");
 }
 
 void handleNotFound(){
@@ -160,10 +160,8 @@ void setup () {
 
   Serial.begin(115200);
 
-  //File System (setupConfig.ino)
+  //File System (setupConfig2.ino)
   setupFS();
-  readConfig();
-  printConfig();
 
   // Connect to WiFi
   WiFi.begin(ssid, password);
