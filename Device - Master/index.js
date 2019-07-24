@@ -19,7 +19,7 @@ app.get("/init", (req, res) => {
     res.status(200).send('Init request recieved');
 });
 
-app.get("/reconnect", (req, res) => {
+app.get("/reconnect", (req, res) => { 
     var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
     console.log(`Recieved a reconnect request from device with IP: ${ip}`);
     res.status(200).send('Reconnect request recieved');
