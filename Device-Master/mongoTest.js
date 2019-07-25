@@ -38,7 +38,7 @@ var url = "mongodb://localhost:27017/";
     var dbo = db.db("makerspace");
     dbo.collection("ESP").find({}).toArray((err, result) => {
       if (err) throw err;
-      console.log(result);
+      console.log(result[0]["IP"]);
       db.close();
     });
   });
