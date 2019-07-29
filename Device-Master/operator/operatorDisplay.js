@@ -1,6 +1,6 @@
-var MongoClient = require('mongodb').MongoClient;
-var mongoURL = "mongodb://localhost:27017/";
-var ESPDoc;
+//var MongoClient = require('mongodb').MongoClient;
+//var mongoURL = "mongodb://localhost:27017/";
+//var ESPDoc;
 
 function testing() {
     console.log("IT WORKED! :DDD!!!");
@@ -10,44 +10,30 @@ function print(word) {
     console.log(word);
 }
 
-function start() {
-
-    MongoClient.connect(mongoURL, function(err, db) {
-        if (err) throw err;
-        var dbo = db.db("makerspace");
-        dbo.collection("ESP").find({}).toArray((err, result) => {
-            if (err) throw err;
-            ESPDoc = result[0];
-            db.close();
-        });
-    });
-
-    addESP('3D Printer Rack 1', '3D Printer 1', '3D Printer 2', '3D Printer 3', '3D Printer 4');
-    addESP('3D Printer Rack 2', '3D Printer 5', '3D Printer 6', '3D Printer 7', '3D Printer 8');
-    addESP('3D Printer Rack 3', '3D Printer 9', '3D Printer 10', '3D Printer 11', '3D Printer 12');
-    addESP('3D Printer Rack 4', '3D Printer 13', '3D Printer 14', '3D Printer 15', '3D Printer 16');
+function addESP(id, ESPLbl, plug1Lbl, plug2Lbl, plug3Lbl, plug4Lbl)  {
+    addDisplayElement("ESP", ESPLbl, id);
+    addDisplayElement("plug", plug1Lbl, id);
+    addDisplayElement("plug", plug2Lbl, id);
+    addDisplayElement("plug", plug3Lbl, id);
+    addDisplayElement("plug", plug4Lbl, id);
 }
 
-function addESP(ESPLbl, plug1Lbl, plug2Lbl, plug3Lbl, plug4Lbl)  {
-    addDisplayElement("ESP", ESPLbl);
-    addDisplayElement("", plug1Lbl);
-    addDisplayElement("", plug2Lbl);
-    addDisplayElement("", plug3Lbl);
-    addDisplayElement("", plug4Lbl);
-}
-
-function addDisplayElement(divClass, btnLbl) {
+function addDisplayElement(divClass, btnLbl, id) {
     var div = document.createElement("DIV");
     if (divClass != "") {
         div.setAttribute("class", divClass);
     }
+    div.setAttribute("id", id);
     var btn = document.createElement("BUTTON");
     btn.innerHTML = btnLbl;
     btn.setAttribute("class", "dashboardBtn");
-    btn.setAttribute("onclick", "addPopup()");//`print("${btnLbl}")`);
+    btn.setAttribute("onclick", `addPopup(${id})`);//`print("${btnLbl}")`);
     div.appendChild(btn);
     document.getElementById("grid").appendChild(div);
 }
+
+
+/////////////////////////// POPUP ////////////////////////////////////////
 
 function createPopupLbl(popupGrid, labelTxt, inputTxt) {
 
@@ -65,7 +51,9 @@ function createPopupLbl(popupGrid, labelTxt, inputTxt) {
     wrap.appendChild(div);
 }
 
-function addPopup(ESPDoc) {
+function addPopup(ESPDocID) {
+
+    var ESPDoc = ESPdata[ESPDocID];
 
     // Setup
     var popupWrapper = document.createElement("DIV");
@@ -93,14 +81,14 @@ function addPopup(ESPDoc) {
     popupGrid.appendChild(div);
 
     // Form Elements
+    createPopupLbl(popupGrid, "ESP Label:", ESPDoc["description"]);
+    createPopupLbl(popupGrid, "Plug 1 Label:", ESPDoc["plug1Lbl"]);
+    createPopupLbl(popupGrid, "Plug 2 Label:", ESPDoc["plug2Lbl"]);
+    createPopupLbl(popupGrid, "Plug 3 Label:", ESPDoc["plug3Lbl"]);
+    createPopupLbl(popupGrid, "Plug 4 Label:", ESPDoc["plug4Lbl"]);
     createPopupLbl(popupGrid, "ESP IP:", ESPDoc["IP"]);
-    createPopupLbl(popupGrid, "Router IP:", "192.168.0.254");
-    createPopupLbl(popupGrid, "Master IP:", "192.168.0.110");
-    createPopupLbl(popupGrid, "ESP Label:", "3D Printer Rack 1");
-    createPopupLbl(popupGrid, "Plug 1 Label:", "3D Printer 1");
-    createPopupLbl(popupGrid, "Plug 2 Label:", "3D Printer 2");
-    createPopupLbl(popupGrid, "Plug 3 Label:", "3D Printer 3");
-    createPopupLbl(popupGrid, "Plug 4 Label:", "3D Printer 4");
+    createPopupLbl(popupGrid, "Router IP:", ESPDoc["routerIP"]);
+    createPopupLbl(popupGrid, "Master IP:", ESPDoc["masterIP"]);
 
     var wrap = document.createElement("DIV");
     wrap.setAttribute("id", "popupUpdateButtonWrapper");
@@ -144,4 +132,22 @@ function unfade(element) {
         element.style.filter = 'alpha(opacity=' + op * 100 + ")";
         op += inc;
     }, 8);
+}
+
+function removeElementsByClass(className){
+    var elements = document.getElementsByClassName(className);
+    while(elements.length > 0){
+        elements[0].parentNode.removeChild(elements[0]);
+    }
+}
+
+function reloadDisplay() {
+
+    removeElementsByClass("ESP");
+    removeElementsByClass("plug");
+
+    var i;
+    for (i = 0; i < Object.keys(ESPdata).length; i++) { 
+        addESP(i, ESPdata[i]["description"], ESPdata[i]["plug1Lbl"], ESPdata[i]["plug2Lbl"], ESPdata[i]["plug3Lbl"], ESPdata[i]["plug4Lbl"]);
+    }
 }
