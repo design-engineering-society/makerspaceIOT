@@ -95,7 +95,7 @@ void setup(void){
     delay(500);
     Serial.print(".");
   }
-
+  
   //If connection successful show IP address in serial monitor
   Serial.println("");
   Serial.print("Connected to ");

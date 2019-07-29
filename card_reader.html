@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h3>TAP YOUR CARD ON THE CARD READER</h3>
+<p>A registered user will be redirected to the ESP webpage</p>
+
+<input id="myInput" value="Some text..">
+<button id="myBtn" onclick="myFunction()">Button</button>
+
+<script>
+var input = document.getElementById("myInput");
+input.addEventListener("keyup", function(event) {
+  if (event.keyCode === 13) {
+   event.preventDefault();
+   document.getElementById("myBtn").click();
+  }
+});
+
+document.getElementById("myBtn").focus();
+document.getElementById("myBtn").select();
+
+function myFunction() {
+  location.replace("https://github.com/iZettle/sdk-ios")
+}
+</script>
+
+</body>
+</html>
