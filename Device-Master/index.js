@@ -90,7 +90,7 @@ app.get("/loadESPs", (req, res) => { // load the current ESP data from database
     var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
     console.log(`Recieved a loadESPs request from device with IP: ${ip}`);
 
-    MongoClient.connect(mongoURL, function(err, db) {
+    MongoClient.connect(mongoURL, { useNewUrlParser: true }, function(err, db) {
         if (err) throw err;
         var dbo = db.db("makerspace");
         dbo.collection("ESP").find({}).toArray((err, result) => {
@@ -104,41 +104,35 @@ app.get("/loadESPs", (req, res) => { // load the current ESP data from database
 
 app.get("/loadESPData", (req, res) => { // load the current ESP data from database
 
-    MongoClient.connect(mongoURL, function(err, db) {
+    MongoClient.connect(mongoURL, { useNewUrlParser: true }, function(err, db) {
         if (err) throw err;
         var dbo = db.db("makerspace");
         dbo.collection("ESP").find({}).toArray((err, result) => {
             if (err) throw err;
             var IPs = result;
             db.close();
-            res.status(200).send(resultString);
+
+            var msg = "";
+            var count = 0;
+            var resultArray = [];
+
+            IPs.forEach((IPEntry) => {
+                ping.sys.probe(IPEntry["IP"], (isAlive) => {
+
+                    if (isAlive) {
+                        resultArray.push(IPEntry);
+                    }
+                    count++;
+                    if (count == IPs.length) {
+                        console.log("last message");
+                        console.log(resultArray);
+                        res.status(200).send(resultArray);
+                    }
+                });
+            });
         });
     });
 });
-
-function checkActiveESPs() {
-
-}
-
-/* Depricated
-app.get("/remove", (req, res) => { // remove the current ESP data from database
-    var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-    console.log(`Recieved a remove request from device with IP: ${ip}`);
-
-    var removeIP = res.query.IP;
-
-    MongoClient.connect(mongoURL, function(err, db) {
-        if (err) throw err;
-        var dbo = db.db("makerspace");
-        var myquery = { IP: removeIP };
-        dbo.collection("ESP").deleteOne(myquery, function(err, obj) {
-          if (err) throw err;
-          res.status(200).send("1 document deleted");
-          db.close();
-        });
-      });
-});
-*/
 
 app.get("/addESP", (req, res) => {
     MongoClient.connect(mongoURL, { useNewUrlParser: true }, function(err, db) {
