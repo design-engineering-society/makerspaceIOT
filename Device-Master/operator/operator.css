@@ -1,0 +1,258 @@
+:root {
+    --headerColour: rgb(179, 187, 204);
+}
+
+.wrapper {
+    display: inline-block;
+    width: 80%;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow:0px 5px 5px rgba(0, 0, 0, 0.3);
+}
+
+/* GRIDS */
+.dashboardGrid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr;
+}
+.dashboardGrid > div {
+    /*background: rgb(142, 142, 165);
+    text-align: center;
+    vertical-align: middle;
+    display: inline-block;
+    justify-content: center;*/
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.popupGrid {
+
+    display: grid;
+    grid-template-columns: 1fr 2.5fr;
+}
+
+/*.popupGrid > div {
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}*/
+
+/*.grid > div:nth-child(odd) {
+    background: rgb(101, 101, 119);
+}*/
+.ESPDescription { /*TODO change to ESPHeader*/
+    display: inline-block;
+    background: var(--headerColour);
+    grid-column: 1;
+    grid-row: 1;
+    height: 80px;
+    font-size: 16px;
+}
+
+.plugHeader {
+    background: var(--headerColour);
+    grid-row: 1;
+    font-size: 16px;
+}
+.plug {
+    border-top: 1px solid rgb(207, 207, 207);
+}
+.ESP {
+    height: 40px;
+    border-top: 1px solid rgb(207, 207, 207);
+    border-right: 1px solid rgb(207, 207, 207);
+}
+p {
+    margin: auto;
+    align-self: center;
+    vertical-align: middle;
+}
+.Plugs {
+    background: var(--headerColour);
+    grid-column: 2/6;
+    grid-row: 1;
+}
+.dashboardBtn {
+    background-color: rgb(241, 241, 241);
+    display: block;
+    width:100%;
+    height:100%;
+    border: none;
+    padding: 0px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 12px;
+}
+.dashboardBtn:hover {
+    background-color: rgb(230, 230, 230);
+}
+.dashboardBtn:active {
+    background-color: rgb(187, 187, 187);
+}
+.testClass {
+    background-color: rgb(241, 241, 241);
+    display: block;
+    width:100px;
+    height:100px;
+    border: none;
+    padding: 0px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 12px;
+}
+body {
+    margin: 6rem 1rem;
+    font: 14px system-ui;
+    text-align: center;
+}
+button:focus, input[type="button"]:focus {
+    outline: none;
+}
+#popupWrapper {
+    position:absolute;
+    z-index:1000;
+    background-color: rgba(0, 0, 0, 0);
+    top: 0px;
+    left: 0px;
+    width:100vw;
+    height:100vh;
+    border: none;
+    padding: 0px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    opacity: 0;
+    filter: alpha(opacity=0);
+}
+
+#popupBack {
+    position: absolute;
+    z-index:1000;
+    background-color: rgba(0, 0, 0, 0.7);
+    width:100%;
+    height:100%;
+    border: none;
+    padding: 0px;
+}
+
+#popupPanel {
+
+    position: relative;
+    z-index:1001;
+    display: block;
+    background-color: rgb(233, 233, 233);
+    margin: auto;
+    width:400px;
+    height:auto;
+    border: none;
+    padding: 0px;
+    box-shadow:0px 10px 10px rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+}
+
+#popupTitle {
+
+    grid-column: 1/3;
+    grid-row: 1;
+
+    height:60px;
+    padding: 0px;
+
+    text-align: center;
+    text-decoration: none;
+    font-size: 24px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.popupLabel {
+
+    height:40px;
+    padding: 0px 0px 0px 20px;
+
+    text-align: right;
+    text-decoration: none;
+    font-size: 16px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.popupInputWrapper {
+
+    padding: 0px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.popupInput {
+
+    height:25px;
+    padding: 0px 10px;
+    margin: auto 20px;
+
+    text-align: left;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+#popupUpdateButtonWrapper {
+
+    grid-column: 1/3;
+
+    height:90px;
+    padding: 0px;
+
+    text-align: center;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+#popupUpdateButton {
+    background-color: rgb(134, 134, 134);
+    color: rgb(255, 255, 255);
+    border-radius: 4px;
+    display: block;
+    width:200px;
+    height:50px;
+    border: none;
+    margin: auto;
+    text-align: center;
+    text-decoration: none;
+    font-size: 18px;
+}
+
+.refreshButton {
+
+    top:30px;
+    right:30px;
+    position: absolute;
+    background-color: rgb(241, 241, 241);
+    color: rgb(63, 63, 63);
+    border-radius: 4px;
+    display: block;
+    padding: 10px;
+    border: none;
+    margin: auto;
+    text-align: center;
+    text-decoration: none;
+    font-size: 12px;
+}
+.refreshButton:hover {
+    background-color: rgb(230, 230, 230);
+}
+.refreshButton:active {
+    background-color: rgb(187, 187, 187);
+}
