@@ -16,35 +16,12 @@ app.use(express.static(__dirname)); // use / as root directory
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-app.get("/", (req, res) => {
+app.get("/yeet", (req, res) => { // Loads the root or 'index' page
     res.sendFile(path.join(__dirname + "/root.html"));
 });
 
-app.get("/operator", (req, res) => {
+app.get("/operator", (req, res) => { // Loads the operator page
     res.sendFile(path.join(__dirname + "/operator/operator.html"));
-});
-
-app.get("/test", (req, res) => {
-    var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-    console.log(`Recieved a request from device with IP: ${ip}`);
-    res.status(200).send('It Worked ... again!');
-});
-
-app.get("/test2", (req, res) => {
-    var hosts = ['127.0.0.1','192.168.0.158','192.168.0.110','192.168.0.200','192.168.0.254'];
-    var msg = "";
-    var count = 0;
-    console.log(hosts.length);
-    hosts.forEach(function(host){
-        ping.sys.probe(host, function(isAlive){
-            msg += isAlive ? 'host ' + host + ' is connected<br>' : 'host ' + host + ' is not connected<br>';
-            count++;
-            if (count == hosts.length) {
-                console.log("last message");
-                res.status(200).send(msg);
-            }
-        });
-    });
 });
 
 app.get("/init", (req, res) => {
@@ -86,61 +63,66 @@ app.get("/reconnect", (req, res) => {
     res.status(200).send('Reconnect request recieved');
 });
 
-app.get("/loadESPs", (req, res) => { // load the current ESP data from database
+app.get("/card", (req, res) => {
     var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-    console.log(`Recieved a loadESPs request from device with IP: ${ip}`);
+    var msg = `Retrived card request from ${ip}`;
+    console.log(msg);
+    console.log(req.params);
+    res.status(200).send(msg);
+});
 
-    MongoClient.connect(mongoURL, function(err, db) {
+app.get("/loadESPData", (req, res) => { // load the ESP data from database. TODO - neaten this logic up
+
+    MongoClient.connect(mongoURL, { useNewUrlParser: true }, function(err, db) {
         if (err) throw err;
         var dbo = db.db("makerspace");
         dbo.collection("ESP").find({}).toArray((err, result) => {
             if (err) throw err;
-            var resultString = result;
+            var allESPData = result; // Collect ALL ESP Data
             db.close();
-            res.status(200).send(resultString);
+
+            var msg = "";
+            var count = 0;
+            var resultArray = [];
+
+            allESPData.forEach((IPEntry) => { // Check which ESPs are currently connected
+                ping.sys.probe(IPEntry["IP"], (isAlive) => {
+
+                    if (isAlive) {
+                        resultArray.push(IPEntry);
+                    }
+                    count++;
+
+                    if (count == allESPData.length) { // If the last ESP has been checked
+                        if (resultArray.length != 0) {
+
+                            var ipIndexedResultArray = IPIndexESPData(resultArray);
+                            res.status(200).send(ipIndexedResultArray);
+                        } else {
+                            res.status(400).send("No ESPs found");
+                        }
+                    }
+                });
+            });
         });
     });
 });
 
-app.get("/loadESPData", (req, res) => { // load the current ESP data from database
+function IPIndexESPData(data) {
 
-    MongoClient.connect(mongoURL, function(err, db) {
-        if (err) throw err;
-        var dbo = db.db("makerspace");
-        dbo.collection("ESP").find({}).toArray((err, result) => {
-            if (err) throw err;
-            var IPs = result;
-            db.close();
-            res.status(200).send(resultString);
-        });
+    var ipIndexedData = {};
+
+    data.forEach((entry) => {
+        var ip = entry["IP"];
+        delete entry["IP"];
+        delete entry["_id"];
+        ipIndexedData[ip] = entry;
     });
-});
 
-function checkActiveESPs() {
-
+    return ipIndexedData;
 }
 
-/* Depricated
-app.get("/remove", (req, res) => { // remove the current ESP data from database
-    var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-    console.log(`Recieved a remove request from device with IP: ${ip}`);
-
-    var removeIP = res.query.IP;
-
-    MongoClient.connect(mongoURL, function(err, db) {
-        if (err) throw err;
-        var dbo = db.db("makerspace");
-        var myquery = { IP: removeIP };
-        dbo.collection("ESP").deleteOne(myquery, function(err, obj) {
-          if (err) throw err;
-          res.status(200).send("1 document deleted");
-          db.close();
-        });
-      });
-});
-*/
-
-app.get("/addESP", (req, res) => {
+app.get("/addESPtoDB", (req, res) => {
     MongoClient.connect(mongoURL, { useNewUrlParser: true }, function(err, db) {
         if (err) throw err;
         var dbo = db.db("makerspace");

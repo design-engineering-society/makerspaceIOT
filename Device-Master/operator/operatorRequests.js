@@ -13,65 +13,47 @@ function loadESPRequest() { // Requests to load all the ESP data from the databa
             console.log(`Loaded ${Object.keys(ESPdata).length} ESP(s) from database`);
             
             reloadDisplay();
+            getInfo("192.168.0.158","plugs");
         }
     };
 
-    xhr.open('GET', `http://${serverIP}/loadESPs`, true); // Retrive ESP data
+    xhr.open('GET', `http://${serverIP}/loadESPData`, true); // Retrive ESP data
     xhr.send();
 }
 
-/*function refreshRequest() { // Checks what ESPs are active -- Depricated: using a ping method now
+function getInfo(ESPIP,mode) { // Retrieve various forms of info from ESP
 
-    console.log("Started refresh request");
-    var ESPdataTemp = copy(ESPdata); // Copy is needed because ESPdata may change during the for loop
-
-    var i;
-    for (i = 0; i < Object.keys(ESPdataTemp).length; i++) {
-
-        var xhr = new XMLHttpRequest();
-        xhr.onload = function () {
-
-            if (this.status == 404) { // TODO Check 404
-                
-                removeDocumentWithIP(ESPdataTemp[i]["IP"]);
-            }
-        };
-
-        xhr.open('GET', `http://${ESPdataTemp[i]["IP"]}/check`, true);
-        xhr.send();
-    }
-}
-
-function removeDocumentWithIP(IP) {
-
+    console.log("getting info");
     var xhr = new XMLHttpRequest();
     xhr.onload = function () {
 
         if (this.status == 200) {
-            
-            var i;
-            for (i = 0; i < Object.keys(ESPdata).length; i++) { // Find the ESP in ESPData with IP and remove it
-                if (ESPdata[i]["IP"] == IP) {
-                    ESPdata.splice(i, 1);
-                    break;
-                }
-            }
-            console.log(`Removed ESP with IP: ${IP}`)
+            var data = JSON.parse(this.responseText);
+            console.log(data);
 
-            reloadDisplay();
+            if (mode == "plugs") {
+                changePlugColours(ESPIP, data["plugs"]); // TODO remove eventually. Need to change background colour of child divs
+            }
         }
     };
-
-    xhr.open('GET', `http://${serverIP}/remove?IP=${IP}`, true);
+    xhr.open('GET', `http://${ESPIP}:80/info?mode=${mode}`, true);
     xhr.send();
 }
 
-function copy(o) {
-    var output, v, key;
-    output = Array.isArray(o) ? [] : {};
-    for (key in o) {
-        v = o[key];
-        output[key] = (typeof v === "object") ? copy(v) : v;
-    }
-    return output;
- }*/
+function onOff(ESPIP, plug) {
+
+    console.log("onOff");
+    var xhr = new XMLHttpRequest();
+    xhr.onload = function () {
+
+        if (this.status == 200) {
+            var data = JSON.parse(this.responseText);
+            console.log(data);
+            switchPlugDisplay(ESPIP, plug, data["plugStatus"]);
+            getInfo(ESPIP,"plugs");
+        }
+    };
+
+    xhr.open('GET', `http://${ESPIP}:80/onOff?plug=${plug}`, true);
+    xhr.send();
+}
