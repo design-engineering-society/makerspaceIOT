@@ -13,9 +13,47 @@ function loadESPRequest() { // Requests to load all the ESP data from the databa
             console.log(`Loaded ${Object.keys(ESPdata).length} ESP(s) from database`);
             
             reloadDisplay();
+            getInfo("192.168.0.158","plugs");
         }
     };
 
     xhr.open('GET', `http://${serverIP}/loadESPData`, true); // Retrive ESP data
+    xhr.send();
+}
+
+function getInfo(ESPIP,mode) { // Retrieve various forms of info from ESP
+
+    console.log("getting info");
+    var xhr = new XMLHttpRequest();
+    xhr.onload = function () {
+
+        if (this.status == 200) {
+            var data = JSON.parse(this.responseText);
+            console.log(data);
+
+            if (mode == "plugs") {
+                changePlugColours(ESPIP, data["plugs"]); // TODO remove eventually. Need to change background colour of child divs
+            }
+        }
+    };
+    xhr.open('GET', `http://${ESPIP}:80/info?mode=${mode}`, true);
+    xhr.send();
+}
+
+function onOff(ESPIP, plug) {
+
+    console.log("onOff");
+    var xhr = new XMLHttpRequest();
+    xhr.onload = function () {
+
+        if (this.status == 200) {
+            var data = JSON.parse(this.responseText);
+            console.log(data);
+            switchPlugDisplay(ESPIP, plug, data["plugStatus"]);
+            getInfo(ESPIP,"plugs");
+        }
+    };
+
+    xhr.open('GET', `http://${ESPIP}:80/onOff?plug=${plug}`, true);
     xhr.send();
 }

@@ -1,42 +1,38 @@
-//var MongoClient = require('mongodb').MongoClient;
-//var mongoURL = "mongodb://localhost:27017/";
-//var ESPDoc;
+////////////////////////// Dashboard Display Cells /////////////////////////
 
-function testing() {
-    console.log("IT WORKED! :DDD!!!");
+function addESP(ip, ESPLbl, plug1Lbl, plug2Lbl, plug3Lbl, plug4Lbl)  {
+    // Adds an active ESP to the dashboard, comprised of 5 display elements
+    addDisplayElement("ESP", ESPLbl, `${ip}-ESP`, ip, "");
+    addDisplayElement("plug", plug1Lbl, `${ip}-plug1`, ip, "1");
+    addDisplayElement("plug", plug2Lbl, `${ip}-plug2`, ip, "2");
+    addDisplayElement("plug", plug3Lbl, `${ip}-plug3`, ip, "3");
+    addDisplayElement("plug", plug4Lbl, `${ip}-plug4`, ip, "4");
 }
 
-function print(word) {
-    console.log(word);
-}
+function addDisplayElement(divClass, btnLbl, id, ip, info) {
+    // Adds an individual display element to the dashboard
+    var wrap = document.createElement("DIV");
+    wrap.setAttribute("class", divClass);
+    wrap.setAttribute("id", id);
 
-function addESP(id, ESPLbl, plug1Lbl, plug2Lbl, plug3Lbl, plug4Lbl)  {
-    addDisplayElement("ESP", ESPLbl, id);
-    addDisplayElement("plug", plug1Lbl, id);
-    addDisplayElement("plug", plug2Lbl, id);
-    addDisplayElement("plug", plug3Lbl, id);
-    addDisplayElement("plug", plug4Lbl, id);
-}
-
-function addDisplayElement(divClass, btnLbl, id) {
-    var div = document.createElement("DIV");
-    if (divClass != "") {
-        div.setAttribute("class", divClass);
-    }
-    div.setAttribute("id", id);
     var btn = document.createElement("BUTTON");
     btn.innerHTML = btnLbl;
-    btn.setAttribute("class", "dashboardBtn");
-    btn.setAttribute("onclick", `addPopup(${id})`);//`print("${btnLbl}")`);
-    div.appendChild(btn);
-    document.getElementById("grid").appendChild(div);
-}
 
+    if (divClass == "ESP") {
+        btn.setAttribute("class", "dashboardBtn ESPBtn");
+        btn.setAttribute("onclick", `addPopup("${ip}")`);
+    } else {
+        btn.setAttribute("class", "dashboardBtn plugBtnOn");
+        btn.setAttribute("onclick", `onOff("${ip}", "${info}")`);
+    }
+    wrap.appendChild(btn);
+    document.getElementById("grid").appendChild(wrap);
+}
 
 /////////////////////////// POPUP ////////////////////////////////////////
 
 function createPopupLbl(popupGrid, labelTxt, inputTxt) {
-
+    // Creates a label and input element in the popup window
     div = document.createElement("DIV");
     div.setAttribute("class", "popupLabel");
     div.innerHTML = labelTxt;
@@ -51,9 +47,10 @@ function createPopupLbl(popupGrid, labelTxt, inputTxt) {
     wrap.appendChild(div);
 }
 
-function addPopup(ESPDocID) {
+function addPopup(ip) {
 
-    var ESPDoc = ESPdata[ESPDocID];
+    //var ip = ESPDocID.split("-")[0];
+    var ESPDoc = ESPdata[ip];
 
     // Setup
     var popupWrapper = document.createElement("DIV");
@@ -62,7 +59,7 @@ function addPopup(ESPDocID) {
 
     var popupBack = document.createElement("DIV");
     popupBack.setAttribute("id", "popupBack");
-    popupBack.setAttribute("onclick", "removePopup()");
+    popupBack.setAttribute("onclick", "fadeOutPopup()");
     popupWrapper.appendChild(popupBack);
 
     var popupPanel = document.createElement("DIV");
@@ -86,7 +83,7 @@ function addPopup(ESPDocID) {
     createPopupLbl(popupGrid, "Plug 2 Label:", ESPDoc["plug2Lbl"]);
     createPopupLbl(popupGrid, "Plug 3 Label:", ESPDoc["plug3Lbl"]);
     createPopupLbl(popupGrid, "Plug 4 Label:", ESPDoc["plug4Lbl"]);
-    createPopupLbl(popupGrid, "ESP IP:", ESPDoc["IP"]);
+    createPopupLbl(popupGrid, "ESP IP:", ip);
     createPopupLbl(popupGrid, "Router IP:", ESPDoc["routerIP"]);
     createPopupLbl(popupGrid, "Master IP:", ESPDoc["masterIP"]);
 
@@ -94,21 +91,19 @@ function addPopup(ESPDocID) {
     wrap.setAttribute("id", "popupUpdateButtonWrapper");
     popupGrid.appendChild(wrap);
 
-    var btn = document.createElement("BUTTON");
-    btn.innerHTML = "Update";
-    btn.setAttribute("id", "popupUpdateButton");
-    //btn.setAttribute("onclick", "addPopup()");
-    wrap.appendChild(btn);
+    var updateBtn = document.createElement("BUTTON");
+    updateBtn.innerHTML = "Update";
+    updateBtn.setAttribute("id", "popupUpdateButton");
+    wrap.appendChild(updateBtn);
 
-    unfade(popupWrapper);
+    fadeInPopup(popupWrapper);
 }
 
-function removePopup() {
+function fadeOutPopup() {
     var element = document.getElementById("popupWrapper");
     
-    var op = 1;  // initial opacity
+    var op = 1;
     var inc = 0.08;
-    //element.style.display = 'block';
     var timer = setInterval(function () {
         if (op <= 0){
             element.parentNode.removeChild(element);
@@ -120,10 +115,9 @@ function removePopup() {
     }, 8);
 }
 
-function unfade(element) {
-    var op = 0;  // initial opacity
+function fadeInPopup(element) {
+    var op = 0;
     var inc = 0.08;
-    //element.style.display = 'block';
     var timer = setInterval(function () {
         if (op >= 1){
             clearInterval(timer);
@@ -134,6 +128,8 @@ function unfade(element) {
     }, 8);
 }
 
+////////////////////////// UTILITY //////////////////////////////
+
 function removeElementsByClass(className){
     var elements = document.getElementsByClassName(className);
     while(elements.length > 0){
@@ -141,13 +137,44 @@ function removeElementsByClass(className){
     }
 }
 
-function reloadDisplay() {
+function reloadDisplay(ip) {
 
     removeElementsByClass("ESP");
     removeElementsByClass("plug");
 
-    var i;
-    for (i = 0; i < Object.keys(ESPdata).length; i++) { 
-        addESP(i, ESPdata[i]["description"], ESPdata[i]["plug1Lbl"], ESPdata[i]["plug2Lbl"], ESPdata[i]["plug3Lbl"], ESPdata[i]["plug4Lbl"]);
+    for (const [ip, data] of Object.entries(ESPdata)) {
+        addESP(ip, data["description"], data["plug1Lbl"], data["plug2Lbl"], data["plug3Lbl"], data["plug4Lbl"]);
+      }
+}
+
+function changePlugColours(IP, plugInfo) {
+
+    var plug1 = document.getElementById(`${IP}-plug1`).firstChild;
+    setPlugColour(plug1, plugInfo["1"]);
+    var plug2 = document.getElementById(`${IP}-plug2`).firstChild;
+    setPlugColour(plug2, plugInfo["2"]);
+    var plug3 = document.getElementById(`${IP}-plug3`).firstChild;
+    setPlugColour(plug3, plugInfo["3"]);
+    var plug4 = document.getElementById(`${IP}-plug4`).firstChild;
+    setPlugColour(plug4, plugInfo["4"]);
+}
+
+function setPlugColour(plug, status) {
+    //console.log(`plug status: ${status}`);
+
+    if (status == "ON") {
+        plug.setAttribute("class", "dashboardBtn plugBtnOn");
+    } else  {
+        plug.setAttribute("class", "dashboardBtn plugBtnOff");
+    }
+}
+
+function switchPlugDisplay(ip, plugNum, status) {
+    var plug = document.getElementById(`${ip}-plug${plugNum}`).firstChild;
+
+    if (status == "ON") {
+        plug.setAttribute("class", "dashboardBtn plugBtnOn");
+    } else  {
+        plug.setAttribute("class", "dashboardBtn plugBtnOff");
     }
 }

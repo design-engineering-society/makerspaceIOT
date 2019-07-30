@@ -21,6 +21,7 @@
     <button onclick='plugInfo()'>plugInfo</button>
     <button onclick='check()'>check</button>
     <button onclick='reset()'>reset</button>
+    <button onclick='getInfo()'>getInfo</button>
 <script>
 
     var ESPUrl = "192.168.0.158";
@@ -122,6 +123,21 @@
             }
         };
         xhr.open('GET', `http://${ESPUrl}:80/reset`, true);
+        xhr.send();
+    }
+
+    function getInfo() {
+
+        console.log("getting info");
+        var xhr = new XMLHttpRequest();
+        xhr.onload = function () {
+
+            if (this.status == 200) {
+                var data = JSON.parse(this.responseText);
+                console.log(data);
+            }
+        };
+        xhr.open('GET', `http://${ESPUrl}:80/info?mode=all`, true);
         xhr.send();
     }
 </script>
