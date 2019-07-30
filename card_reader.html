@@ -5,8 +5,8 @@
 <h3>TAP YOUR CARD ON THE CARD READER</h3>
 <p>A registered user will be redirected to the ESP webpage</p>
 
-<input id="myInput" value="Some text..">
-<button id="myBtn" onclick="myFunction()">Button</button>
+<input id="myInput" value="">
+<button id="myBtn" onclick="card_reader()">Button</button>
 
 <script>
 var input = document.getElementById("myInput");
@@ -20,8 +20,30 @@ input.addEventListener("keyup", function(event) {
 document.getElementById("myBtn").focus();
 document.getElementById("myBtn").select();
 
-function myFunction() {
-  location.replace("https://github.com/iZettle/sdk-ios")
+// function myFunction() {
+//   location.replace("https://github.com/iZettle/sdk-ios")
+// }
+
+
+const serverIP = "localhost:5000";
+
+function card_reader() { // Requests to load all the ESP data from the database
+
+//console.log("loadESPs");
+var xhr = new XMLHttpRequest();
+xhr.onload = function () {
+
+    if (this.status == 200) {
+        card_data = JSON.parse(this.responseText);
+        console.log(card_data);
+        //console.log(`Loaded ${Object.keys(ESPdata).length} ESP(s) from database`);
+        
+        reloadDisplay();
+    }
+};
+
+xhr.open('GET', ` http://192.168.0.110:5000/card?cardid=${input.innerHTML}`, true); // Retrive ESP data
+xhr.send();
 }
 </script>
 
