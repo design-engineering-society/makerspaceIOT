@@ -31,7 +31,7 @@ function addDisplayElement(divClass, btnLbl, id, ip, info) {
 
 /////////////////////////// POPUP ////////////////////////////////////////
 
-function createPopupLbl(popupGrid, labelTxt, inputTxt) {
+function createPopupLbl(popupGrid, labelTxt, inputTxt, id) {
     // Creates a label and input element in the popup window
     div = document.createElement("DIV");
     div.setAttribute("class", "popupLabel");
@@ -43,6 +43,7 @@ function createPopupLbl(popupGrid, labelTxt, inputTxt) {
     popupGrid.appendChild(wrap);
     div = document.createElement("INPUT");
     div.setAttribute("class", "popupInput");
+    div.setAttribute("id", id);
     div.value = inputTxt;
     wrap.appendChild(div);
 }
@@ -78,14 +79,14 @@ function addPopup(ip) {
     popupGrid.appendChild(div);
 
     // Form Elements
-    createPopupLbl(popupGrid, "ESP Label:", ESPDoc["description"]);
-    createPopupLbl(popupGrid, "Plug 1 Label:", ESPDoc["plug1Lbl"]);
-    createPopupLbl(popupGrid, "Plug 2 Label:", ESPDoc["plug2Lbl"]);
-    createPopupLbl(popupGrid, "Plug 3 Label:", ESPDoc["plug3Lbl"]);
-    createPopupLbl(popupGrid, "Plug 4 Label:", ESPDoc["plug4Lbl"]);
-    createPopupLbl(popupGrid, "ESP IP:", ip);
-    createPopupLbl(popupGrid, "Router IP:", ESPDoc["routerIP"]);
-    createPopupLbl(popupGrid, "Master IP:", ESPDoc["masterIP"]);
+    createPopupLbl(popupGrid, "ESP Label:", ESPDoc["description"], "description_input");
+    createPopupLbl(popupGrid, "Plug 1 Label:", ESPDoc["plug1Lbl"], "plug1Lbl_input");
+    createPopupLbl(popupGrid, "Plug 2 Label:", ESPDoc["plug2Lbl"], "plug2Lbl_input");
+    createPopupLbl(popupGrid, "Plug 3 Label:", ESPDoc["plug3Lbl"], "plug3Lbl_input");
+    createPopupLbl(popupGrid, "Plug 4 Label:", ESPDoc["plug4Lbl"], "plug4Lbl_input");
+    createPopupLbl(popupGrid, "ESP IP:", ip, "IP_input");
+    createPopupLbl(popupGrid, "Router IP:", ESPDoc["routerIP"], "routerIP_input");
+    createPopupLbl(popupGrid, "Master IP:", ESPDoc["masterIP"], "masterIP_input");
 
     var wrap = document.createElement("DIV");
     wrap.setAttribute("id", "popupUpdateButtonWrapper");
@@ -94,6 +95,7 @@ function addPopup(ip) {
     var updateBtn = document.createElement("BUTTON");
     updateBtn.innerHTML = "Update";
     updateBtn.setAttribute("id", "popupUpdateButton");
+    updateBtn.setAttribute("onclick", `updateESP("${ip}")`);
     wrap.appendChild(updateBtn);
 
     fadeInPopup(popupWrapper);
