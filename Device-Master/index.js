@@ -3,14 +3,14 @@ const request = require('request');
 const bodyParser = require("body-parser"); // For parsing data in POST request
 const path = require('path');
 const ping = require('ping');
-const app = express();
+const app = express();// creates an instance of express. it is like the swrver object
 
 const MongoClient = require('mongodb').MongoClient;
 var mongoURL = "mongodb://localhost:27017/";
 var ESPDoc;
 
 const routerIP = "192.168.0.254";
-const masterIP = "192.168.0.110";
+const masterIP = "192.168.0.110";//ip of josh laptop
 
 app.use(express.static(__dirname)); // use / as root directory
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -135,4 +135,4 @@ app.get("/addESPtoDB", (req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+app.listen(PORT, () => console.log(`Server started on port ${PORT}`));//sets us, starts the server
