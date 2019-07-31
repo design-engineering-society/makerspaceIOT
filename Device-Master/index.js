@@ -13,8 +13,10 @@ const routerIP = "192.168.0.254";
 const masterIP = "192.168.0.110";//ip of josh laptop
 
 app.use(express.static(__dirname)); // use / as root directory
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use(express.json());       // to support JSON-encoded bodies
+app.use(express.urlencoded({ extended: true })); // to support URL-encoded bo
 
 app.get("/yeet", (req, res) => { // Loads the root or 'index' page
     res.sendFile(path.join(__dirname + "/root.html"));
@@ -63,12 +65,56 @@ app.get("/reconnect", (req, res) => {
     res.status(200).send('Reconnect request recieved');
 });
 
-app.get("/card", (req, res) => {
+app.get("/registerCard", (req, res) => { 
     var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-    var msg = `Retrived card request from ${ip}`;
-    console.log(msg);
-    console.log(req.params);
-    res.status(200).send(msg);
+
+    var cardID = req.query["cardid"];
+    var firstname = req.query["firstname"];
+    var lastname = req.query["familyname"];
+
+    console.log(req.query);
+
+    MongoClient.connect(mongoURL, { useNewUrlParser: true }, function(err, db) {
+        if (err) throw err;
+
+        var dbo = db.db("makerspace");
+        var userDetails = {"cardID": cardID, "firstname": firstname, "lastname": lastname};
+        dbo.collection("Users").insertOne(userDetails, function(err, dbres) {
+            if (err) throw err;
+            console.log("1 document inserted");
+            db.close();
+            res.setHeader("Access-Control-Allow-Origin", "*");
+            res.status(200).send(`User '${firstname} ${lastname}' registered`);
+        });
+    });
+});
+
+app.post("/updateESPinDB", (req, res) => {
+
+    console.log(req.body);
+
+    var IP = req.body["IP"];
+    var description = req.body["description"];
+    var masterIP = req.body["masterIP"];
+    var routerIP = req.body["routerIP"];
+    var plug1Lbl = req.body["plug1Lbl"];
+    var plug2Lbl = req.body["plug2Lbl"];
+    var plug3Lbl = req.body["plug3Lbl"];
+    var plug4Lbl = req.body["plug4Lbl"];
+
+    console.log(`IP: ${IP}`);
+
+    MongoClient.connect(mongoURL, { useNewUrlParser: true }, function(err, db) {
+        if (err) throw err;
+        var dbo = db.db("makerspace");
+        var myquery = { IP: IP };
+        var newvalues = { $set: {IP: IP, description: description, masterIP: masterIP, routerIP: routerIP, plug1Lbl: plug1Lbl, plug2Lbl: plug2Lbl, plug3Lbl: plug3Lbl, plug4Lbl: plug4Lbl } };
+        dbo.collection("ESP").updateOne(myquery, newvalues, function(err, resDB) {
+          if (err) throw err;
+          db.close();
+          res.status(200).send("1 document updated");
+        });
+      });
 });
 
 app.get("/loadESPData", (req, res) => { // load the ESP data from database. TODO - neaten this logic up
