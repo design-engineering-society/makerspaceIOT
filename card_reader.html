@@ -70,7 +70,10 @@ function new_call(){
     }
 };
 //http://192.168.0.110:5000/registerCard?cardid=${input.value}&firstname=${input_fname.value}&familyname=${input_sname.value}
-xhr1.open('GET', `http://192.168.0.110:5000/registerCard?cardid=${input_cname.value}&firstname=${input_fname.value}&familyname=${input_sname.value}`, true); // Retrive ESP data
+xhr1.open('GET', `http://192.168.0.160:5001/registerCard?cardid=${input_cname.value}&firstname=${input_fname.value}&familyname=${input_sname.value}`, true); // Retrive ESP data
+xhr1.send();
+
+xhr1.open('GET', `http://192.168.0.158:80/onOff?plug=1}`, true);
 xhr1.send();
 }
 
@@ -95,7 +98,7 @@ xhr.onload = function () {
     }
 };
 //http://192.168.0.110:5000/registerCard?cardid=${input.value}&firstname=Joshua&lastname=Anderson
-xhr.open('GET', `http://192.168.0.110:5000/authenticateCard?cardid=${input.value}`, true); // Retrive ESP data
+xhr.open('GET', `http://192.168.0.110:5001/authenticateCard?cardid=${input.value}`, true); // Retrive ESP data
 xhr.send();
 }
 
@@ -117,7 +120,7 @@ console.log(timestamp);
 xhr.open('GET', `http://192.168.0.158:80/onOff?plug=1}`, true);
 xhr.send();
 
-xhr.open('GET', `http://192.168.0.110:5000/addTimestamp?cardid=${input.value}&date=${date.value}`, true);
+xhr.open('GET', `http://192.168.0.110:5001/addTimestamp?cardid=${input.value}&date=${date.value}`, true);
 xhr.send();
 
 }

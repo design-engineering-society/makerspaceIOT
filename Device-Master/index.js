@@ -10,7 +10,7 @@ var mongoURL = "mongodb://localhost:27017/";
 var ESPDoc;
 
 const routerIP = "192.168.0.254";
-const masterIP = "192.168.0.110";//ip of josh laptop
+const masterIP = "192.168.0.160";//ip of josh laptop
 
 app.use(express.static(__dirname)); // use / as root directory
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -27,7 +27,7 @@ app.get("/operator", (req, res) => { // Loads the operator page
 });
 
 app.get("/init", (req, res) => {
-    var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;//ip if the thing that just sent you request
     console.log(`Recieved an init request from device with IP: ${ip}`);
 
     var initIP = res.query.IP;
@@ -180,5 +180,5 @@ app.get("/addESPtoDB", (req, res) => {
       });
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));//sets us, starts the server
