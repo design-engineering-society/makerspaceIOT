@@ -34,7 +34,7 @@ app.get("/init", (req, res) => {
 
     // TODO: Ideally, check if the same IP exists. If it does, then call an overlapping IP error
 
-    MongoClient.connect(mongoURL, function(err, db) {
+    MongoClient.connect(mongoURL, { useNewUrlParser: true }, function(err, db) {
         if (err) throw err;
         var dbo = db.db("makerspace");
         var myobj = 
@@ -53,10 +53,9 @@ app.get("/init", (req, res) => {
           if (err) throw err;
           console.log("1 document inserted");
           db.close();
+          res.status(200).send('Init request recieved');
         });
     });
-
-    res.status(200).send('Init request recieved');
 });
 
 app.get("/reconnect", (req, res) => { 
@@ -66,7 +65,6 @@ app.get("/reconnect", (req, res) => {
 });
 
 app.get("/registerCard", (req, res) => { 
-    var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
 
     var cardID = req.query["cardid"];
     var firstname = req.query["firstname"];
@@ -78,13 +76,63 @@ app.get("/registerCard", (req, res) => {
         if (err) throw err;
 
         var dbo = db.db("makerspace");
-        var userDetails = {"cardID": cardID, "firstname": firstname, "lastname": lastname};
-        dbo.collection("Users").insertOne(userDetails, function(err, dbres) {
+        var dbquery = {"cardid": cardID};
+        var userDetails = {$set: {"firstname": firstname, "lastname": lastname}};
+        dbo.collection("Users").updateOne(dbquery, userDetails, {upsert: true}, function(err, dbres) {
             if (err) throw err;
-            console.log("1 document inserted");
+            console.log(`User '${firstname} ${lastname}' registered`);
             db.close();
             res.setHeader("Access-Control-Allow-Origin", "*");
             res.status(200).send(`User '${firstname} ${lastname}' registered`);
+        });
+    });
+});
+
+app.get("/authenticateCard", (req, res) => { 
+
+    var cardID = req.query["cardid"];
+
+    console.log(req.query);
+
+    MongoClient.connect(mongoURL, { useNewUrlParser: true }, function(err, db) {
+        if (err) throw err;
+
+        var dbo = db.db("makerspace");
+        var DBquery = {"cardid": cardID};
+        dbo.collection("Users").find(DBquery).toArray(function(err, dbres) {
+            if (err) throw err;
+            //console.log(dbres);
+            var msg;
+            if (dbres.length == 0) {
+                msg = "false";
+            } else {
+                msg = "true";
+            }
+            
+            db.close();
+            res.setHeader("Access-Control-Allow-Origin", "*");
+            res.status(200).send(msg);
+            console.log(msg);
+        });
+    });
+});
+
+app.get("/addTimestamp", (req, res) => { 
+
+    var requestData = req.query;
+
+    console.log(requestData);
+
+    MongoClient.connect(mongoURL, { useNewUrlParser: true }, function(err, db) {
+        if (err) throw err;
+
+        var dbo = db.db("makerspace");
+        dbo.collection("Timestamp").insertOne(requestData, function(err, dbres) {
+            if (err) throw err;
+            console.log(`Timestamp added`);
+            db.close();
+            res.setHeader("Access-Control-Allow-Origin", "*");
+            res.status(200).send(`Timestamp added`);
         });
     });
 });
@@ -172,7 +220,8 @@ app.get("/addESPtoDB", (req, res) => {
     MongoClient.connect(mongoURL, { useNewUrlParser: true }, function(err, db) {
         if (err) throw err;
         var dbo = db.db("makerspace");
-        var myobj = {"IP":"192.168.0.190","description":"3D Printer Rack 2","masterIP":"192.168.9.110","routerIP":"192.168.0.254","plug1Lbl":"3D Printer 5","plug2Lbl":"3D Printer 6","plug3Lbl":"3D Printer 7","plug4Lbl":"3D Printer 8"};        dbo.collection("ESP").insertOne(myobj, function(err, res) {
+        var myobj = {"IP":"192.168.0.190","description":"3D Printer Rack 2","masterIP":"192.168.9.110","routerIP":"192.168.0.254","plug1Lbl":"3D Printer 5","plug2Lbl":"3D Printer 6","plug3Lbl":"3D Printer 7","plug4Lbl":"3D Printer 8"};
+        dbo.collection("ESP").insertOne(myobj, function(err, res) {
           if (err) throw err;
           console.log("1 document inserted");
           db.close();
