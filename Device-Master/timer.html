@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+    <!-- <head>
+            <style>                
+                    body{
+                      background-image: url("/Users/hardy/Desktop/makerspaceIOT/Michael.jpg");
+                      background-repeat: no-repeat;
+                      background-size: 1500px 900px;
+                    }
+                    
+                      
+            </style>
+    </head> -->
+       
+<body>
+
+<h1>Input time in minutes for which you want to use the machine</h1>
+
+
+<input id="myInput" type="number" value=""/>
+<button type="button" onclick="Set_timer()">submit time</button>
+
+
+<p id ="demo"></p>
+
+<p id ="demo1"></p>
+
+<input type="button" onclick="location.href = 
+'file:///Users/hardy/Desktop/makerspaceIOT/card_reader.html';" value="Return" />
+
+<script>
+
+var t= (document.getElementById("myInput"));
+
+function Set_timer(){
+    setTimeout(function(){
+        //document.getElementById("demo1").innerHTML = "timeout";// trigger the ESP to toggel
+        var xhr = new XMLHttpRequest();
+        xhr.onload = function () {
+            if (this.status == 200) {
+                var data = this.responseText;
+                console.log(data);
+                console.log("checkpoint 7");
+            }
+        };
+        xhr.open('GET', `http://192.168.0.150:80/onOff?plug=1}`, true);
+        xhr.send();
+    }, t.value*60000);
+
+    //Set the date we're counting down to
+    var countDownDate = new Date().getTime();
+    console.log(countDownDate);
+    var countDownDate1=countDownDate+(t.value*60000);
+    console.log(countDownDate1);
+
+    // Update the count down every 1 second
+    var x = setInterval(function() {
+
+        // Get today's date and time
+        var now = new Date().getTime();
+
+        // Find the distance between now and the count down date
+        var distance = countDownDate1 - now;
+
+        // Time calculations for days, hours, minutes and seconds
+        //var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        //var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        // Display the result in the element with id="demo"
+        document.getElementById("demo").innerHTML = minutes + "m " + seconds + "s ";
+
+        // If the count down is finished, write some text 
+        if (distance < 0) {
+            clearInterval(x);
+            document.getElementById("demo").innerHTML = "EXPIRED";
+        }
+    }, 1000);
+
+}
+
+
+
+</script>
+</body>
+</html>

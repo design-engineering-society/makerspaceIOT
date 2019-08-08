@@ -1,13 +1,24 @@
 <!DOCTYPE html>
 <html>
+        <!-- <head>
+                <style>                
+                        body{
+                          background-image: url("/Users/hardy/Desktop/makerspaceIOT/Michael2.jpg");
+                          
+                          background-size: 500px 500px;
+                        }
+                        
+                          
+                </style>
+        </head> -->
 <body>
 
 <h1>TAP YOUR CARD ON THE CARD READER</h1>
 <p>A registered user will be redirected to the ESP webpage</p>
 
-<input id="myInput" value="">
+<input id="myInput" type="password" value=""/>
 
-<h2>NEW USER</h2>
+<!-- <h2>NEW USER</h2>
 
     <div>
       <label for="uname"><b>First Name</b></label>
@@ -17,12 +28,15 @@
       <input id="psw_user" type="text" placeholder="Enter Password" name="psw" required>
 
       <label for="card_val"><b>Card</b></label>
-      <input id="card_user" type="text" placeholder="tap card" name="num_card" required>
+      <input id="card_user" type="password" placeholder="tap card" name="num_card" required>
         
       <button onclick="new_call()" >submit</button>
-    </div>
+    </div> -->
 
+<h2>Register a new user</h2>
 
+<input type="button" onclick="location.href = 
+'file:///Users/hardy/Desktop/makerspaceIOT/user_registration_page.html';" value="Click to Register a new user" />
 
 
 <script>
@@ -31,9 +45,9 @@ document.getElementById("myInput").focus();
 document.getElementById("myInput").select();
 
 var input = document.getElementById("myInput");
-var input_fname = document.getElementById("name_user");
-var input_sname = document.getElementById("psw_user");
-var input_cname = document.getElementById("card_user");
+// var input_fname = document.getElementById("name_user");
+// var input_sname = document.getElementById("psw_user");
+// var input_cname = document.getElementById("card_user");
 
 input.addEventListener("keyup", function(event) {
     
@@ -41,49 +55,45 @@ input.addEventListener("keyup", function(event) {
    event.preventDefault();
   }
   if(input.value.length==10){
-    
+    //console.log("checkpoint 1");
     card_reader();
-    input.value="";
+    //console.log("checkpoint 2");
+    //var hardik = input.value;
+    //input.value="";
+    //console.log("checkpoint 1");
+    //console.log(hardik.value);
   }
 });
 
-input_cname.addEventListener("keyup", function(event) {
-  if (event.keyCode === 13) {
-   event.preventDefault();
-  }
-  if(input_cname.value.length==10){
-    console.log("work please");
-    new_call();
-    input.value="";
-  }
-});
+// input_cname.addEventListener("keyup", function(event) {
+//   if (event.keyCode === 13) {
+//    event.preventDefault();
+//   }
+//   if(input_cname.value.length==10){
+//     //console.log("work please");
+//     new_call();
+//     input.value="";
+//   }
+// });
 
-function new_call(){
-    console.log("hardik is the best");
-    var xhr1 = new XMLHttpRequest();
-    console.log("stay");
-    xhr1.onload = function () {
-    console.log("something");
-    if (this.status == 200) {
-        card_data2 = this.responseText;
-        console.log(card_data2);
-    }
-};
+// function new_call(){
+//     //console.log("hardik is the best");
+//     var xhr1 = new XMLHttpRequest();
+//     //console.log("stay");
+//     xhr1.onload = function () {
+//     //console.log("something");
+//     if (this.status == 200) {
+//         card_data2 = this.responseText;
+//         //console.log(card_data2);
+//     }
+// };
 //http://192.168.0.110:5000/registerCard?cardid=${input.value}&firstname=${input_fname.value}&familyname=${input_sname.value}
-xhr1.open('GET', `http://192.168.0.160:5001/registerCard?cardid=${input_cname.value}&firstname=${input_fname.value}&familyname=${input_sname.value}`, true); // Retrive ESP data
-xhr1.send();
-
-xhr1.open('GET', `http://192.168.0.158:80/onOff?plug=1}`, true);
-xhr1.send();
-}
-
-
-
-
-
+// xhr1.open('GET', `http://192.168.0.160:5001/registerCard?cardid=${input_cname.value}&firstname=${input_fname.value}&familyname=${input_sname.value}`, true); // Retrive ESP data
+// xhr1.send();
+// }
 
 function card_reader() { // Requests to load all the ESP data from the database
-
+//console.log("checkpoint 3");
 //console.log("loadESPs");
 var xhr = new XMLHttpRequest();
 xhr.onload = function () {
@@ -93,35 +103,67 @@ xhr.onload = function () {
         //console.log(`Loaded ${Object.keys(ESPdata).length} ESP(s) from database`); 
         //reloadDisplay();
         if(card_data=="true"){
-            ESP_onOff();
+            //console.log("checkpoint 4");
+            window.location.replace("file:///Users/hardy/Desktop/makerspaceIOT/Device-Master/index.html")
+            //ESP_onOff();
+            //console.log("checkpoint 5");
+        }else{
+            input.value="";
         }
     }
 };
 //http://192.168.0.110:5000/registerCard?cardid=${input.value}&firstname=Joshua&lastname=Anderson
-xhr.open('GET', `http://192.168.0.110:5001/authenticateCard?cardid=${input.value}`, true); // Retrive ESP data
+xhr.open('GET', `http://192.168.0.160:5001/authenticateCard?cardid=${input.value}`, true); // Retrive ESP data
 xhr.send();
 }
 
 function ESP_onOff() {
-
-console.log("onOff");
+//console.log("checkpoint 6");
+//console.log("onOff function");
 var xhr = new XMLHttpRequest();
-var date = new Date();
+//var date = new Date();
 xhr.onload = function () {
 
     if (this.status == 200) {
-        var data = JSON.parse(this.responseText);
+        var data = this.responseText;
         console.log(data);
+        //console.log("checkpoint 7");
+        Addstamp();
     }
 };
-var timestamp= date.getTime();
-console.log(timestamp);
+//var timestamp= date.getTime();
+//console.log(date);
+
+//xhr.open('GET', `http://192.168.0.160:5001/addTimestamp?cardid=${input.value}&date=${date}`, true);
+//xhr.send();
 
 xhr.open('GET', `http://192.168.0.158:80/onOff?plug=1}`, true);
 xhr.send();
 
-xhr.open('GET', `http://192.168.0.110:5001/addTimestamp?cardid=${input.value}&date=${date.value}`, true);
-xhr.send();
+
+
+}
+
+function Addstamp(){
+    //console.log("Addstamp function");
+    var xhr = new XMLHttpRequest();
+    var date = new Date();
+    xhr.onload = function () {
+
+        if (this.status == 200) {
+            var data = this.responseText;
+            console.log(data);
+            //console.log("checkpoint 8");
+        }
+    };
+    //var timestamp= date.getTime();
+    //console.log(input_clone.value);
+
+    xhr.open('GET', `http://192.168.0.160:5001/addTimestamp?cardid=${input.value}&date=${date}`, true);
+    xhr.send();
+
+    //xhr.open('GET', `http://192.168.0.158:80/onOff?plug=1}`, true);
+    //xhr.send();
 
 }
 </script>
