@@ -5,9 +5,31 @@
 #include "Arduino.h"
 #include <ArduinoJson.h>
 #include <FS.h>
+#include <ESP8266TrueRandom.h>
 
 Config::Config() {
-  load();  
+
+  bool res = SPIFFS.begin();
+  Serial.print("SPIFFS.begin() = ");
+  Serial.println(res);
+  
+  load();
+}
+
+Config::Config(char* ssid, char* password, char* routerIP, char* masterIP) {
+
+  bool res = SPIFFS.begin();
+  Serial.print("SPIFFS.begin() = ");
+  Serial.println(res);
+  
+  load();
+
+  this->ssid = ssid;
+  this->password = password;
+  this->routerIP = routerIP;
+  this->masterIP = masterIP;
+
+  save();
 }
 
 void Config::load() {
@@ -19,17 +41,17 @@ void Config::load() {
   if (error)
     Serial.println(F("Failed to read file, initialising configuration"));
 
-  ID = doc["ID"] | "-";
-  ssid = doc["ssid"] | "-";
-  password = doc["password"] | "-";
-  IP = doc["IP"] | "-";
-  routerIP = doc["routerIP"] | "-";
-  masterIP = doc["masterIP"] | "-";
+  ID = doc["ID"].as<String>();  
+  ssid = doc["ssid"].as<String>();
+  password = doc["password"].as<String>();
+  IP = doc["IP"].as<String>();
+  routerIP = doc["routerIP"].as<String>();
+  masterIP = doc["masterIP"].as<String>();
 
   f.close();
 }
 
-void writeData() {
+void Config::save() {
   
   SPIFFS.remove("/config.txt");
   File f = SPIFFS.open("/configc.txt", "w");
@@ -44,16 +66,18 @@ void writeData() {
   doc["masterIP"] = masterIP;
   
   if (serializeJson(doc, f) == 0)
-    Serial.println(F("Failed to write to file"));
+    Serial.println("Failed to write to file");
 
   f.close();
 }
 
-String Config::get_ID() { return ID }
-String Config::get_ssid() { return ssid }
-String Config::get_password() { return password }
-String Config::get_IP() { return IP }
-String Config::get_routerIP() { return routerIP }
-String Config::get_masterIP() { return masterIP }
+void Config::initialise() {
+  byte uuidNumber[16];
+  ESP8266TrueRandom.uuid(uuidNumber);
+  String uuidStr = ESP8266TrueRandom.uuidToString(uuidNumber);
+
+  ID = uuidStr;
+  save();
+}
 
 #endif

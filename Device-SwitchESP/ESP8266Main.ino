@@ -1,48 +1,46 @@
 /*
- * 07/08/2019
+ * 09/08/2019
  * Makerspace IoT Project
  * ESP8266Server4.ino
  * 
  * This file runs the main code for the ESP8266 NodeMCU microcontroller
- * in the the Makerspace IoT project. This version uses ESP8266Config4.
+ * in the the Makerspace IoT project.
  * 
  */
 
 #include "ESP8266Main.h"
-//#include "RequestHandler.cpp"
+#include <ESP8266WebServer.h>
+
+extern ESP8266WebServer server;
 
 const char* ssid = "TP-Link_6F62";
 const char* password = "78059757";
+const char* APssid = "esp_setup";
+const char* APpassword = "esp_setup";
+int timeoutThreshold = 5;
 
-int timeoutThreshold = 5; // seconds
+Plugs* plugs = new Plugs(16,5,4,2);
 
-// Network
-//ESP8266WebServer server(80); // Server object to handle server functions for ESP8266
+Config* cfg = new Config();
+Network* net = new Network();
+ESP_RequestHandler* reqHandle = new ESP_RequestHandler();
+ESP_RequestSender* reqSend = new ESP_RequestSender();
+Utilities* util = new Utilities();
 
-//===============================================================
-// Setup and Loop
-//===============================================================
 
-void setup () {
+void setup() {
 
   Serial.begin(115200);
-  
-  Plugs* plugs = new Plugs(16,5,4,2);
 
-  setupFS(); // <- ESP8266Config2.ino*/
-
-  // Reset WiFi, server, softAP
-
-  // Setup static IP
-
-  // Connect to WiFi
-
-  // If cant connect, set up AP  
-
-  // Else, serve on new network
+  if !(cfg->ID) {
+    cfg->initialise();
+    net->setupAP();
+  } else {
+    net->setupWiFi();
+  }
 }
  
 void loop() {
 
-  //server.handleClient();
+  server.handleClient();
 }

@@ -1,57 +1,65 @@
-#pragma once
+#ifndef Main_cpp
+#define Main_cpp
 
-class RequestHandler {
+#include "Arduino.h"
+
+class ESP_RequestHandler {
    public:
-    RequestHandler();
-    void reconfigure();
-    void onOff();
-    void update();
-    void info();
+    ESP_RequestHandler();
+    static void reconfigureNetwork();
+    static void joinNetwork();
+    static void onOff();
+    static void update();
+    static void info();
+    static void notFound();
 };
 
-class RequestSender {
+class ESP_RequestSender {
    public:
-    RequestSender();
-    void init();
-    void reconnect();
+    ESP_RequestSender();
+    static void init();
 };
 
-class WiFiConfig {
+class Network {
    public:
-    WiFiConfig();
-    void startAP();
+    Network();
+    void reset();
+    void setupServer();
+    void setupAP();
+    void setupWiFi();
 };
 
 class Plugs {
    public:
     Plugs(int plug1, int plug2, int plug3, int plug4);
-    void switchPlug();
-    void readPlug();
-    void setupPlugs();
-   private:
+    void switchPlug(int plugToSwitch);
+    bool readPlug(int plugToRead);
     int plug1;
     int plug2;
     int plug3;
     int plug4;
+
 };
 
 class Config {
    public:
     Config();
+    Config(char* ssid, char* password, char* routerIP, char* masterIP);
     void load();
     void save();
-    String get_ID();
-    String get_ssid();
-    String get_password();
-    String get_IP();
-    String get_routerIP();
-    String get_masterIP();
+    void initialise();
     
-   private:
     String ID;
     String ssid;
     String password;
     String IP;
     String routerIP;
     String masterIP;
-}
+};
+
+class Utilities {
+   public:
+    Utilities();
+};
+
+#endif
