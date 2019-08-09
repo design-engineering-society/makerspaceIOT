@@ -5,6 +5,15 @@
 table, td {
   border: 1px solid black;
 }
+
+                
+/* body{
+  background-image: url("/Users/hardy/Desktop/makerspaceIOT/Joshua.jpg");                        
+  background-size: 700px 700px;
+} */
+
+
+  
 </style>
 </head>
 <body>
@@ -21,14 +30,14 @@ table, td {
   </tr>
   <tr>
     <td>ESP01</td>
-    <td><a href="http://192.168.0.158:80/onOff?plug=1" id="preventme">Blah 1</a></td>
-  	<td><a href="http://192.168.0.158:80/onOff?plug=2">link 2</a></td>
+    <td><a href="http://192.168.0.158:80/onOff?plug=1">Blah 1</a></td>
+  	<td><button onclick="send_call()">Click me!</button></td>
   	<td><a href="http://192.168.0.158:80/onOff?plug=3">link 3</a></td>
     <td><a href="http://192.168.0.158:80/onOff?plug=4">link 4</a></td>
   </tr>
   <tr>
   	<td>ESP02</td>
-  	<td><a href="https://www.google.co.in/" id="preventme">Blah 2</a></td>
+  	<td><a href="https://www.google.co.in/">Blah 2</a></td>
   	<td><a href="#6">link 2</a></td>
   	<td><a href="#7">link 3</a></td>
     <td><a href="#8">link 4</a></td>
@@ -45,9 +54,27 @@ table, td {
 
 <button onclick="myFunction()">Try it</button>
 
+<input type="button" onclick="location.href='file:///Users/hardy/Desktop/makerspaceIOT/card_reader.html';" value="Return" />
+
 <script>
 var count = 3;
 var num =158;
+
+function send_call(){
+  var xhr = new XMLHttpRequest();
+  var query_string = "?plu"
+  xhr.onload = function () {
+      if (this.status == 200) {
+          var data = this.responseText;
+          console.log(data);
+          window.location.replace("file:///Users/hardy/Desktop/makerspaceIOT/Device-Master/timer.html")
+      }
+  };
+  xhr.open('GET', `http://192.168.0.150:80/onOff?plug=1}`, true);
+  xhr.send();
+  
+}
+
 function myFunction() {
   var table = document.getElementById("myTable");
   count++;
@@ -112,9 +139,6 @@ function myFunction5(){
   return final;
 }
 
-document.getElementById('preventme').addEventListener(
-    'click', function(e) { e.preventDefault(); }, false
-);
 </script>
 
 </body>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h2>NEW USER</h2>
+
+    <div>
+      <label for="uname"><b>Login Username</b></label>
+      <br>
+      <input id="name_user" type="text" placeholder="Enter Username" name="uname" required>
+      <br>
+      <br>
+      <label for="psw"><b>Password</b></label>
+      <br>
+      <input id="psw_user" type="password" placeholder="Enter Password" name="psw" required>
+      <br>
+      <br>
+      <label for="card_val"><b>Card</b></label>
+      <br>
+      <input id="card_user" type="password" placeholder="tap card" name="num_card" required>
+      <br>
+        
+      <button onclick="new_call()" >submit</button>
+    </div>
+
+<input type="button" onclick="location.href = 
+'file:///Users/hardy/Desktop/makerspaceIOT/card_reader.html';" value="Return" />
+
+<script>
+
+var input_fname = document.getElementById("name_user");
+var input_sname = document.getElementById("psw_user");
+var input_cname = document.getElementById("card_user");
+
+
+input_cname.addEventListener("keyup", function(event) {
+  if (event.keyCode === 13) {
+   event.preventDefault();
+  }
+  if(input_cname.value.length==10){
+    //console.log("work please");
+    new_call();
+    input.value="";
+  }
+});
+
+function new_call(){
+    //console.log("hardik is the best");
+    var xhr1 = new XMLHttpRequest();
+    //console.log("stay");
+    xhr1.onload = function () {
+    //console.log("something");
+    if (this.status == 200) {
+        card_data2 = this.responseText;
+        //console.log(card_data2);
+    }
+};
+//http://192.168.0.110:5000/registerCard?cardid=${input.value}&firstname=${input_fname.value}&familyname=${input_sname.value}
+xhr1.open('GET', `http://192.168.0.160:5001/registerCard?cardid=${input_cname.value}&firstname=${input_fname.value}&familyname=${input_sname.value}`, true); // Retrive ESP data
+xhr1.send();
+}
+
+</script>
+
+</body>
+</html>
