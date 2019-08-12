@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Connect ESP</title>
+</head>
+
+<body>
+    <h2>Connect ESP</h2>
+    <br>ESP ID: f237b165-73dc-4408-8455-240d2e559c51
+    <br>
+    <form action="http://localhost:5000/reconfig" method="post" enctype="application/json">SSID:
+        <br>
+        <input type="text" name="ssid" value="">
+        <br>Password:
+        <br>
+        <input type="text" name="password" value="">
+        <br>Router IP:
+        <br>
+        <input type="text" name="routerIP" value="192.168.0.254">
+        <br>Master IP:
+        <br>
+        <input type="text" name="masterIP" value="192.168.0.158">
+        <br>
+        <br>
+        <input type="submit" value="Connect">
+    </form>
+</body>
+
+</html>

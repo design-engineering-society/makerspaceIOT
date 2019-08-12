@@ -10,6 +10,7 @@
 extern ESP8266WebServer server;
 extern Plugs* plugs;
 extern Config* cfg;
+extern Network* net;
 
 ESP_RequestHandler::ESP_RequestHandler() {
 }
@@ -41,25 +42,39 @@ String getConfigInfo() {
   return String(jsonData);
 }
 
-void ESP_RequestHandler::reconfigureNetwork() {
+void ESP_RequestHandler::reconfigNetworkAP() {
 
   Serial.println("Recieved handleReconfigure request");
 
   String htmlCode = "";
   htmlCode += "<!DOCTYPE html><html lang=\"en\">";
   htmlCode += "<head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><meta http-equiv=\"X-UA-Compatible\" content=\"ie=edge\"><title>Connect ESP</title></head>";
-  htmlCode += "<body><h2>Connect ESP</h2><form action=\"\\connect\">SSID:<br><input type=\"text\" name=\"SSID\" value=\"\"><br>Password:<br><input type=\"text\" name=\"password\" value=\"\"><br>Router IP:<br><input type=\"text\" name=\"routerIP\" value=\"192.168.0.254\"><br>Master IP:<br><input type=\"text\" name=\"masterIP\" value=\"192.168.0.158\"><br><br><input type=\"submit\" value=\"Connect\"></form></body></html>";
+  htmlCode += "<body><h2>Connect ESP</h2>ESP ID: "+cfg->ID+"<br><br><form action=\"\\reconfig\" method=\"post\" enctype=\"application/json\">SSID:<br><input type=\"text\" name=\"ssid\" value=\"\"><br>Password:<br><input type=\"text\" name=\"password\" value=\"\"><br>Router IP:<br><input type=\"text\" name=\"routerIP\" value=\"192.168.0.254\"><br>Master IP:<br><input type=\"text\" name=\"masterIP\" value=\"192.168.0.158\"><br><br><input type=\"submit\" value=\"Connect\"></form></body></html>";
 
   server.sendHeader("Access-Control-Allow-Origin", "*");
   server.send(200, "text/html", htmlCode);
 }
 
-void ESP_RequestHandler::joinNetwork() { //TODO
 
-  Serial.println("Recieved handleReconfigure request");
+
+void ESP_RequestHandler::reconfigNetwork() {
+
+  Serial.println("SoftAPIP: " + Utilities::IPtoStr(WiFi.softAPIP()));
+  Serial.println("LocalIP: " + Utilities::IPtoStr(WiFi.localIP()));
+  
+  cfg->ssid = server.arg("ssid");
+  cfg->password = server.arg("password");
+  cfg->IP = Utilities::IPtoStr(WiFi.softAPIP());
+  cfg->routerIP = server.arg("routerIP");
+  cfg->masterIP = server.arg("masterIP");
+  cfg->save();
+  Serial.println("Updated config");
+
+  net->setupWiFi();
+  
   server.sendHeader("Access-Control-Allow-Origin", "*");
-  //join network
-  server.send(200, "text/html", "joined new network");
+  server.send(200, "text/plain", "reconfigured network");
+  
 }
 
 void ESP_RequestHandler::onOff() {

@@ -13,15 +13,17 @@ extern const char* password;
 extern const char* APssid;
 extern const char* APpassword;
 extern int timeoutThreshold;
+extern Config* cfg;
+extern ESP_RequestSender* reqSend;
 
 ESP8266WebServer server(80);
 
 Network::Network() {
 
-  reset();
+  resetNetwork();
 }
 
-void Network::reset() {
+void Network::resetNetwork() {
   server.close();
   WiFi.disconnect();
   WiFi.setAutoConnect(false);
@@ -30,11 +32,11 @@ void Network::reset() {
 
 void Network::setupAP() {
 
-  reset();
+  resetNetwork();
   WiFi.mode(WIFI_AP_STA);
 
-  server.on("/", HTTP_GET, ESP_RequestHandler::reconfigureNetwork);
-  server.on("/join", HTTP_GET, ESP_RequestHandler::joinNetwork);
+  server.on("/", HTTP_GET, ESP_RequestHandler::reconfigNetworkAP);
+  server.on("/reconfig", HTTP_POST, ESP_RequestHandler::reconfigNetwork);
   server.onNotFound(ESP_RequestHandler::notFound);
 
   IPAddress ip(192, 168, 0, 1);
@@ -54,6 +56,8 @@ void Network::setupServer() {
 
   Serial.print("Setting up server. Local IP: ");
   Serial.println(WiFi.localIP());
+  cfg->IP = Utilities::IPtoStr(WiFi.localIP());
+  cfg->save();
   WiFi.setAutoReconnect(true);
 
   server.on("/onOff", HTTP_GET, ESP_RequestHandler::onOff);
@@ -62,23 +66,21 @@ void Network::setupServer() {
   server.onNotFound(ESP_RequestHandler::notFound);
 
   server.begin();
-
-  /*if (esp.initialised == "false") {
-    sendInit();
-  } else {
-    sendReconnect();
-  }*/
+  ESP_RequestSender::connect();
 }
 
 void Network::setupWiFi() {
 
-  int timeoutCounter = 0;
-  Serial.println("Connecting");
-  WiFi.begin(ssid, password);
+  resetNetwork();
 
+  WiFi.begin(ssid, password);
+  Serial.println("Connecting");
+
+  int timeoutCounter = 0;
   for(int i = 0; i <= timeoutThreshold; i++) {
     
     if (WiFi.status() == WL_CONNECTED) {
+      Serial.println("Connected!");
       setupServer();
       break;
     } else if (i == timeoutThreshold) {

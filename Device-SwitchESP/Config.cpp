@@ -14,6 +14,7 @@ Config::Config() {
   Serial.println(res);
   
   load();
+  printCFG("first loaded config");
 }
 
 Config::Config(char* ssid, char* password, char* routerIP, char* masterIP) {
@@ -30,6 +31,7 @@ Config::Config(char* ssid, char* password, char* routerIP, char* masterIP) {
   this->masterIP = masterIP;
 
   save();
+  printCFG("just saved config");
 }
 
 void Config::load() {
@@ -39,7 +41,7 @@ void Config::load() {
   StaticJsonDocument<1024> doc;
   DeserializationError error = deserializeJson(doc, f);
   if (error)
-    Serial.println(F("Failed to read file, initialising configuration"));
+    Serial.println("Error occurred when trying to open /config.txt");
 
   ID = doc["ID"].as<String>();  
   ssid = doc["ssid"].as<String>();
@@ -54,7 +56,7 @@ void Config::load() {
 void Config::save() {
   
   SPIFFS.remove("/config.txt");
-  File f = SPIFFS.open("/configc.txt", "w");
+  File f = SPIFFS.open("/config.txt", "w");
 
   StaticJsonDocument<2048> doc;
 
@@ -72,12 +74,25 @@ void Config::save() {
 }
 
 void Config::initialise() {
+  
   byte uuidNumber[16];
   ESP8266TrueRandom.uuid(uuidNumber);
   String uuidStr = ESP8266TrueRandom.uuidToString(uuidNumber);
 
   ID = uuidStr;
   save();
+  printCFG("just initialised config");
+}
+
+void Config::printCFG(String message) {
+  Serial.println(String("----- ") + message + " -----");
+  Serial.println("ID: " + ID);
+  Serial.println("ssid: " + ssid);
+  Serial.println("password: " + password);
+  Serial.println("IP: " + IP);
+  Serial.println("routerIP: " + routerIP);
+  Serial.println("masterIP: " + masterIP);
+  Serial.println("------------------");
 }
 
 #endif

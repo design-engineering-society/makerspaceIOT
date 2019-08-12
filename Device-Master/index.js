@@ -4,13 +4,14 @@ const bodyParser = require("body-parser"); // For parsing data in POST request
 const path = require('path');
 const ping = require('ping');
 const app = express();// creates an instance of express. it is like the swrver object
+const dbUtil = require('./dbUtil.js');
 
 const MongoClient = require('mongodb').MongoClient;
 var mongoURL = "mongodb://localhost:27017/";
 var ESPDoc;
 
 const routerIP = "192.168.0.254";
-const masterIP = "192.168.0.160";//ip of josh laptop
+const masterIP = "192.168.0.160";//ip of josh laptop    
 
 app.use(express.static(__dirname)); // use / as root directory
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -26,42 +27,21 @@ app.get("/operator", (req, res) => { // Loads the operator page
     res.sendFile(path.join(__dirname + "/operator/operator.html"));
 });
 
-app.get("/init", (req, res) => {
-    var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;//ip if the thing that just sent you request
-    console.log(`Recieved an init request from device with IP: ${ip}`);
 
-    var initIP = res.query.IP;
+app.post("/connect", (req, res) => { 
+    var ip = (req.headers['x-forwarded-for'] || req.connection.remoteAddress).replace("::ffff:","");
+    var ID = req.body["ID"];
 
-    // TODO: Ideally, check if the same IP exists. If it does, then call an overlapping IP error
-
-    MongoClient.connect(mongoURL, { useNewUrlParser: true }, function(err, db) {
-        if (err) throw err;
-        var dbo = db.db("makerspace");
-        var myobj = 
-        {
-            IP: initIP,
-            description: "-",
-            masterIP: masterIP,
-            routerIP: routerIP,
-            plug1Lbl: "-",
-            plug2Lbl: "-",
-            plug3Lbl: "-",
-            plug4Lbl: "-"
-        };
-    
-        dbo.collection("ESP").insertOne(myobj, (err, res) => {
-          if (err) throw err;
-          console.log("1 document inserted");
-          db.close();
-          res.status(200).send('Init request recieved');
-        });
+    dbUtil.find("ESP", {"ID": ID}, dbres => {
+        if (dbres.length == 0) {
+            console.log("ID not found. Adding to database");
+            dbUtil.add("ESP", {"ID": ID}, () => {});
+        } else {
+            console.log(dbres);
+        }
+        console.log(`Recieved a connect request from device with IP: ${ip} and ID: ${ID}`);
+        res.status(200).send(`Connect request recieved from IP: ${ip} and ID: ${ID}`);
     });
-});
-
-app.get("/reconnect", (req, res) => { 
-    var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-    console.log(`Recieved a reconnect request from device with IP: ${ip}`);
-    res.status(200).send('Reconnect request recieved');
 });
 
 app.get("/registerCard", (req, res) => { 
@@ -123,17 +103,10 @@ app.get("/addTimestamp", (req, res) => {
 
     console.log(requestData);
 
-    MongoClient.connect(mongoURL, { useNewUrlParser: true }, function(err, db) {
-        if (err) throw err;
-
-        var dbo = db.db("makerspace");
-        dbo.collection("Timestamp").insertOne(requestData, function(err, dbres) {
-            if (err) throw err;
-            console.log(`Timestamp added`);
-            db.close();
-            res.setHeader("Access-Control-Allow-Origin", "*");
-            res.status(200).send(`Timestamp added`);
-        });
+    dbUtil.add("Timestamp", requestData, () => {
+        console.log(`Timestamp added`);
+        res.setHeader("Access-Control-Allow-Origin", "*");
+        res.status(200).send(`Timestamp added`);
     });
 });
 
@@ -229,5 +202,5 @@ app.get("/addESPtoDB", (req, res) => {
       });
 });
 
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));//sets us, starts the server

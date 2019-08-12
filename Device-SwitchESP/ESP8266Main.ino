@@ -15,24 +15,32 @@ extern ESP8266WebServer server;
 
 const char* ssid = "TP-Link_6F62";
 const char* password = "78059757";
-const char* APssid = "esp_setup";
-const char* APpassword = "esp_setup";
-int timeoutThreshold = 5;
+const char* APssid = "esp_switch";
+const char* APpassword = "esp_switch";
+int timeoutThreshold = 30;
 
-Plugs* plugs = new Plugs(16,5,4,2);
-
-Config* cfg = new Config();
-Network* net = new Network();
-ESP_RequestHandler* reqHandle = new ESP_RequestHandler();
-ESP_RequestSender* reqSend = new ESP_RequestSender();
-Utilities* util = new Utilities();
-
+Plugs* plugs;
+Config* cfg;
+Network* net;
+ESP_RequestHandler* reqHandle;
+ESP_RequestSender* reqSend;
+Utilities* util;
 
 void setup() {
 
   Serial.begin(115200);
 
-  if !(cfg->ID) {
+  plugs = new Plugs(16,5,4,2);
+  cfg = new Config();
+  net = new Network();
+  reqHandle = new ESP_RequestHandler();
+  reqSend = new ESP_RequestSender();
+  util = new Utilities();
+
+  cfg->masterIP = "192.168.0.110";
+  cfg->save();
+
+  if (cfg->ID == "null") {
     cfg->initialise();
     net->setupAP();
   } else {

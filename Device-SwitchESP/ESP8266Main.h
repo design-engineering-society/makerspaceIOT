@@ -2,11 +2,13 @@
 #define Main_cpp
 
 #include "Arduino.h"
+#include <ESP8266WiFi.h>
 
 class ESP_RequestHandler {
    public:
     ESP_RequestHandler();
-    static void reconfigureNetwork();
+    static void reconfigNetworkAP();
+    static void reconfigNetwork();
     static void joinNetwork();
     static void onOff();
     static void update();
@@ -17,13 +19,13 @@ class ESP_RequestHandler {
 class ESP_RequestSender {
    public:
     ESP_RequestSender();
-    static void init();
+    static void connect();
 };
 
 class Network {
    public:
     Network();
-    void reset();
+    void resetNetwork();
     void setupServer();
     void setupAP();
     void setupWiFi();
@@ -48,6 +50,7 @@ class Config {
     void load();
     void save();
     void initialise();
+    void printCFG(String message);
     
     String ID;
     String ssid;
@@ -60,6 +63,7 @@ class Config {
 class Utilities {
    public:
     Utilities();
+    static String IPtoStr(IPAddress);
 };
 
 #endif

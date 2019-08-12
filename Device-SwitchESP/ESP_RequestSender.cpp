@@ -3,6 +3,7 @@
 
 #include "ESP8266Main.h"
 #include "Arduino.h"
+#include <ArduinoJson.h>
 #include <ESP8266HTTPClient.h>
 #include <WiFiClient.h>
 #include <ESP8266WiFi.h>
@@ -12,16 +13,19 @@ extern Config* cfg;
 ESP_RequestSender::ESP_RequestSender() {
 }
 
-String IPtoStr(const IPAddress& address){
-  return String(address[0]) + "." + address[1] + "." + address[2] + "." + address[3];
-}
-
-void ESP_RequestSender::init() { // TODO - make work
+void ESP_RequestSender::connect() {
 
   HTTPClient http;
+  http.begin("http://" + cfg->masterIP + ":5000/connect");
 
-  http.begin("http://" + cfg->masterIP + ":5000/init?IP=" + IPtoStr(WiFi.localIP()));
-  int httpCode = http.GET();
+  char jsonData[1024];
+  DynamicJsonDocument doc(1024);
+  doc["ID"] = cfg->ID;
+  serializeJson(doc, jsonData);
+  String jsonString = String(jsonData);
+
+  http.addHeader("Content-Type", "application/json");
+  int httpCode = http.POST(jsonString);
    
   if (httpCode > 0) {
    
@@ -30,5 +34,4 @@ void ESP_RequestSender::init() { // TODO - make work
   }
   http.end();
 }
-
 #endif
