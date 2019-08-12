@@ -29,11 +29,26 @@ module.exports = {
             if (err) throw err;
             var dbo = db.db("makerspace");
         
-            dbo.collection(collection).insertOne(obj, (err, res) => {
+            dbo.collection(collection).insertOne(obj, (err, dbres) => {
               if (err) throw err;
               console.log("1 document inserted");
               db.close();
-              responsefunc();
+              responsefunc(dbres);
+            });
+        });
+    },
+
+    upsert: function(collection, query, obj, responsefunc) {
+
+        MongoClient.connect(mongoURL, { useNewUrlParser: true }, function(err, db) {
+            if (err) throw err;
+    
+            var dbo = db.db("makerspace");
+            var setObj = {$set: obj};
+            dbo.collection("Users").updateOne(query, setObj, {upsert: true}, function(err, dbres) {
+                if (err) throw err;
+                db.close();
+                responsefunc(dbres);
             });
         });
     }

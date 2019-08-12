@@ -11,7 +11,7 @@ var mongoURL = "mongodb://localhost:27017/";
 var ESPDoc;
 
 const routerIP = "192.168.0.254";
-const masterIP = "192.168.0.160";//ip of josh laptop    
+const masterIP = "192.168.0.110"; //ip of josh laptop    
 
 app.use(express.static(__dirname)); // use / as root directory
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -35,7 +35,7 @@ app.post("/connect", (req, res) => {
     dbUtil.find("ESP", {"ID": ID}, dbres => {
         if (dbres.length == 0) {
             console.log("ID not found. Adding to database");
-            dbUtil.add("ESP", {"ID": ID}, () => {});
+            dbUtil.add("ESP", {"ID": ID}, dbres => {});
         } else {
             console.log(dbres);
         }
@@ -52,19 +52,12 @@ app.get("/registerCard", (req, res) => {
 
     console.log(req.query);
 
-    MongoClient.connect(mongoURL, { useNewUrlParser: true }, function(err, db) {
-        if (err) throw err;
+    var dbquery = {"cardid": cardID};
+    var userDetails = {"firstname": firstname, "lastname": lastname};
 
-        var dbo = db.db("makerspace");
-        var dbquery = {"cardid": cardID};
-        var userDetails = {$set: {"firstname": firstname, "lastname": lastname}};
-        dbo.collection("Users").updateOne(dbquery, userDetails, {upsert: true}, function(err, dbres) {
-            if (err) throw err;
-            console.log(`User '${firstname} ${lastname}' registered`);
-            db.close();
-            res.setHeader("Access-Control-Allow-Origin", "*");
-            res.status(200).send(`User '${firstname} ${lastname}' registered`);
-        });
+    dbUtil.upsert("Users", dbquery, userDetails, dbres => {
+        res.setHeader("Access-Control-Allow-Origin", "*");
+        res.status(200).send(`User '${firstname} ${lastname}' registered`);
     });
 });
 
@@ -74,26 +67,10 @@ app.get("/authenticateCard", (req, res) => {
 
     console.log(req.query);
 
-    MongoClient.connect(mongoURL, { useNewUrlParser: true }, function(err, db) {
-        if (err) throw err;
-
-        var dbo = db.db("makerspace");
-        var DBquery = {"cardid": cardID};
-        dbo.collection("Users").find(DBquery).toArray(function(err, dbres) {
-            if (err) throw err;
-            //console.log(dbres);
-            var msg;
-            if (dbres.length == 0) {
-                msg = "false";
-            } else {
-                msg = "true";
-            }
-            
-            db.close();
-            res.setHeader("Access-Control-Allow-Origin", "*");
-            res.status(200).send(msg);
-            console.log(msg);
-        });
+    dbUtil.find("Users", {"cardid": cardid}, dbres => {
+        msg = (dbres.length == 0) ? "false" : true;
+        console.log(msg);
+        res.status(200).send(msg);
     });
 });
 
@@ -114,68 +91,54 @@ app.post("/updateESPinDB", (req, res) => {
 
     console.log(req.body);
 
-    var IP = req.body["IP"];
-    var description = req.body["description"];
-    var masterIP = req.body["masterIP"];
-    var routerIP = req.body["routerIP"];
-    var plug1Lbl = req.body["plug1Lbl"];
-    var plug2Lbl = req.body["plug2Lbl"];
-    var plug3Lbl = req.body["plug3Lbl"];
-    var plug4Lbl = req.body["plug4Lbl"];
+    const obj = {
+        IP: req.body["IP"],
+        description: req.body["description"],
+        masterIP: req.body["masterIP"],
+        routerIP: req.body["routerIP"],
+        plug1Lbl: req.body["plug1Lbl"],
+        plug2Lbl: req.body["plug2Lbl"],
+        plug3Lbl: req.body["plug3Lbl"],
+        plug4Lbl: req.body["plug4Lbl"]
+    };
 
-    console.log(`IP: ${IP}`);
-
-    MongoClient.connect(mongoURL, { useNewUrlParser: true }, function(err, db) {
-        if (err) throw err;
-        var dbo = db.db("makerspace");
-        var myquery = { IP: IP };
-        var newvalues = { $set: {IP: IP, description: description, masterIP: masterIP, routerIP: routerIP, plug1Lbl: plug1Lbl, plug2Lbl: plug2Lbl, plug3Lbl: plug3Lbl, plug4Lbl: plug4Lbl } };
-        dbo.collection("ESP").updateOne(myquery, newvalues, function(err, resDB) {
-          if (err) throw err;
-          db.close();
-          res.status(200).send("1 document updated");
-        });
-      });
+    dbUtil.upsert("ESP", {IP: IP}, obj, dbres => {
+        res.setHeader("Access-Control-Allow-Origin", "*");
+        res.status(200).send("1 document updated");
+    });
 });
 
 app.get("/loadESPData", (req, res) => { // load the ESP data from database. TODO - neaten this logic up
 
-    MongoClient.connect(mongoURL, { useNewUrlParser: true }, function(err, db) {
-        if (err) throw err;
-        var dbo = db.db("makerspace");
-        dbo.collection("ESP").find({}).toArray((err, result) => {
-            if (err) throw err;
-            var allESPData = result; // Collect ALL ESP Data
-            db.close();
+    dbUtil.find("ESP", {}, dbres => {
+        
+        var msg = "";
+        var count = 0;
+        var resultArray = [];
 
-            var msg = "";
-            var count = 0;
-            var resultArray = [];
+        dbres.forEach((IPEntry) => { // Check which ESPs are currently connected
+            ping.sys.probe(IPEntry["IP"], (isAlive) => {
 
-            allESPData.forEach((IPEntry) => { // Check which ESPs are currently connected
-                ping.sys.probe(IPEntry["IP"], (isAlive) => {
+                if (isAlive) {
+                    resultArray.push(IPEntry);
+                }
+                count++;
 
-                    if (isAlive) {
-                        resultArray.push(IPEntry);
+                if (count == dbres.length) { // If the last ESP has been checked
+                    if (resultArray.length != 0) {
+
+                        var ipIndexedResultArray = IPIndexESPData(resultArray);
+                        res.status(200).send(ipIndexedResultArray);
+                    } else {
+                        res.status(200).send("No ESPs found");
                     }
-                    count++;
-
-                    if (count == allESPData.length) { // If the last ESP has been checked
-                        if (resultArray.length != 0) {
-
-                            var ipIndexedResultArray = IPIndexESPData(resultArray);
-                            res.status(200).send(ipIndexedResultArray);
-                        } else {
-                            res.status(400).send("No ESPs found");
-                        }
-                    }
-                });
+                }
             });
         });
     });
 });
 
-function IPIndexESPData(data) {
+function IPIndexESPData(data) { // TODO: Don't need this - need to change how the database entries are structured 
 
     var ipIndexedData = {};
 
@@ -188,19 +151,6 @@ function IPIndexESPData(data) {
 
     return ipIndexedData;
 }
-
-app.get("/addESPtoDB", (req, res) => {
-    MongoClient.connect(mongoURL, { useNewUrlParser: true }, function(err, db) {
-        if (err) throw err;
-        var dbo = db.db("makerspace");
-        var myobj = {"IP":"192.168.0.190","description":"3D Printer Rack 2","masterIP":"192.168.9.110","routerIP":"192.168.0.254","plug1Lbl":"3D Printer 5","plug2Lbl":"3D Printer 6","plug3Lbl":"3D Printer 7","plug4Lbl":"3D Printer 8"};
-        dbo.collection("ESP").insertOne(myobj, function(err, res) {
-          if (err) throw err;
-          console.log("1 document inserted");
-          db.close();
-        });
-      });
-});
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));//sets us, starts the server
