@@ -45,7 +45,24 @@ module.exports = {
     
             var dbo = db.db("makerspace");
             var setObj = {$set: obj};
-            dbo.collection("Users").updateOne(query, setObj, {upsert: true}, function(err, dbres) {
+            
+            dbo.collection(collection).updateOne(query, setObj, {upsert: true}, function(err, dbres) {
+                if (err) throw err;
+                db.close();
+                responsefunc(dbres);
+            });
+        });
+    },
+
+    update: function(collection, query, obj, responsefunc) {
+
+        MongoClient.connect(mongoURL, { useNewUrlParser: true }, function(err, db) {
+            if (err) throw err;
+    
+            var dbo = db.db("makerspace");
+            var setObj = {$set: obj};
+
+            dbo.collection(collection).updateOne(query, setObj, function(err, dbres) {
                 if (err) throw err;
                 db.close();
                 responsefunc(dbres);

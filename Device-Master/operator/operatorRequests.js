@@ -5,14 +5,20 @@ function loadESPRequest() { // Requests to load all the ESP data from the databa
 
     console.log("loadESPs");
     var xhr = new XMLHttpRequest();
-    xhr.onload = function () {
+    xhr.onload = function() {
 
         if (this.status == 200) {
-            ESPdata = JSON.parse(this.responseText);
-            console.log(ESPdata);
-            console.log(`Loaded ${Object.keys(ESPdata).length} ESP(s) from database`);
             
-            reloadDisplay();
+            ESPdata = JSON.parse(this.responseText);
+            if (!ESPdata["error"]) {
+
+                console.log(ESPdata);
+                console.log(`Loaded ${Object.keys(ESPdata).length} ESP(s) from database`);
+                reloadDisplay();
+
+            } else {
+                console.log("No ESPs found");
+            }
         }
     };
 
@@ -57,66 +63,40 @@ function onOff(ESPIP, plug) {
     xhr.send();
 }
 
-function updateESP(ESPIP) {
-
-    console.log("updating");
-
-    var description = document.getElementById("description_input").value;
-    var plug1Lbl = document.getElementById("plug1Lbl_input").value;
-    var plug2Lbl = document.getElementById("plug2Lbl_input").value;
-    var plug3Lbl = document.getElementById("plug3Lbl_input").value;
-    var plug4Lbl = document.getElementById("plug4Lbl_input").value;
-    var IP = document.getElementById("IP_input").value;
-    var masterIP = document.getElementById("masterIP_input").value;
-    var routerIP = document.getElementById("routerIP_input").value;
+function updateESP(IP, description, masterIP, routerIP, plug1Lbl, plug2Lbl, plug3Lbl, plug4Lbl) {
 
     var xhr = new XMLHttpRequest();
-    xhr.onload = function () {
-
-        if (this.status == 200) {
-            var data = JSON.parse(this.responseText);
-            console.log(data);
-            updateESPinDB(IP, description, masterIP, routerIP, plug1Lbl, plug2Lbl, plug3Lbl, plug4Lbl);
-        }
-    };
-    xhr.open("POST", `http://${ESPIP}:80/update`, true);
-    xhr.setRequestHeader('Content-Type', 'text/plain');
-    xhr.send(JSON.stringify({
-        "IP": IP,
-        "description": description,
-        "masterIP": masterIP,
-        "routerIP": routerIP,
-        "plug1Lbl": plug1Lbl,
-        "plug2Lbl": plug2Lbl,
-        "plug3Lbl": plug3Lbl,
-        "plug4Lbl": plug4Lbl
-    }));
-}
-
-function updateESPinDB(IP, description, masterIP, routerIP, plug1Lbl, plug2Lbl, plug3Lbl, plug4Lbl) {
-
-    console.log("updating in database");
-
-    var xhr = new XMLHttpRequest();
-    xhr.onload = function () {
+    xhr.onload = function() {
 
         if (this.status == 200) {
             var data = this.responseText;
             console.log(data);
             fadeOutPopup();
-            reloadDisplay();
+            loadESPRequest();
+            //reloadDisplay();
         }
     };
-    xhr.open("POST", `http://${serverIP}/updateESPinDB`, true);
+
+    xhr.open("POST", `http://${serverIP}/updateESP`, true);
     xhr.setRequestHeader('Content-Type', 'application/json');
     xhr.send(JSON.stringify({
-        "IP": IP,
-        "description": description,
-        "masterIP": masterIP,
-        "routerIP": routerIP,
-        "plug1Lbl": plug1Lbl,
-        "plug2Lbl": plug2Lbl,
-        "plug3Lbl": plug3Lbl,
-        "plug4Lbl": plug4Lbl
+        
+        "ID": document.getElementById("ID_label").innerHTML,
+        "description": document.getElementById("description_input").value,
+        "plug1Lbl": document.getElementById("plug1Lbl_input").value,
+        "plug2Lbl": document.getElementById("plug2Lbl_input").value,
+        "plug3Lbl": document.getElementById("plug3Lbl_input").value,
+        "plug4Lbl": document.getElementById("plug4Lbl_input").value,
+        "IP": document.getElementById("IP_input").value,
+        "masterIP": document.getElementById("masterIP_input").value,
+        "routerIP": document.getElementById("routerIP_input").value
     }));
+}
+
+function get(url, loadFunction) {
+    console.log("onOff");
+    var xhr = new XMLHttpRequest();
+    xhr.onload = loadFunction();
+    xhr.open('GET', url, true);
+    xhr.send();
 }

@@ -220,6 +220,40 @@ button:focus, input[type="button"]:focus {
     justify-content: center;
 }
 
+#ESP_ID_Label_Right_Wrapper {
+
+    height:40px;
+    padding: 0px 0px 0px 20px;
+
+    text-align: left;
+    text-decoration: none;
+    font-size: 16px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+#ID_label {
+
+    text-align: left;
+    text-decoration: none;
+    font-size: 12px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.nonSelectable {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
 .popupInputWrapper {
 
     padding: 0px;

@@ -34,7 +34,7 @@ function addDisplayElement(divClass, btnLbl, id, ip, info) {
 function createPopupLbl(popupGrid, labelTxt, inputTxt, id) {
     // Creates a label and input element in the popup window
     div = document.createElement("DIV");
-    div.setAttribute("class", "popupLabel");
+    div.setAttribute("class", "popupLabel nonSelectable");
     div.innerHTML = labelTxt;
     popupGrid.appendChild(div);
 
@@ -75,10 +75,26 @@ function addPopup(ip) {
     // Title
     var div = document.createElement("DIV");
     div.setAttribute("id", "popupTitle");
+    div.setAttribute("class", "nonSelectable")
     div.innerHTML = "ESP Config Info";
     popupGrid.appendChild(div);
 
     // Form Elements
+    var div = document.createElement("DIV");
+    div.setAttribute("id", "ESP_ID_Label_Left");
+    div.setAttribute("class", "popupLabel nonSelectable");
+    div.innerHTML = "ESP ID:";
+    popupGrid.appendChild(div);
+
+    var wrap = document.createElement("DIV");
+    wrap.setAttribute("id", "ESP_ID_Label_Right_Wrapper");
+    popupGrid.appendChild(wrap);
+
+    div = document.createElement("DIV");
+    div.setAttribute("id", "ID_label");
+    div.innerHTML = ESPDoc["ID"];
+    wrap.appendChild(div);
+
     createPopupLbl(popupGrid, "ESP Label:", ESPDoc["description"], "description_input");
     createPopupLbl(popupGrid, "Plug 1 Label:", ESPDoc["plug1Lbl"], "plug1Lbl_input");
     createPopupLbl(popupGrid, "Plug 2 Label:", ESPDoc["plug2Lbl"], "plug2Lbl_input");
@@ -88,7 +104,7 @@ function addPopup(ip) {
     createPopupLbl(popupGrid, "Router IP:", ESPDoc["routerIP"], "routerIP_input");
     createPopupLbl(popupGrid, "Master IP:", ESPDoc["masterIP"], "masterIP_input");
 
-    var wrap = document.createElement("DIV");
+    wrap = document.createElement("DIV");
     wrap.setAttribute("id", "popupUpdateButtonWrapper");
     popupGrid.appendChild(wrap);
 
@@ -146,29 +162,18 @@ function reloadDisplay(ip) {
 
     for (const [ip, data] of Object.entries(ESPdata)) {
         addESP(ip, data["description"], data["plug1Lbl"], data["plug2Lbl"], data["plug3Lbl"], data["plug4Lbl"]);
-      }
+    }
+    for (const [ip, data] of Object.entries(ESPdata)) {
+        getInfo(ip, "plugs");
+    }
 }
 
 function changePlugColours(IP, plugInfo) {
 
-    var plug1 = document.getElementById(`${IP}-plug1`).firstChild;
-    setPlugColour(plug1, plugInfo["1"]);
-    var plug2 = document.getElementById(`${IP}-plug2`).firstChild;
-    setPlugColour(plug2, plugInfo["2"]);
-    var plug3 = document.getElementById(`${IP}-plug3`).firstChild;
-    setPlugColour(plug3, plugInfo["3"]);
-    var plug4 = document.getElementById(`${IP}-plug4`).firstChild;
-    setPlugColour(plug4, plugInfo["4"]);
-}
-
-function setPlugColour(plug, status) {
-    //console.log(`plug status: ${status}`);
-
-    if (status == "ON") {
-        plug.setAttribute("class", "dashboardBtn plugBtnOn");
-    } else  {
-        plug.setAttribute("class", "dashboardBtn plugBtnOff");
-    }
+    switchPlugDisplay(IP, 1, plugInfo["1"]);
+    switchPlugDisplay(IP, 2, plugInfo["2"]);
+    switchPlugDisplay(IP, 3, plugInfo["3"]);
+    switchPlugDisplay(IP, 4, plugInfo["4"]);
 }
 
 function switchPlugDisplay(ip, plugNum, status) {

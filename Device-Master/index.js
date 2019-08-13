@@ -3,8 +3,9 @@ const request = require('request');
 const bodyParser = require("body-parser"); // For parsing data in POST request
 const path = require('path');
 const ping = require('ping');
-const app = express();// creates an instance of express. it is like the swrver object
+const app = express(); // creates an instance of express. it is like the swrver object
 const dbUtil = require('./dbUtil.js');
+const util = require('./util.js');
 
 const MongoClient = require('mongodb').MongoClient;
 var mongoURL = "mongodb://localhost:27017/";
@@ -27,20 +28,23 @@ app.get("/operator", (req, res) => { // Loads the operator page
     res.sendFile(path.join(__dirname + "/operator/operator.html"));
 });
 
-
 app.post("/connect", (req, res) => { 
-    var ip = (req.headers['x-forwarded-for'] || req.connection.remoteAddress).replace("::ffff:","");
+    var IP = (req.headers['x-forwarded-for'] || req.connection.remoteAddress).replace("::ffff:","");
     var ID = req.body["ID"];
 
     dbUtil.find("ESP", {"ID": ID}, dbres => {
         if (dbres.length == 0) {
-            console.log("ID not found. Adding to database");
-            dbUtil.add("ESP", {"ID": ID}, dbres => {});
+            console.log("ID not found. Adding ESP to database");
+            dbUtil.add("ESP", util.newESP(ID,IP), dbres => {});
         } else {
-            console.log(dbres);
+            if (dbres[0]["IP"] != IP) {
+                dbUtil.update("ESP", {"ID": ID}, {"IP": IP}, dbres => {
+                    console.log("ESP's IP changed. Updating IP in database");
+                });
+            }
         }
-        console.log(`Recieved a connect request from device with IP: ${ip} and ID: ${ID}`);
-        res.status(200).send(`Connect request recieved from IP: ${ip} and ID: ${ID}`);
+        console.log(`Recieved a connect request from device with IP: ${IP} and ID: ${ID}`);
+        res.status(200).send(`Connected`);
     });
 });
 
@@ -87,9 +91,9 @@ app.get("/addTimestamp", (req, res) => {
     });
 });
 
-app.post("/updateESPinDB", (req, res) => {
+app.post("/updateESP", (req, res) => {
 
-    console.log(req.body);
+    var id = req.body["ID"];
 
     const obj = {
         IP: req.body["IP"],
@@ -102,13 +106,43 @@ app.post("/updateESPinDB", (req, res) => {
         plug4Lbl: req.body["plug4Lbl"]
     };
 
-    dbUtil.upsert("ESP", {IP: IP}, obj, dbres => {
+    dbUtil.update("ESP", {"ID": id}, obj, dbres => {
         res.setHeader("Access-Control-Allow-Origin", "*");
         res.status(200).send("1 document updated");
     });
 });
 
-app.get("/loadESPData", (req, res) => { // load the ESP data from database. TODO - neaten this logic up
+app.post("/addUser", (req, res) => {
+
+    const obj = {
+        firstname: "",
+        lastname: "",
+        email: "",
+        cardID: "",
+        CID: "",
+        Department: "",
+        year: "",
+        status: "",
+        permissions: {
+            markforged: {
+                start: 0900,
+                end: 1900
+            },
+            PrusaMK3s: {
+                start: 0900,
+                end: 1900
+            }
+        },
+        credit: ""
+    };
+
+    dbUtil.add("User", obj, dbres => {
+        res.setHeader("Access-Control-Allow-Origin", "*");
+        res.status(200).send("1 document updated");
+    });
+});
+
+app.get("/loadESPData", (req, res) => { // load the ESP data from database
 
     dbUtil.find("ESP", {}, dbres => {
         
@@ -118,19 +152,17 @@ app.get("/loadESPData", (req, res) => { // load the ESP data from database. TODO
 
         dbres.forEach((IPEntry) => { // Check which ESPs are currently connected
             ping.sys.probe(IPEntry["IP"], (isAlive) => {
-
                 if (isAlive) {
                     resultArray.push(IPEntry);
                 }
                 count++;
-
                 if (count == dbres.length) { // If the last ESP has been checked
                     if (resultArray.length != 0) {
-
                         var ipIndexedResultArray = IPIndexESPData(resultArray);
+                        //console.log(ipIndexedResultArray);
                         res.status(200).send(ipIndexedResultArray);
                     } else {
-                        res.status(200).send("No ESPs found");
+                        res.status(200).send("{\"error\": \"no ESPs found\"}");
                     }
                 }
             });
@@ -138,7 +170,7 @@ app.get("/loadESPData", (req, res) => { // load the ESP data from database. TODO
     });
 });
 
-function IPIndexESPData(data) { // TODO: Don't need this - need to change how the database entries are structured 
+function IPIndexESPData(data) {
 
     var ipIndexedData = {};
 
