@@ -11,14 +11,14 @@ function loadESPRequest() { // Requests to load all the ESP data from the databa
             
             ESPdata = JSON.parse(this.responseText);
             if (!ESPdata["error"]) {
-
                 console.log(ESPdata);
                 console.log(`Loaded ${Object.keys(ESPdata).length} ESP(s) from database`);
-                reloadDisplay();
-
+                
             } else {
+                ESPdata = [];
                 console.log("No ESPs found");
             }
+            reloadDisplay();
         }
     };
 
