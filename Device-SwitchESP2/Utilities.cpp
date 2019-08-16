@@ -4,8 +4,9 @@
 #include "ESP8266Main.h"
 #include "Arduino.h"
 #include <ESP8266WiFi.h>
+#include <Ticker.h>
 
-extern Config2* cfg;
+extern Config* cfg;
 
 Utilities::Utilities() {
 }

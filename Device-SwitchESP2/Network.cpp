@@ -11,7 +11,7 @@
 extern const char* APssid;
 extern const char* APpassword;
 extern int timeoutThreshold;
-extern Config2* cfg;
+extern Config* cfg;
 extern ESP_RequestSender* reqSend;
 
 ESP8266WebServer server(80);
@@ -57,7 +57,7 @@ void Network::setupServer() {
   WiFi.setAutoReconnect(true);
 
   server.on("/blink", HTTP_GET, ESP_RequestHandler::blink);
-  server.on("/onOff", HTTP_GET, ESP_RequestHandler::onOff);
+  server.on("/switchRelay", HTTP_GET, ESP_RequestHandler::switchRelay);
   server.on("/update", HTTP_POST, ESP_RequestHandler::update);
   server.on("/info", HTTP_GET, ESP_RequestHandler::info);
   server.onNotFound(ESP_RequestHandler::notFound);

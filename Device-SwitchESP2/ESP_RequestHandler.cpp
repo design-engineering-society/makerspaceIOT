@@ -8,8 +8,8 @@
 #include <ESP8266WebServer.h>
 
 extern ESP8266WebServer server;
-extern Plugs* plugs;
-extern Config2* cfg;
+extern GPIO* gpio;
+extern Config* cfg;
 extern Network* net;
 
 ESP_RequestHandler::ESP_RequestHandler() {
@@ -19,10 +19,7 @@ String getPlugInfo() {
 
   char jsonData[2048];
   DynamicJsonDocument doc(1024);
-  doc["1"] = digitalRead(plugs->plug1) == 0? "OFF": "ON";
-  doc["2"] = digitalRead(plugs->plug2) == 0? "OFF": "ON";
-  doc["3"] = digitalRead(plugs->plug3) == 0? "OFF": "ON";
-  doc["4"] = digitalRead(plugs->plug4) == 0? "OFF": "ON";
+  doc["Relay"] = gpio->readRelay();
   serializeJson(doc, jsonData);
   return String(jsonData);
 }
@@ -75,21 +72,42 @@ void ESP_RequestHandler::reconfigNetwork() {
 
 void ESP_RequestHandler::blink() {
 
-  plugs->blink(1, 1500);
+  int repeat = 0;
+  int duration = 0;
+
+  if (server.arg("repeat")) {
+    repeat = atoi(server.arg("repeat").c_str());
+  }
+  if (server.arg("duration")) {
+    duration = atoi(server.arg("duration").c_str());
+  }
+
+  gpio->blink(repeat == 0? 1 : repeat, duration == 0? 1500 : duration);
   
   server.sendHeader("Access-Control-Allow-Origin", "*");
   server.send(200, "text/plain", "Blink");
 }
 
-void ESP_RequestHandler::onOff() {
-  int plug = atoi(server.arg("plug").c_str());
-  plugs->switchPlug(plug);
-  Serial.println(String("Plug ") + plug + " switched");
+void ESP_RequestHandler::switchRelay() {
+
+  String mode = "";
+
+  if (server.arg("mode")) {
+    mode = server.arg("mode");
+  }
+
+  if (mode == "" || mode == "toggle") {
+    gpio->switchRelay("toggle");
+  } else if (mode == "ON" || mode == "on") {
+    gpio->switchRelay("on");
+  } else if (mode == "OFF" || mode == "off") {
+    gpio->switchRelay("off");
+  }
+  Serial.println(String("Relay switched to ") + gpio->readRelay());
   
   char jsonData[1024];
   DynamicJsonDocument doc(1024);
-  doc["plugSwitched"] = plug;
-  doc["plugStatus"] = plugs->readPlug(plug) == 0? "OFF" : "ON";
+  doc["Relay"] = gpio->readRelay();
   serializeJson(doc, jsonData);
   String jsonString = String(jsonData);
 

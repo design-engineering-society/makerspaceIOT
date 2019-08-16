@@ -1,5 +1,5 @@
-#ifndef Config2_cpp
-#define Config2_cpp
+#ifndef Config_cpp
+#define Config_cpp
 
 #include "ESP8266Main.h"
 #include "Arduino.h"
@@ -11,7 +11,7 @@ extern const char* init_ssid;
 extern const char* init_password;
 extern const char* init_masterIP;
 
-Config2::Config2() {
+Config::Config() {
 
   Serial.println("Config constructor");
 
@@ -23,7 +23,7 @@ Config2::Config2() {
   load();
 }
 
-void Config2::erase_all() {
+void Config::erase_all() {
 
   EEPROM.begin(200);
   
@@ -33,7 +33,7 @@ void Config2::erase_all() {
   EEPROM.commit();
 }
 
-void Config2::save() {
+void Config::save() {
 
   saveEEPROM(ADDR_ID, ID);
   saveEEPROM(ADDR_ssid, ssid);
@@ -42,7 +42,7 @@ void Config2::save() {
   load();
 }
 
-void Config2::save(String tID, String tssid, String tpassword, String tmasterIP) {
+void Config::save(String tID, String tssid, String tpassword, String tmasterIP) {
 
   saveEEPROM(ADDR_ID, tID);
   saveEEPROM(ADDR_ssid, tssid);
@@ -51,7 +51,7 @@ void Config2::save(String tID, String tssid, String tpassword, String tmasterIP)
   load();
 }
 
-void Config2::save(String tssid, String tpassword, String tmasterIP) { // Not saving ID, or overriding ID with ""
+void Config::save(String tssid, String tpassword, String tmasterIP) { // Not saving ID, or overriding ID with ""
 
   saveEEPROM(ADDR_ssid, tssid);
   saveEEPROM(ADDR_pass, tpassword);
@@ -59,7 +59,7 @@ void Config2::save(String tssid, String tpassword, String tmasterIP) { // Not sa
   load();
 }
 
-void Config2::load() {
+void Config::load() {
 
   ID = loadEEPROM(ADDR_ID);
   ssid = loadEEPROM(ADDR_ssid);
@@ -67,7 +67,7 @@ void Config2::load() {
   masterIP = loadEEPROM(ADDR_mIP);
 }
 
-void Config2::saveEEPROM(int address, String str) {
+void Config::saveEEPROM(int address, String str) {
 
   EEPROM.begin(200);
   
@@ -78,7 +78,7 @@ void Config2::saveEEPROM(int address, String str) {
   EEPROM.commit();
 }
 
-String Config2::loadEEPROM(int address) {
+String Config::loadEEPROM(int address) {
 
   String str;
   EEPROM.begin(200);
@@ -95,7 +95,7 @@ String Config2::loadEEPROM(int address) {
   return str;
 }
 
-void Config2::initialise() {
+void Config::initialise() {
   
   byte uuidNumber[16];
   ESP8266TrueRandom.uuid(uuidNumber);
@@ -110,7 +110,7 @@ void Config2::initialise() {
   printCFG("Initialised config");
 }
 
-void Config2::printCFG(String message) {
+void Config::printCFG(String message) {
   Serial.println(String("----- ") + message + " -----");
   Serial.println("ID: " + ID);
   Serial.println("ssid: " + ssid);

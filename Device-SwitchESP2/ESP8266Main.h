@@ -3,6 +3,7 @@
 
 #include "Arduino.h"
 #include <ESP8266WiFi.h>
+#include <Ticker.h>
 
 class ESP_RequestHandler {
    public:
@@ -11,7 +12,7 @@ class ESP_RequestHandler {
     static void reconfigNetwork();
     static void joinNetwork();
     static void blink();
-    static void onOff();
+    static void switchRelay();
     static void update();
     static void info();
     static void notFound();
@@ -32,22 +33,17 @@ class Network {
     void setupWiFi();
 };
 
-class Plugs {
+class GPIO {
    public:
-    Plugs(int plug1, int plug2, int plug3, int plug4);
-    void blink(int repeat, int millis);
-    void switchPlug(int plugToSwitch);
-    bool readPlug(int plugToRead);
-    int plug1;
-    int plug2;
-    int plug3;
-    int plug4;
-
+    GPIO();
+    void blink(int repeat, float seconds);
+    String switchRelay(String mode);
+    String readRelay();
 };
 
-class Config2 {
+class Config {
    public:
-    Config2();
+    Config();
     void erase_all();
     void load();
     void save();
@@ -67,6 +63,12 @@ class Config2 {
     int ADDR_ssid;
     int ADDR_pass;
     int ADDR_mIP;
+};
+
+class Interrupt {
+   public:
+    static void setup();
+    static void handle();
 };
 
 class Utilities {

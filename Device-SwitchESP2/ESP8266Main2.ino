@@ -18,13 +18,14 @@ const char* init_password = "78059757";
 const char* init_masterIP = "192.168.0.110";
 
 const char* APssid = "esp_switch";
-const char* APpassword = "esp_switch";
+const char* APpassword = "get_things_done";
 
+int relay_pin = 12;
 int builtin_LED_pin = 13;
 int timeoutThreshold = 30;
 
-Plugs* plugs;
-Config2* cfg;
+GPIO* gpio;
+Config* cfg;
 Network* net;
 ESP_RequestHandler* reqHandle;
 ESP_RequestSender* reqSend;
@@ -33,15 +34,16 @@ Utilities* util;
 void setup() {
 
   Serial.begin(115200);
-
-  plugs = new Plugs(12,5,4,2);
-  cfg = new Config2();
+  
+  gpio = new GPIO();
+  cfg = new Config();
   net = new Network();
   reqHandle = new ESP_RequestHandler();
   reqSend = new ESP_RequestSender();
   util = new Utilities();
 
-  plugs->blink(1,1000);
+  gpio->blink(6,0.2);
+  Interrupt::setup();
 
   if (!cfg->ID || cfg->ID == "") {
     cfg->initialise();
@@ -54,4 +56,5 @@ void setup() {
 void loop() {
 
   server.handleClient();
+  Interrupt::handle();
 }

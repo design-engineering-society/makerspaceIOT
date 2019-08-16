@@ -45,21 +45,21 @@ function getInfo(ESPIP,mode) { // Retrieve various forms of info from ESP
     xhr.send();
 }
 
-function onOff(ESPIP, plug) {
+function switchRelay(ESPIP, mode) {
 
-    console.log("onOff");
+    console.log("switchRelay");
     var xhr = new XMLHttpRequest();
     xhr.onload = function () {
 
         if (this.status == 200) {
             var data = JSON.parse(this.responseText);
             console.log(data);
-            switchPlugDisplay(ESPIP, plug, data["plugStatus"]);
+            //switchPlugDisplay(ESPIP, plug, data["plugStatus"]);
             getInfo(ESPIP,"plugs");
         }
     };
 
-    xhr.open('GET', `http://${ESPIP}:80/onOff?plug=${plug}`, true);
+    xhr.open('GET', `http://${ESPIP}:80/switchRelay?mode=${mode}`, true);
     xhr.send();
 }
 

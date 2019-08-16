@@ -8,7 +8,7 @@
 #include <WiFiClient.h>
 #include <ESP8266WiFi.h>
 
-extern Config2* cfg;
+extern Config* cfg;
 
 ESP_RequestSender::ESP_RequestSender() {
 }
