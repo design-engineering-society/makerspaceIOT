@@ -1,0 +1,222 @@
+:root {
+    --headerColour: rgb(179, 187, 204);
+    --bodyColour1: rgb(255, 255, 255);
+    --bodyColour2: rgb(250, 250, 250);
+    --bodyBorderColor: #dfdfdf;
+    --minCellWidth: 200px;
+    --maxTableWidth: 1400px;
+    --editButtonWidth: 50px;
+}
+
+body {
+    padding: 0px;
+    margin: 0px;
+}
+
+.header {
+    position: relative;
+    display: block;
+    margin: 0px;
+
+    background-color: #646464;
+
+    width: 100%;
+    height: 100px;
+}
+
+.wrapper {
+    display: block;
+    text-align: center;
+    overflow: auto;
+}
+
+/* Dashobard Grid */
+
+#DG {
+    position: relative;
+    display: inline-block;
+    margin: 0px 0px 100px 0px;
+
+    width: auto;
+    max-width: 80%;
+
+    background-color: #646464;
+    border: 2px solid #646464;
+
+    overflow-y: hidden;
+    white-space:nowrap;
+
+    transform:rotateX(180deg);
+}
+
+.scroll {
+    overflow-x: scroll;
+}
+
+/*.scroll > .DG_container > .DG_header > .DG_header_cell {
+    border-top: 1px solid #535353;
+}*/
+
+.DG_container {
+    width: auto;
+    height: auto;
+
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-gap: 1px;
+
+    transform:rotateX(180deg);
+}
+
+.DG_header {
+    display: grid;
+
+    width:auto;
+    height:50px;
+
+    background-color: #646464;
+}
+
+.DG_header_cell {
+    display: block;
+    width: 100%;
+    height: 100%;
+
+    background-color: #e0e0e0;
+    color: #525252;
+    border-right: 1px solid #535353;
+    border-top: 1px solid #535353;
+
+    box-sizing:border-box;
+
+    overflow: hidden;
+
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    text-decoration: none;
+    font-size: 1.3rem;
+    font-family: 'Heebo', sans-serif;
+
+    font-weight: 200;
+}
+
+.DG_edit_img {
+    position: relative;
+    margin: auto;
+    width: 50%;
+    height: 50%;
+    object-fit: cover;
+}
+
+.DG_header_cell:last-child {
+    border-right: none;
+}
+
+.DG_body {
+
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-gap: 1px;
+
+    width: auto;
+
+    background-color: var(--bodyBorderColor);
+}
+
+.DG_body_row {
+    display: grid;
+    grid-template-columns: var(--gridLayout);
+
+    width:auto;
+    height:50px;
+
+    background-color: var(--bodyColour1);
+}
+
+.DG_body_row:nth-child(even) {
+    background-color: var(--bodyColour2);
+}
+
+.DG_body_cell {
+    display: block;
+    width: 100%;
+    height: 100%;
+
+    border-right: 1px solid var(--bodyBorderColor);
+
+    overflow: hidden;
+
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;    
+
+    box-sizing:border-box;
+
+    text-decoration: none;
+    font-size: 1rem;
+    font-family: 'Heebo', sans-serif;
+
+    font-weight: 200;
+}
+
+.DG_body_cell_btn {
+    display: block;
+    width: 100%;
+    height: 100%;
+
+    border-right: 1px solid var(--bodyBorderColor);
+
+    background-color: rgb(240,240,240);
+    outline: none !important;
+
+    box-sizing: border-box;
+
+    text-decoration: none;
+    font-size: 1rem;
+    font-family: 'Heebo', sans-serif;
+
+    font-weight: 200;
+}
+
+.DG_body_cell_btn:hover {
+    background-color: rgb(235,235,235);
+}
+
+.DG_body_cell:last-child, .DG_body_cell:last-child {
+    border-right: none;
+}
+
+/* Elements */
+
+.title {
+    display: block;
+    width: 100%;
+    height: 150px;
+
+    color: #525252;
+
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    text-decoration: none;
+    font-size: 3rem;
+    font-family: 'Heebo', sans-serif;
+
+    font-weight: 600;
+}
+
+/* Utilities */
+
+.NS { /* Non-Selectable */
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-drag: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+}

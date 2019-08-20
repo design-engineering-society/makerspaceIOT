@@ -11,20 +11,22 @@ app.use(bodyParser.json());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+const ssid = "TP-Link_6F62";
+const password = "78059757";
+const masterIP = "192.168.0.110"; //ip of josh laptop
+
 module.exports = {
     
     newESP: function(id, ip) {
 
         json = {
             ID: id,
+            name: "-",
+            operating_mode: "normal",
             IP: ip,
-            description: "-",
-            masterIP: "-",
-            routerIP: "-",
-            plug1Lbl: "-",
-            plug2Lbl: "-",
-            plug3Lbl: "-",
-            plug4Lbl: "-"
+            ssid: ssid,
+            password: password,
+            masterIP: masterIP
         };
     
         return json

@@ -12,7 +12,9 @@ var mongoURL = "mongodb://localhost:27017/";
 var ESPDoc;
 
 const routerIP = "192.168.0.254";
-const masterIP = "192.168.0.110"; //ip of josh laptop    
+const masterIP = "192.168.0.110"; //ip of josh laptop
+const ssid = "TP-Link_6F62";
+const password = "78059757";
 
 app.use(express.static(__dirname)); // use / as root directory
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -28,18 +30,22 @@ app.get("/operator", (req, res) => { // Loads the operator page
     res.sendFile(path.join(__dirname + "/operator/operator.html"));
 });
 
+app.get("/dashboard", (req, res) => { // Loads the operator page
+    res.sendFile(path.join(__dirname + "/dashboard/dashboard.html"));
+});
+
 app.post("/connect", (req, res) => { 
     var IP = (req.headers['x-forwarded-for'] || req.connection.remoteAddress).replace("::ffff:","");
     var ID = req.body["ID"];
 
-    dbUtil.find("ESP", {"ID": ID}, dbres => {
+    dbUtil.find("Plugs", {"ID": ID}, dbres => {
         if (dbres.length == 0) {
-            console.log("ID not found. Adding ESP to database");
-            dbUtil.add("ESP", util.newESP(ID,IP), dbres => {});
+            console.log("ID not found. Adding Plug to database");
+            dbUtil.add("Plugs", util.newESP(ID,IP), dbres => {});
         } else {
             if (dbres[0]["IP"] != IP) {
-                dbUtil.update("ESP", {"ID": ID}, {"IP": IP}, dbres => {
-                    console.log("ESP's IP changed. Updating IP in database");
+                dbUtil.update("Plugs", {"ID": ID}, {"IP": IP}, dbres => {
+                    console.log("Plug's IP changed. Updating IP in database");
                 });
             }
         }
@@ -142,9 +148,9 @@ app.post("/addUser", (req, res) => {
     });
 });
 
-app.get("/loadESPData", (req, res) => { // load the ESP data from database
+app.get("/loadPlugs", (req, res) => { // load the ESP data from database
 
-    dbUtil.find("ESP", {}, dbres => {
+    dbUtil.find("Plugs", {}, dbres => {
         
         var msg = "";
         var count = 0;
@@ -158,11 +164,11 @@ app.get("/loadESPData", (req, res) => { // load the ESP data from database
                 count++;
                 if (count == dbres.length) { // If the last ESP has been checked
                     if (resultArray.length != 0) {
-                        var ipIndexedResultArray = IPIndexESPData(resultArray);
+                        //var ipIndexedResultArray = IPIndexESPData(resultArray);
                         //console.log(ipIndexedResultArray);
-                        res.status(200).send(ipIndexedResultArray);
+                        res.status(200).send(JSON.stringify(resultArray, undefined, 3));
                     } else {
-                        res.status(200).send("{\"error\": \"no ESPs found\"}");
+                        res.status(200).send("{\"error\": \"no Plugs found\"}");
                     }
                 }
             });
