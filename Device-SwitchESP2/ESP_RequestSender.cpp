@@ -9,6 +9,7 @@
 #include <ESP8266WiFi.h>
 
 extern Config* cfg;
+extern GPIO* gpio;
 
 ESP_RequestSender::ESP_RequestSender() {
 }
@@ -31,6 +32,7 @@ void ESP_RequestSender::connect() {
    
     String payload = http.getString();
     Serial.println(payload);
+    gpio->blink(6,0.2);
   }
   http.end();
 }

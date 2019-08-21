@@ -19,13 +19,13 @@ void blinkTimer() {
     blinker.detach();
     return;
   }
-  Serial.print(blinkOn? "O": ".");
+  //Serial.print(blinkOn? "O": ".");
   digitalWrite(builtin_LED_pin, blinkOn? LOW: HIGH);
   blinkOn = !blinkOn;
   if (blinkOn){  blinkCounter--; }
 }
 
-GPIO::GPIO() {
+  GPIO::GPIO() {
 
   pinMode(builtin_LED_pin, OUTPUT);
   pinMode(relay_pin, OUTPUT);
@@ -35,9 +35,9 @@ GPIO::GPIO() {
 
 void GPIO::blink(int repeat, float seconds) {
 
-  Serial.println("Blink");
+  digitalWrite(builtin_LED_pin, LOW);
   blinkCounter = repeat;
-  blinkOn = true;
+  blinkOn = false;
   blinker.detach();
   blinker.attach(seconds, blinkTimer);
 }

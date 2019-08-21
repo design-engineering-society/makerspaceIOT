@@ -43,9 +43,10 @@ void Network::setupAP() {
   IPAddress dns(8, 8, 8, 8);
 
   Serial.println("Starting AP");
+  Serial.println(String(APssid) + cfg->ID.substring(0,8));
 
   WiFi.softAPConfig(ip, gateway, subnet);
-  WiFi.softAP(APssid, APpassword);
+  WiFi.softAP(String(APssid) + cfg->ID.substring(0,8), APpassword);
   
   server.begin();
 }

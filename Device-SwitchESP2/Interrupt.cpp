@@ -85,7 +85,7 @@ void Interrupt::handle() {
       } else if (mode == 2) {
         if (released() && timeGap(IS_GREATER_THAN, APsetupTime*1000)) {
           Serial.println(String("Setting up AP: ") + String(timeGap()));
-          net->setupAP()
+          net->setupAP();
           mode = 0;
         }
       }

@@ -73,16 +73,16 @@ void ESP_RequestHandler::reconfigNetwork() {
 void ESP_RequestHandler::blink() {
 
   int repeat = 0;
-  int duration = 0;
+  float duration = 0;
 
-  if (server.arg("repeat")) {
+  if (server.arg("repeat") != NULL) {
     repeat = atoi(server.arg("repeat").c_str());
   }
-  if (server.arg("duration")) {
-    duration = atoi(server.arg("duration").c_str());
+  if (server.arg("duration") != NULL) {
+    duration = atof(server.arg("duration").c_str());
   }
 
-  gpio->blink(repeat == 0? 1 : repeat, duration == 0? 1500 : duration);
+  gpio->blink(repeat == 0? 1 : repeat, duration == 0? 1 : duration);
   
   server.sendHeader("Access-Control-Allow-Origin", "*");
   server.send(200, "text/plain", "Blink");

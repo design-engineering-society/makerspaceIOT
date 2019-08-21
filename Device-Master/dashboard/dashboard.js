@@ -60,16 +60,18 @@ tables = {
 
 const serverIP = "localhost:5000";
 
-var DG;
-var DG_container;
-var type;
-var info;
-var headers = [];
-var gridTemplateColumns = "grid-template-columns: 50px "
+var DG; // Dashboard Grid
+var DG_container; // Dashboard Grid Container
+var type; // Type of Table e.g. Plugs - used for debugging
+var info; // All relavent information on the table
+var headers = []; // Array of header text
+var gridTemplateColumns = "grid-template-columns: 50px " // Layout of table
 
 function loadPlugs() { // Requests to load all the ESP data from the database
 
     console.log("loading Plugs");
+    setLoadingText("loading");
+
     var xhr = new XMLHttpRequest();
     xhr.onload = function() {
 
@@ -84,11 +86,29 @@ function loadPlugs() { // Requests to load all the ESP data from the database
                 data = [];
                 console.log("No ESPs found");
             }
+            removeLoadingScreen();
             refreshTable();
         }
     };
 
     xhr.open('GET', `http://${serverIP}/loadPlugs`, true); // Retrive ESP data
+    xhr.send();
+}
+
+function blink(ESPIP) {
+
+    console.log(`blinking Plug with IP: ${ESPIP}`);
+    
+    var xhr = new XMLHttpRequest();
+    xhr.onload = function() {
+
+        if (this.status == 200) {
+            
+            console.log(this.responseText);
+        }
+    };
+
+    xhr.open('GET', `http://${ESPIP}:80/blink?repeat=1&duration=1`, true);
     xhr.send();
 }
 
@@ -185,7 +205,7 @@ function createCell(type, i, j, row) {
     if (type == "DIV") {
         DG_body_cell = createElem("DIV", [["class", "DG_body_cell"], ["id", `${data[i]["ID"]} | ${j}`]]);
     } else if (type == "button") {
-        DG_body_cell = createElem("button", [["class", "DG_body_cell_btn"], ["id", `${data[i]["ID"]} | ${j}`]]);
+        DG_body_cell = createElem("button", [["class", "DG_body_cell_btn"], ["id", `${data[i]["ID"]} | ${j}`], ["onclick", `blink("${data[i]["IP"]}")`]]);
     }
     row.appendChild(DG_body_cell);
 }
@@ -204,4 +224,14 @@ function updateTable(type) {
 function updateText(itr, id, text) {
     elem = document.getElementById(`${data[itr]["ID"]} | ${id}`);
     elem.innerHTML = text;
+}
+
+function removeLoadingScreen() {
+    popup = document.getElementById("loadingPopup");
+    popup.parentNode.removeChild(popup);
+}
+
+function setLoadingText(text) {
+    loadingText = document.getElementById("loadingText");
+    loadingText.innerHTML = text;
 }

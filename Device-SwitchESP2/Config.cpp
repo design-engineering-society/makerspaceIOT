@@ -65,6 +65,8 @@ void Config::load() {
   ssid = loadEEPROM(ADDR_ssid);
   password = loadEEPROM(ADDR_pass);
   masterIP = loadEEPROM(ADDR_mIP);
+
+  printCFG("Loaded config");
 }
 
 void Config::saveEEPROM(int address, String str) {

@@ -17,8 +17,8 @@ const char* init_ssid = "TP-Link_6F62";
 const char* init_password = "78059757";
 const char* init_masterIP = "192.168.0.110";
 
-const char* APssid = "esp_switch";
-const char* APpassword = "get_things_done";
+const char* APssid = "Plug - ";
+const char* APpassword = "esp";
 
 int relay_pin = 12;
 int builtin_LED_pin = 13;

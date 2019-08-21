@@ -162,10 +162,9 @@ app.get("/loadPlugs", (req, res) => { // load the ESP data from database
                     resultArray.push(IPEntry);
                 }
                 count++;
+
                 if (count == dbres.length) { // If the last ESP has been checked
                     if (resultArray.length != 0) {
-                        //var ipIndexedResultArray = IPIndexESPData(resultArray);
-                        //console.log(ipIndexedResultArray);
                         res.status(200).send(JSON.stringify(resultArray, undefined, 3));
                     } else {
                         res.status(200).send("{\"error\": \"no Plugs found\"}");
