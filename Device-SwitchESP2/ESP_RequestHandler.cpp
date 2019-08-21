@@ -15,15 +15,6 @@ extern Network* net;
 ESP_RequestHandler::ESP_RequestHandler() {
 }
 
-String getPlugInfo() {
-
-  char jsonData[2048];
-  DynamicJsonDocument doc(1024);
-  doc["Relay"] = gpio->readRelay();
-  serializeJson(doc, jsonData);
-  return String(jsonData);
-}
-
 String getConfigInfo() {
 
   cfg->save();
@@ -141,17 +132,15 @@ void ESP_RequestHandler::info() {
   char jsonData[2048];
   DynamicJsonDocument doc(1024);
   DynamicJsonDocument docConfig(1024);
-  DynamicJsonDocument docPlugs(1024);
   DeserializationError errorConfig = deserializeJson(docConfig, getConfigInfo());
-  DeserializationError errorPlugs = deserializeJson(docPlugs, getPlugInfo());
 
   if (mode == "all") {
     doc["config"] = docConfig;
-    doc["plugs"] = docPlugs;
+    doc["relay"] = gpio->readRelay();
   } else if (mode == "config") {
     doc["config"] = docConfig;
-  } else if (mode == "plugs") {
-    doc["plugs"] = docPlugs;
+  } else if (mode == "relay") {
+    doc["relay"] = gpio->readRelay();
   } else {
     doc["message"] = "error: invalid mode";
   }

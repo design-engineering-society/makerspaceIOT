@@ -178,7 +178,7 @@ button:focus, input[type="button"]:focus {
 
     position: relative;
     z-index:1001;
-    display: block;
+    display: inline-block;
     background-color: rgb(233, 233, 233);
     margin: auto;
     width:400px;

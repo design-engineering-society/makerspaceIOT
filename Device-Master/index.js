@@ -34,17 +34,17 @@ app.get("/dashboard", (req, res) => { // Loads the operator page
     res.sendFile(path.join(__dirname + "/dashboard/dashboard.html"));
 });
 
-app.post("/connect", (req, res) => { 
-    var IP = (req.headers['x-forwarded-for'] || req.connection.remoteAddress).replace("::ffff:","");
+app.post("/connect", (req, res) => {
+    var IP = (req.headers['x-forwarded-for'] || req.connection.remoteAddress).replace("::ffff:", "");
     var ID = req.body["ID"];
 
-    dbUtil.find("Plugs", {"ID": ID}, dbres => {
+    dbUtil.find("Plugs", { "ID": ID }, dbres => {
         if (dbres.length == 0) {
             console.log("ID not found. Adding Plug to database");
-            dbUtil.add("Plugs", util.newESP(ID,IP), dbres => {});
+            dbUtil.add("Plugs", util.newESP(ID, IP), dbres => { });
         } else {
             if (dbres[0]["IP"] != IP) {
-                dbUtil.update("Plugs", {"ID": ID}, {"IP": IP}, dbres => {
+                dbUtil.update("Plugs", { "ID": ID }, { "IP": IP }, dbres => {
                     console.log("Plug's IP changed. Updating IP in database");
                 });
             }
@@ -54,7 +54,7 @@ app.post("/connect", (req, res) => {
     });
 });
 
-app.get("/registerCard", (req, res) => { 
+app.get("/registerCard", (req, res) => {
 
     var cardID = req.query["cardid"];
     var firstname = req.query["firstname"];
@@ -62,8 +62,8 @@ app.get("/registerCard", (req, res) => {
 
     console.log(req.query);
 
-    var dbquery = {"cardid": cardID};
-    var userDetails = {"firstname": firstname, "lastname": lastname};
+    var dbquery = { "cardid": cardID };
+    var userDetails = { "firstname": firstname, "lastname": lastname };
 
     dbUtil.upsert("Users", dbquery, userDetails, dbres => {
         res.setHeader("Access-Control-Allow-Origin", "*");
@@ -71,20 +71,20 @@ app.get("/registerCard", (req, res) => {
     });
 });
 
-app.get("/authenticateCard", (req, res) => { 
+app.get("/authenticateCard", (req, res) => {
 
     var cardID = req.query["cardid"];
 
     console.log(req.query);
 
-    dbUtil.find("Users", {"cardid": cardid}, dbres => {
+    dbUtil.find("Users", { "cardid": cardid }, dbres => {
         msg = (dbres.length == 0) ? "false" : true;
         console.log(msg);
         res.status(200).send(msg);
     });
 });
 
-app.get("/addTimestamp", (req, res) => { 
+app.get("/addTimestamp", (req, res) => {
 
     var requestData = req.query;
 
@@ -97,26 +97,41 @@ app.get("/addTimestamp", (req, res) => {
     });
 });
 
-app.post("/updateESP", (req, res) => {
+app.post("/updatePlug", (req, res) => {
 
     var id = req.body["ID"];
 
     const obj = {
-        IP: req.body["IP"],
-        description: req.body["description"],
-        masterIP: req.body["masterIP"],
-        routerIP: req.body["routerIP"],
-        plug1Lbl: req.body["plug1Lbl"],
-        plug2Lbl: req.body["plug2Lbl"],
-        plug3Lbl: req.body["plug3Lbl"],
-        plug4Lbl: req.body["plug4Lbl"]
+        name: req.body["name"],
+        ssid: req.body["ssid"],
+        password: req.body["password"],
+        masterIP: req.body["masterIP"]
     };
 
-    dbUtil.update("ESP", {"ID": id}, obj, dbres => {
+    dbUtil.update("Plugs", { "ID": id }, obj, dbres => {
+
+        obj["ID"] = id;
+        obj["IP"] = req.body["IP"];
+        updatePlugConfig(obj);
+
         res.setHeader("Access-Control-Allow-Origin", "*");
         res.status(200).send("1 document updated");
     });
 });
+
+function updatePlugConfig(data) {
+
+    console.log(`Updating Config in Plug with IP: ${data["IP"]}`);
+
+    request.post(`http://${data["IP"]}:80/update`, { json: data }, (error, res, body) => {
+        if (error) {
+            console.error(error);
+            return;
+        }
+        console.log(`statusCode: ${res.statusCode}`);
+        console.log(body);
+    })
+}
 
 app.post("/addUser", (req, res) => {
 
@@ -151,7 +166,7 @@ app.post("/addUser", (req, res) => {
 app.get("/loadPlugs", (req, res) => { // load the ESP data from database
 
     dbUtil.find("Plugs", {}, dbres => {
-        
+
         var msg = "";
         var count = 0;
         var resultArray = [];
@@ -159,8 +174,12 @@ app.get("/loadPlugs", (req, res) => { // load the ESP data from database
         dbres.forEach((IPEntry) => { // Check which ESPs are currently connected
             ping.sys.probe(IPEntry["IP"], (isAlive) => {
                 if (isAlive) {
-                    resultArray.push(IPEntry);
+                    IPEntry["WiFiStatus"] = "online";
+                } else {
+                    IPEntry["WiFiStatus"] = "offline";
                 }
+                IPEntry["relay"] = "checking";
+                resultArray.push(IPEntry);
                 count++;
 
                 if (count == dbres.length) { // If the last ESP has been checked

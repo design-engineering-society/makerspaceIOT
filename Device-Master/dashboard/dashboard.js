@@ -1,50 +1,11 @@
-var data = [
-    {
-        "ID": "f874bfea-3f7e-42a7-89c8-e05aa8dfd5ab",
-        "name": "Prusa A3",
-        "operating_mode": "normal",
-        "IP": "192.168.0.167",
-        "ssid": "Makerspace WiFi",
-        "password": "sadsdfgdsdfddsg",
-        "masterIP": "192.168.0.110"
-    },
-    {
-        "ID": "fe1e9b3c-200f-476e-b596-d4461944524c",
-        "name": "Prusa A4",
-        "operating_mode": "normal",
-        "IP": "192.168.0.168",
-        "ssid": "Makerspace WiFi",
-        "password": "sadsdfgdsdfddsg",
-        "masterIP": "192.168.0.110"
-    },
-    {
-        "ID": "735cc473-7e2f-4a70-bd27-c3cd776f56ae",
-        "name": "Prusa A5",
-        "operating_mode": "normal",
-        "IP": "192.168.0.82",
-        "ssid": "Makerspace WiFi",
-        "password": "sadsdfgdsdfddsg",
-        "masterIP": "192.168.0.110"
-    },
-    {
-        "ID": "3f60eec2-2e93-480c-a1c9-fbd55ee8a23a",
-        "name": "Prusa A6",
-        "operating_mode": "normal",
-        "IP": "192.168.0.152",
-        "ssid": "Makerspace WiFi",
-        "password": "sadsdfgdsdfddsg",
-        "masterIP": "192.168.0.110"
-    }
-];
-
 tables = {
     Plugs: {
         attributes: [
             ["Name", "200px"],
             ["UUID", "370px"],
             ["IP", "200px"],
-            ["Status", "200px"],
-            ["Relay (Debug)", "200px"],
+            ["WiFi Status", "200px"],
+            ["Relay", "200px"],
             ["Blink", "100px"]
         ]
     },
@@ -60,6 +21,7 @@ tables = {
 
 const serverIP = "localhost:5000";
 
+var data;
 var DG; // Dashboard Grid
 var DG_container; // Dashboard Grid Container
 var type; // Type of Table e.g. Plugs - used for debugging
@@ -73,15 +35,15 @@ function loadPlugs() { // Requests to load all the ESP data from the database
     setLoadingText("loading");
 
     var xhr = new XMLHttpRequest();
-    xhr.onload = function() {
+    xhr.onload = function () {
 
         if (this.status == 200) {
-            
+
             data = JSON.parse(this.responseText);
             if (!data["error"]) {
                 console.log(data);
                 console.log(`Loaded ${Object.keys(data).length} ESP(s) from database`);
-                
+
             } else {
                 data = [];
                 console.log("No ESPs found");
@@ -98,12 +60,12 @@ function loadPlugs() { // Requests to load all the ESP data from the database
 function blink(ESPIP) {
 
     console.log(`blinking Plug with IP: ${ESPIP}`);
-    
+
     var xhr = new XMLHttpRequest();
-    xhr.onload = function() {
+    xhr.onload = function () {
 
         if (this.status == 200) {
-            
+
             console.log(this.responseText);
         }
     };
@@ -112,10 +74,85 @@ function blink(ESPIP) {
     xhr.send();
 }
 
-function createElem(type, attributes) {
+function checkRelays() {
+
+    console.log(`Checking relays`);
+
+    for (let i = 0; i < data.length; i++) {
+
+        var xhr = new XMLHttpRequest();
+        xhr.onload = function () {
+
+            if (this.status == 200) {
+
+                console.log(this.responseText);
+
+                data[i]["relay"] = this.responseText;
+
+                updateCell(i, "Relay", elem => {
+
+                    if (data[i]["relay"] == "checking") {
+                        elem.setAttribute("style", "background-color: #76ffdb");
+                    } else if (data[i]["relay"] == "ON") {
+                        elem.setAttribute("style", "background-color: #82ff64");
+                    } else if (data[i]["relay"] == "OFF") {
+                        elem.setAttribute("style", "background-color: #ff6464");
+                    }
+                    elem.innerHTML = data[i]["relay"];
+                });
+            }
+        };
+
+        xhr.open('GET', `http://${data[i]["IP"]}:80/info?mode=relay`, true);
+        xhr.send();
+    }
+}
+
+function updatePlug() {
+
+    var recordData = {
+        "ID": document.getElementById("PI_ID").innerHTML,
+        "IP": document.getElementById("PI_IP").innerHTML,
+        "name": document.getElementById("PI_name").value,
+        "ssid": document.getElementById("PI_ssid").value,
+        "password": document.getElementById("PI_password").value,
+        "masterIP": document.getElementById("PI_masterIP").value
+    }
+
+    updateRecord(recordData);
+    updateRow(recordData);
+    fadeOutPopup();
+    console.log(`Updating Plug with IP: ${recordData["IP"]}`);
+
+    var xhr = new XMLHttpRequest();
+    xhr.onload = function () {
+
+        if (this.status == 200) {
+
+            console.log(this.responseText);
+        }
+    };
+
+    xhr.open('POST', `http://${serverIP}/updatePlug`, true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.send(JSON.stringify(recordData));
+}
+
+function createElem(type, attributes, parent) {
     var elem = document.createElement(type);
     for (var atr = 0; atr < attributes.length; atr++) {
-        elem.setAttribute(attributes[atr][0], attributes[atr][1]);
+        if (attributes[atr][0] == "innerHTML") {
+            elem.innerHTML = attributes[atr][1];
+        } else if (attributes[atr][0] == "value") {
+            elem.value = attributes[atr][1];
+        } else {
+            elem.setAttribute(attributes[atr][0], attributes[atr][1]);
+        }
+    }
+    if (parent == "body") {
+        document.body.appendChild(elem);
+    } else if (parent != "") {
+        parent.appendChild(elem);
     }
     return elem
 }
@@ -132,26 +169,21 @@ function generateTable() {
         gridTemplateColumns += (info["attributes"][i][1] + " ");
     }
 
-    DG_container = createElem("DIV", [["class", "DG_container"]]);
+    DG_container = createElem("DIV", [["class", "DG_container"]], "");
     document.getElementsByClassName("title")[0].innerHTML = DG.getAttribute("type");
 
     // Header
-    var DG_header = createElem("DIV", [["class", "DG_header"], ["style", gridTemplateColumns]]);
-    var DG_header_cell = createElem("DIV", [["class", "DG_header_cell"]]);
-    DG_header.appendChild(DG_header_cell);
+    var DG_header = createElem("DIV", [["class", "DG_header"], ["style", gridTemplateColumns]], "");
+    var DG_header_cell = createElem("DIV", [["class", "DG_header_cell"]], DG_header);
 
     for (const header of headers) {
-
-        DG_header_cell = createElem("DIV", [["class", "DG_header_cell"]]);
-        DG_header_cell.innerHTML = header;
-        DG_header.appendChild(DG_header_cell);
+        DG_header_cell = createElem("DIV", [["class", "DG_header_cell"], ["innerHTML", header]], DG_header);
     }
 
     DG_container.appendChild(DG_header);
 
-    var DG_body = createElem("DIV", [["class", "DG_body"]]);
+    var DG_body = createElem("DIV", [["class", "DG_body"]], DG_container);
 
-    DG_container.appendChild(DG_body);
     DG.appendChild(DG_container);
     document.getElementsByClassName("wrapper")[0].appendChild(DG);
     loadPlugs();
@@ -165,13 +197,13 @@ function refreshTable() {
     }
 
     for (var i = 0; i < data.length; i++) { // Create Rows
-        var DG_body_row = initRow();
+        var DG_body_row = initRow(data[i]["ID"]);
 
         for (var j = 0; j < headers.length; j++) { // Create Cells for each rows
             if (headers[j] == "Blink") {
-                createCell("button", i, j, DG_body_row);
+                createCell("button", i, headers[j], DG_body_row);
             } else {
-                createCell("DIV", i, j, DG_body_row);
+                createCell("DIV", i, headers[j], DG_body_row);
             }
         }
         DG_body.appendChild(DG_body_row);
@@ -188,24 +220,22 @@ function resetBody() {
     return DG_body;
 }
 
-function initRow() {
-    var DG_body_row = createElem("DIV", [["class", "DG_body_row"], ["style", gridTemplateColumns]]);
-    var DG_body_cell = createElem("DIV", [["class", "DG_body_cell"]]);
-    DG_body_row.appendChild(DG_body_cell);
-    var DG_edit_img = createElem("IMG", [["class", "DG_edit_img NS"], ["src", "options.svg"]]);
-    DG_body_cell.appendChild(DG_edit_img);
+function initRow(id) {
+    var DG_body_row = createElem("DIV", [["class", "DG_body_row"], ["style", gridTemplateColumns]], "");
+    var DG_body_cell = createElem("button", [["class", "DG_body_edit"], ["onclick", `addPopup("${id}")`]], DG_body_row);
+    var DG_edit_img = createElem("IMG", [["class", "DG_edit_img NS"], ["src", "options.svg"]], DG_body_cell);
 
     return DG_body_row;
 }
 
-function createCell(type, i, j, row) {
+function createCell(type, i, header, row) {
 
     var DG_body_cell;
 
     if (type == "DIV") {
-        DG_body_cell = createElem("DIV", [["class", "DG_body_cell"], ["id", `${data[i]["ID"]} | ${j}`]]);
+        DG_body_cell = createElem("DIV", [["class", "DG_body_cell"], ["id", `${data[i]["ID"]} | ${header}`]], "");
     } else if (type == "button") {
-        DG_body_cell = createElem("button", [["class", "DG_body_cell_btn"], ["id", `${data[i]["ID"]} | ${j}`], ["onclick", `blink("${data[i]["IP"]}")`]]);
+        DG_body_cell = createElem("button", [["class", "DG_body_cell_btn"], ["id", `${data[i]["ID"]} | ${header}`], ["onclick", `blink("${data[i]["IP"]}")`]], "");
     }
     row.appendChild(DG_body_cell);
 }
@@ -214,16 +244,38 @@ function updateTable(type) {
 
     if (type == "Plugs") {
         for (var i = 0; i < data.length; i++) {
-            updateText(i, "0", data[i]["name"]);
-            updateText(i, "1", data[i]["ID"]);
-            updateText(i, "2", data[i]["IP"]);
+            updateCell(i, "Name", elem => { elem.innerHTML = data[i]["name"] });
+            updateCell(i, "UUID", elem => { elem.innerHTML = data[i]["ID"] });
+            updateCell(i, "IP", elem => { elem.innerHTML = data[i]["IP"] });
+            updateCell(i, "WiFi Status", elem => {
+
+                if (data[i]["WiFiStatus"] == "online") {
+                    elem.setAttribute("style", "background-color: #82ff64");
+                } else if (data[i]["WiFiStatus"] == "offline") {
+                    elem.setAttribute("style", "background-color: #ff6464");
+                }
+                elem.innerHTML = data[i]["WiFiStatus"]
+            }
+            );
+            updateCell(i, "Relay", elem => {
+
+                if (data[i]["relay"] == "checking") {
+                    elem.setAttribute("style", "background-color: #76ffdb");
+                } else if (data[i]["relay"] == "ON") {
+                    elem.setAttribute("style", "background-color: #82ff64");
+                } else if (data[i]["relay"] == "OFF") {
+                    elem.setAttribute("style", "background-color: #ff6464");
+                }
+                elem.innerHTML = data[i]["relay"]
+            }
+            );
         }
     }
 }
 
-function updateText(itr, id, text) {
-    elem = document.getElementById(`${data[itr]["ID"]} | ${id}`);
-    elem.innerHTML = text;
+function updateCell(itr, header, func) {
+    elem = document.getElementById(`${data[itr]["ID"]} | ${header}`);
+    func(elem);
 }
 
 function removeLoadingScreen() {
@@ -234,4 +286,102 @@ function removeLoadingScreen() {
 function setLoadingText(text) {
     loadingText = document.getElementById("loadingText");
     loadingText.innerHTML = text;
+}
+
+function testing() {
+    console.log("testing");
+}
+
+//////////////////////////////////// POPUP
+
+function createPopupLbl(P_grid, data) {
+
+    var P_label = createElem("DIV", [["class", "P_label NS"], ["innerHTML", data[0]]], P_grid);
+    if (data[1] == "DIV") {
+        var P_data = createElem("DIV", [["class", "P_label"], ["id", data[3]], ["innerHTML", data[2]], ["style", "text-align:left; font-size: 0.9rem;"]], P_grid);
+    } else if (data[1] == "INPUT") {
+        var P_data_wrap = createElem("DIV", [["class", "P_input_wrap"]], P_grid);
+        var P_data = createElem("INPUT", [["class", "P_input"], ["id", data[3]], ["value", data[2]]], P_data_wrap);
+    }
+}
+
+function addPopup(id) {
+
+    let popupData = findRecord(id);
+
+    const P_wrapper = createElem("DIV", [["id", "P_wrapper"]], "body");
+    const P_back = createElem("DIV", [["id", "P_back"], ["onclick", "fadeOutPopup()"]], P_wrapper);
+    const P_panel = createElem("DIV", [["id", "P_panel"]], P_wrapper);
+    const P_grid = createElem("DIV", [["id", "P_grid"]], P_panel);
+    const P_title = createElem("DIV", [["id", "P_title"], ["innerHTML", "Edit Plug Config"], ["class", "NS"]], P_grid);
+
+    createPopupLbl(P_grid, ["ID:", "DIV", popupData["ID"], "PI_ID"]);
+    createPopupLbl(P_grid, ["IP:", "DIV", popupData["IP"], "PI_IP"]);
+    createPopupLbl(P_grid, ["Name:", "INPUT", popupData["name"], "PI_name"]);
+    createPopupLbl(P_grid, ["SSID:", "INPUT", popupData["ssid"], "PI_ssid"]);
+    createPopupLbl(P_grid, ["Password:", "INPUT", popupData["password"], "PI_password"]);
+    createPopupLbl(P_grid, ["Master IP:", "INPUT", popupData["masterIP"], "PI_masterIP"]);
+
+    const P_update_wrap = createElem("DIV", [["id", "P_update_wrap"]], P_grid);
+    const P_update = createElem("BUTTON", [["id", "P_update"], ["innerHTML", "Update"], ["onclick", "updatePlug()"]], P_update_wrap);
+
+    fadeInPopup(P_wrapper);
+}
+
+function fadeOutPopup() {
+    var element = document.getElementById("P_wrapper");
+
+    var op = 1;
+    var inc = 0.08;
+    var timer = setInterval(function () {
+        if (op <= 0) {
+            element.parentNode.removeChild(element);
+            clearInterval(timer);
+        }
+        element.style.opacity = op;
+        element.style.filter = 'alpha(opacity=' + op * 100 + ")";
+        op -= inc;
+    }, 8);
+}
+
+function fadeInPopup(element) {
+    var op = 0;
+    var inc = 0.08;
+    var timer = setInterval(function () {
+        if (op >= 1) {
+            clearInterval(timer);
+        }
+        element.style.opacity = op;
+        element.style.filter = 'alpha(opacity=' + op * 100 + ")";
+        op += inc;
+    }, 8);
+}
+
+function findRecord(id) {
+
+    for (let i = 0; i < data.length; i++) {
+        if (data[i]["ID"] == id) {
+            return data[i];
+        }
+    }
+    return [];
+}
+
+function updateRecord(recordData) {
+
+    for (let i = 0; i < data.length; i++) {
+        if (data[i]["ID"] == recordData["ID"]) {
+            data[i]["name"] = recordData["name"];
+            data[i]["ssid"] = recordData["ssid"];
+            data[i]["password"] = recordData["password"];
+            data[i]["masterIP"] = recordData["masterIP"];
+            return;
+        }
+    }
+}
+
+function updateRow(recordData) {
+
+    console.log(recordData);
+    document.getElementById(`${recordData["ID"]} | Name`).innerHTML = recordData["name"];
 }
