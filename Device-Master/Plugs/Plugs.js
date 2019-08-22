@@ -20,7 +20,7 @@ function loadPlugs(mode) { // Requests to load all the ESP data from the databas
                 console.log("No ESPs found");
             }
             if (mode != "background") { removeLoadingScreen(); }
-            refreshTable();
+            refreshTable("Plugs");
             checkRelays();
         }
     };
@@ -139,7 +139,10 @@ function updatePlug() {
 
 
 ///// Plug Table
-
+function Plugs_loadFunction() {
+    loadPlugs("initial");
+    checkPlugsPeriodic();
+}
 
 function updateRelayCell(data, elem) {
     if (data["relay"] == "checking" || data["relay"] == "...") {

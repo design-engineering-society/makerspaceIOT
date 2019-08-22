@@ -11,10 +11,22 @@ tables = {
     },
     Users: {
         attributes: [
-            ["Name", "200px"],
-            ["Equipment", "370px"],
-            ["Start Time", "200px"],
-            ["End Time", "200px"]
+            ["Card ID", "200px"],
+            ["CID", "200px"],
+            ["Username", "200px"],
+            ["First Name", "240px"],
+            ["Last Name", "240px"],
+            ["Department", "350px"],
+            ["Program", "200px"],
+            ["Description", "250px"],
+            ["Study Date Start", "200px"],
+            ["Study Date End", "200px"],
+            ["Study Year", "200px"],
+            ["Role", "200px"],
+            ["Equipment Type Access", "300px"],
+            ["Credit", "150px"],
+            ["Date User Inducted", "240px"],
+            ["Remarks", "200px"]
         ]
     }
 };
@@ -54,7 +66,7 @@ function createElem(type, attributes, parent) {
     return elem
 }
 
-function generateTable() {
+function generateTable(loadFunction) {
 
     // Initialise
     DG = document.getElementById("DG");
@@ -83,11 +95,12 @@ function generateTable() {
 
     DG.appendChild(DG_container);
     document.getElementsByClassName("wrapper")[0].appendChild(DG);
-    loadPlugs("initial");
-    checkPlugsPeriodic();
+
+    loadFunction();
+
 }
 
-function refreshTable() {
+function refreshTable(type) {
 
     var DG_body = resetBody();
     if (data == []) {
@@ -97,13 +110,19 @@ function refreshTable() {
     for (var i = 0; i < data.length; i++) { // Create Rows
         var DG_body_row = initRow(data[i]["ID"]);
 
-        for (var j = 0; j < headers.length; j++) { // Create Cells for each rows
-            if (headers[j] == "Blink") {
-                createCell("button", i, headers[j], DG_body_row);
-            } else if (headers[j] == "Relay") {
-                createCell("toggle", i, headers[j], DG_body_row);
-            } else {
-                createCell("DIV", i, headers[j], DG_body_row);
+        if (type == "Plugs") {
+            for (var j = 0; j < headers.length; j++) { // Create Cells for each rows
+                if (headers[j] == "Blink") {
+                    createCell("button", data[i]["ID"], headers[j], DG_body_row);
+                } else if (headers[j] == "Relay") {
+                    createCell("toggle", data[i]["ID"], headers[j], DG_body_row);
+                } else {
+                    createCell("DIV", data[i]["ID"], headers[j], DG_body_row);
+                }
+            }
+        } else if (type == "Users") {
+            for (var j = 0; j < headers.length; j++) { // Create Cells for each rows
+                createCell("DIV", data[i]["Card ID"], headers[j], DG_body_row);
             }
         }
         DG_body.appendChild(DG_body_row);
@@ -128,16 +147,16 @@ function initRow(id) {
     return DG_body_row;
 }
 
-function createCell(type, i, header, row) {
+function createCell(type, ID, header, row) {
 
     var DG_body_cell;
 
     if (type == "DIV") {
-        DG_body_cell = createElem("DIV", [["class", "DG_body_cell"], ["id", `${data[i]["ID"]} | ${header}`]], "");
+        DG_body_cell = createElem("DIV", [["class", "DG_body_cell"], ["id", `${ID} | ${header}`]], "");
     } else if (type == "toggle") {
-        DG_body_cell = createElem("DIV", [["class", "DG_body_cell_btn NS P"], ["id", `${data[i]["ID"]} | ${header}`], ["onclick", `toggle("${data[i]["ID"]}", "${data[i]["IP"]}")`]], "");
+        DG_body_cell = createElem("DIV", [["class", "DG_body_cell_btn NS P"], ["id", `${ID} | ${header}`], ["onclick", `toggle("${ID}", "${ID}")`]], "");
     } else if (type == "button") {
-        DG_body_cell = createElem("DIV", [["class", "DG_body_cell_btn NS P"], ["id", `${data[i]["ID"]} | ${header}`], ["onclick", `blink("${data[i]["ID"]}", "${data[i]["IP"]}")`]], "");
+        DG_body_cell = createElem("DIV", [["class", "DG_body_cell_btn NS P"], ["id", `${ID} | ${header}`], ["onclick", `blink("${ID}", "${ID}")`]], "");
     }
     row.appendChild(DG_body_cell);
 }
@@ -160,6 +179,25 @@ function updateTable(type) {
             }
             );
             updateCell(data[i]["ID"], "Relay", elem => { updateRelayCell(data[i], elem); });
+        }
+    } else if (type == "Users") {
+        for (var i = 0; i < data.length; i++) {
+            updateCell(data[i]["Card ID"], "Card ID", elem => { elem.innerHTML = data[i]["Card ID"] });
+            updateCell(data[i]["Card ID"], "CID", elem => { elem.innerHTML = data[i]["CID"] });
+            updateCell(data[i]["Card ID"], "Username", elem => { elem.innerHTML = data[i]["Username"] });
+            updateCell(data[i]["Card ID"], "First Name", elem => { elem.innerHTML = data[i]["First Name"] });
+            updateCell(data[i]["Card ID"], "Last Name", elem => { elem.innerHTML = data[i]["Last Name"] });
+            updateCell(data[i]["Card ID"], "Department", elem => { elem.innerHTML = data[i]["Department"] });
+            updateCell(data[i]["Card ID"], "Program", elem => { elem.innerHTML = data[i]["Program"] });
+            updateCell(data[i]["Card ID"], "Description", elem => { elem.innerHTML = data[i]["Description"] });
+            updateCell(data[i]["Card ID"], "Study Date Start", elem => { elem.innerHTML = data[i]["Study Date Start"] });
+            updateCell(data[i]["Card ID"], "Study Date End", elem => { elem.innerHTML = data[i]["Study Date End"] });
+            updateCell(data[i]["Card ID"], "Study Year", elem => { elem.innerHTML = data[i]["Study Year"] });
+            updateCell(data[i]["Card ID"], "Role", elem => { elem.innerHTML = data[i]["Role"] });
+            updateCell(data[i]["Card ID"], "Equipment Type Access", elem => { elem.innerHTML = data[i]["Equipment Type Access"] });
+            updateCell(data[i]["Card ID"], "Credit", elem => { elem.innerHTML = data[i]["Credit"] });
+            updateCell(data[i]["Card ID"], "Date User Inducted", elem => { elem.innerHTML = data[i]["Date User Inducted"] });
+            updateCell(data[i]["Card ID"], "Remarks", elem => { elem.innerHTML = data[i]["Remarks"] });
         }
     }
 }

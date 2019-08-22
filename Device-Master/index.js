@@ -138,33 +138,38 @@ function updatePlugConfig(data) {
     })
 }
 
-app.post("/addUser", (req, res) => {
+app.get("/addUser", (req, res) => {
 
     const obj = {
-        firstname: "",
-        lastname: "",
-        email: "",
-        cardID: "",
-        CID: "",
-        Department: "",
-        year: "",
-        status: "",
-        permissions: {
-            markforged: {
-                start: 0900,
-                end: 1900
-            },
-            PrusaMK3s: {
-                start: 0900,
-                end: 1900
-            }
-        },
-        credit: ""
+        "Card ID": "3456876399",
+        "CID": "04346633",
+        "Username": "India",
+        "First Name": "Hardik",
+        "Last Name": "Aggarwal",
+        "Department": "Electronic and Information Engineering",
+        "Program": "MEng",
+        "Description": "",
+        "Study Date Start": "October 2017",
+        "Study Date End": "June 2021",
+        "Study Year": "3",
+        "Role": "Rep",
+        "Equipment Type Access": "...",
+        "Credit": "-50000.00",
+        "Date User Inducted": "01/02/1993",
+        "Remarks": "India"
     };
 
-    dbUtil.add("User", obj, dbres => {
+    dbUtil.add("Users", obj, dbres => {
         res.setHeader("Access-Control-Allow-Origin", "*");
         res.status(200).send("1 document updated");
+    });
+});
+
+app.get("/loadUsers", (req, res) => {
+
+    dbUtil.find("Users", {}, dbres => {
+        console.log(dbres);
+        res.status(200).send(dbres);
     });
 });
 
