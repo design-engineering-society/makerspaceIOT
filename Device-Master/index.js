@@ -34,6 +34,11 @@ app.get("/plugs", (req, res) => { // Loads the operator page
     res.sendFile(path.join(__dirname + "/Plugs/Plugs.html"));
 });
 
+app.get("/users", (req, res) => { // Loads the operator page
+    res.sendFile(path.join(__dirname + "/Users/Users.html"));
+});
+
+
 app.post("/connect", (req, res) => {
     var IP = (req.headers['x-forwarded-for'] || req.connection.remoteAddress).replace("::ffff:", "");
     var ID = req.body["ID"];

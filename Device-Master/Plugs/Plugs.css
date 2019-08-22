@@ -15,7 +15,7 @@ body {
     margin: 0px;
 }
 
-.header {
+/*.header {
     position: relative;
     display: block;
     margin: 0px;
@@ -67,7 +67,7 @@ body {
     font-family: var(--makerspaceFont);
 
     font-weight: 200;
-}
+}*/
 
 .wrapper {
     display: block;

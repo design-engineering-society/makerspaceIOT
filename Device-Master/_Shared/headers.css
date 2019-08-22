@@ -1,0 +1,70 @@
+:root {
+    --makerspaceColor: #1d1d1b;
+    --makerspaceFont: 'Open Sans', sans-serif;
+    --headerHeight: 130px;
+    --bodyColour1: rgb(255, 255, 255);
+    --bodyColour2: rgb(250, 250, 250);
+    --bodyBorderColor: #dfdfdf;
+    --minCellWidth: 200px;
+    --maxTableWidth: 1400px;
+    --editButtonWidth: 50px;
+}
+
+body {
+    padding: 0px;
+    margin: 0px;
+}
+
+.header {
+    position: relative;
+    display: block;
+    margin: 0px;
+
+    background-color: var(--makerspaceColor);
+
+    width: 100%;
+    height: var(--headerHeight);
+
+    overflow: hidden;
+
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.headerImg {
+    position: absolute;
+    display: inline-block;
+    top: 30px;
+    left: 30px;
+
+    width: auto;
+    height: calc(var(--headerHeight) - 60px);
+}
+
+.headerButtonsWrapper {
+    position: relative;
+    display: block;
+    margin: auto;
+    width: auto;
+    height: auto;
+    padding: 0px;
+
+    overflow: hidden;
+}
+
+.headerButton {
+    float:left;
+
+    padding: 5px 20px;
+
+    margin: 5px 5px;
+    color: #ffffff;
+
+    text-decoration: none;
+    font-size: 1.3rem;
+    font-family: var(--makerspaceFont);
+
+    font-weight: 200;
+}
