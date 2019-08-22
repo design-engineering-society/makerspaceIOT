@@ -29,10 +29,12 @@ var info; // All relavent information on the table
 var headers = []; // Array of header text
 var gridTemplateColumns = "grid-template-columns: 50px " // Layout of table
 
-function loadPlugs() { // Requests to load all the ESP data from the database
+/////// REQUESTS ///////
 
-    console.log("loading Plugs");
-    setLoadingText("loading");
+function loadPlugs(mode) { // Requests to load all the ESP data from the database
+
+    //  console.log("loading Plugs");
+    if (mode != "background") {setLoadingText("loading");}
 
     var xhr = new XMLHttpRequest();
     xhr.onload = function () {
@@ -42,14 +44,15 @@ function loadPlugs() { // Requests to load all the ESP data from the database
             data = JSON.parse(this.responseText);
             if (!data["error"]) {
                 console.log(data);
-                console.log(`Loaded ${Object.keys(data).length} ESP(s) from database`);
+                console.log(`Loaded ${Object.keys(data).length} Plugs(s) from database`);
 
             } else {
                 data = [];
                 console.log("No ESPs found");
             }
-            removeLoadingScreen();
+            if (mode != "background") {removeLoadingScreen();}
             refreshTable();
+            checkRelays();
         }
     };
 
@@ -57,9 +60,15 @@ function loadPlugs() { // Requests to load all the ESP data from the database
     xhr.send();
 }
 
-function blink(ESPIP) {
+function blink(ID, IP) {
 
-    console.log(`blinking Plug with IP: ${ESPIP}`);
+    elem = document.getElementById(`${ID} | WiFi Status`);
+    if (elem.innerHTML == "offline") {
+        console.log("Plug currently unavailable to blink");
+        return;
+    }
+
+    console.log(`blinking Plug with IP: ${IP}`);
 
     var xhr = new XMLHttpRequest();
     xhr.onload = function () {
@@ -70,36 +79,57 @@ function blink(ESPIP) {
         }
     };
 
-    xhr.open('GET', `http://${ESPIP}:80/blink?repeat=1&duration=1`, true);
+    xhr.open('GET', `http://${IP}:80/blink?repeat=1&duration=1`, true);
+    xhr.send();
+}
+
+function toggle(ID, IP) {
+
+    elem = document.getElementById(`${ID} | Relay`);
+    if (elem.innerHTML == "Na" || elem.innerHTML == "checking" || elem.innerHTML == "...") {
+        console.log("Relay currently unavailable to toggle");
+        return;
+    }
+
+    console.log(`Togglig relay on plug with IP: ${IP}`);
+
+    var data = findRecord(ID);
+    data["relay"] = "...";
+    updateCell(ID, "Relay", elem => { updateRelayCell(data, elem); });
+
+    var xhr = new XMLHttpRequest();  // TODO
+    xhr.onload = function () {
+
+        if (this.status == 200) {
+
+            data["relay"] = JSON.parse(this.responseText)["Relay"];
+
+            updateCell(ID, "Relay", elem => { updateRelayCell(data, elem); });
+        }
+    };
+
+    xhr.open('GET', `http://${IP}:80/switchRelay?mode=toggle`, true);
     xhr.send();
 }
 
 function checkRelays() {
 
-    console.log(`Checking relays`);
+    //console.log(`Checking relays`);
 
     for (let i = 0; i < data.length; i++) {
+
+        if (data[i]["WiFiStatus"] == "offline") {
+            continue;
+        }
 
         var xhr = new XMLHttpRequest();
         xhr.onload = function () {
 
             if (this.status == 200) {
 
-                console.log(this.responseText);
+                data[i]["relay"] = JSON.parse(this.responseText)["relay"];
 
-                data[i]["relay"] = this.responseText;
-
-                updateCell(i, "Relay", elem => {
-
-                    if (data[i]["relay"] == "checking") {
-                        elem.setAttribute("style", "background-color: #76ffdb");
-                    } else if (data[i]["relay"] == "ON") {
-                        elem.setAttribute("style", "background-color: #82ff64");
-                    } else if (data[i]["relay"] == "OFF") {
-                        elem.setAttribute("style", "background-color: #ff6464");
-                    }
-                    elem.innerHTML = data[i]["relay"];
-                });
+                updateCell(data[i]["ID"], "Relay", elem => { updateRelayCell(data[i], elem); });
             }
         };
 
@@ -137,6 +167,16 @@ function updatePlug() {
     xhr.setRequestHeader('Content-Type', 'application/json');
     xhr.send(JSON.stringify(recordData));
 }
+
+////// MISC ////////
+
+function checkPlugsPeriodic() {
+    setInterval(() => {
+        loadPlugs("background");
+    }, 10000);
+};
+
+
 
 function createElem(type, attributes, parent) {
     var elem = document.createElement(type);
@@ -186,7 +226,8 @@ function generateTable() {
 
     DG.appendChild(DG_container);
     document.getElementsByClassName("wrapper")[0].appendChild(DG);
-    loadPlugs();
+    loadPlugs("initial");
+    checkPlugsPeriodic();
 }
 
 function refreshTable() {
@@ -202,6 +243,8 @@ function refreshTable() {
         for (var j = 0; j < headers.length; j++) { // Create Cells for each rows
             if (headers[j] == "Blink") {
                 createCell("button", i, headers[j], DG_body_row);
+            } else if (headers[j] == "Relay") {
+                createCell("toggle", i, headers[j], DG_body_row);
             } else {
                 createCell("DIV", i, headers[j], DG_body_row);
             }
@@ -222,7 +265,7 @@ function resetBody() {
 
 function initRow(id) {
     var DG_body_row = createElem("DIV", [["class", "DG_body_row"], ["style", gridTemplateColumns]], "");
-    var DG_body_cell = createElem("button", [["class", "DG_body_edit"], ["onclick", `addPopup("${id}")`]], DG_body_row);
+    var DG_body_cell = createElem("button", [["class", "DG_body_edit P"], ["onclick", `addPopup("${id}")`]], DG_body_row);
     var DG_edit_img = createElem("IMG", [["class", "DG_edit_img NS"], ["src", "options.svg"]], DG_body_cell);
 
     return DG_body_row;
@@ -234,8 +277,10 @@ function createCell(type, i, header, row) {
 
     if (type == "DIV") {
         DG_body_cell = createElem("DIV", [["class", "DG_body_cell"], ["id", `${data[i]["ID"]} | ${header}`]], "");
+    } else if (type == "toggle") {
+        DG_body_cell = createElem("DIV", [["class", "DG_body_cell_btn NS P"], ["id", `${data[i]["ID"]} | ${header}`], ["onclick", `toggle("${data[i]["ID"]}", "${data[i]["IP"]}")`]], "");
     } else if (type == "button") {
-        DG_body_cell = createElem("button", [["class", "DG_body_cell_btn"], ["id", `${data[i]["ID"]} | ${header}`], ["onclick", `blink("${data[i]["IP"]}")`]], "");
+        DG_body_cell = createElem("DIV", [["class", "DG_body_cell_btn NS P"], ["id", `${data[i]["ID"]} | ${header}`], ["onclick", `blink("${data[i]["ID"]}", "${data[i]["IP"]}")`]], "");
     }
     row.appendChild(DG_body_cell);
 }
@@ -244,10 +289,10 @@ function updateTable(type) {
 
     if (type == "Plugs") {
         for (var i = 0; i < data.length; i++) {
-            updateCell(i, "Name", elem => { elem.innerHTML = data[i]["name"] });
-            updateCell(i, "UUID", elem => { elem.innerHTML = data[i]["ID"] });
-            updateCell(i, "IP", elem => { elem.innerHTML = data[i]["IP"] });
-            updateCell(i, "WiFi Status", elem => {
+            updateCell(data[i]["ID"], "Name", elem => { elem.innerHTML = data[i]["name"] });
+            updateCell(data[i]["ID"], "UUID", elem => { elem.innerHTML = data[i]["ID"] });
+            updateCell(data[i]["ID"], "IP", elem => { elem.innerHTML = data[i]["IP"] });
+            updateCell(data[i]["ID"], "WiFi Status", elem => {
 
                 if (data[i]["WiFiStatus"] == "online") {
                     elem.setAttribute("style", "background-color: #82ff64");
@@ -257,25 +302,27 @@ function updateTable(type) {
                 elem.innerHTML = data[i]["WiFiStatus"]
             }
             );
-            updateCell(i, "Relay", elem => {
-
-                if (data[i]["relay"] == "checking") {
-                    elem.setAttribute("style", "background-color: #76ffdb");
-                } else if (data[i]["relay"] == "ON") {
-                    elem.setAttribute("style", "background-color: #82ff64");
-                } else if (data[i]["relay"] == "OFF") {
-                    elem.setAttribute("style", "background-color: #ff6464");
-                }
-                elem.innerHTML = data[i]["relay"]
-            }
-            );
+            updateCell(data[i]["ID"], "Relay", elem => { updateRelayCell(data[i], elem); });
         }
     }
 }
 
-function updateCell(itr, header, func) {
-    elem = document.getElementById(`${data[itr]["ID"]} | ${header}`);
+function updateCell(ID, header, func) {
+    elem = document.getElementById(`${ID} | ${header}`);
     func(elem);
+}
+
+function updateRelayCell(data, elem) {
+    if (data["relay"] == "checking" || data["relay"] == "...") {
+        elem.setAttribute("style", "background-color: #ffec1f");
+    } else if (data["relay"] == "ON") {
+        elem.setAttribute("style", "background-color: #82ff64");
+    } else if (data["relay"] == "OFF") {
+        elem.setAttribute("style", "background-color: #fcba03");
+    } else if (data["relay"] == "Na") {
+        elem.setAttribute("style", "background-color: #ff6464");
+    }
+    elem.innerHTML = data["relay"];
 }
 
 function removeLoadingScreen() {

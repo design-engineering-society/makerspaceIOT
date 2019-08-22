@@ -30,8 +30,8 @@ app.get("/operator", (req, res) => { // Loads the operator page
     res.sendFile(path.join(__dirname + "/operator/operator.html"));
 });
 
-app.get("/dashboard", (req, res) => { // Loads the operator page
-    res.sendFile(path.join(__dirname + "/dashboard/dashboard.html"));
+app.get("/plugs", (req, res) => { // Loads the operator page
+    res.sendFile(path.join(__dirname + "/Plugs/Plugs.html"));
 });
 
 app.post("/connect", (req, res) => {
@@ -175,15 +175,24 @@ app.get("/loadPlugs", (req, res) => { // load the ESP data from database
             ping.sys.probe(IPEntry["IP"], (isAlive) => {
                 if (isAlive) {
                     IPEntry["WiFiStatus"] = "online";
+                    IPEntry["relay"] = "...";
                 } else {
                     IPEntry["WiFiStatus"] = "offline";
+                    IPEntry["relay"] = "Na";
                 }
-                IPEntry["relay"] = "checking";
                 resultArray.push(IPEntry);
                 count++;
 
                 if (count == dbres.length) { // If the last ESP has been checked
                     if (resultArray.length != 0) {
+
+                        resultArray.sort((a, b) => {
+
+                            if(a["name"] < b["name"]) return -1;
+                            if(a["name"] > b["name"]) return 1;
+                            return 0;
+                        });
+
                         res.status(200).send(JSON.stringify(resultArray, undefined, 3));
                     } else {
                         res.status(200).send("{\"error\": \"no Plugs found\"}");
