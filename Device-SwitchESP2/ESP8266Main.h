@@ -45,10 +45,10 @@ class Config {
    public:
     Config();
     void erase_all();
-    void load();
-    void save();
-    void save(String ID, String ssid, String password, String masterIP);
-    void save(String ssid, String password, String masterIP);
+    void load(String message);
+    void save(String message);
+    void save(String ID, String ssid, String password, String masterIP, String message);
+    void save(String ssid, String password, String masterIP, String message);
     void initialise();
     void printCFG(String message);
     void saveEEPROM(int address, String str);

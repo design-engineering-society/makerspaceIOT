@@ -20,7 +20,7 @@ Config::Config() {
   this->ADDR_pass = 100;
   this->ADDR_mIP = 150;
 
-  load();
+  load("First load");
 }
 
 void Config::erase_all() {
@@ -33,40 +33,40 @@ void Config::erase_all() {
   EEPROM.commit();
 }
 
-void Config::save() {
+void Config::save(String message) {
 
   saveEEPROM(ADDR_ID, ID);
   saveEEPROM(ADDR_ssid, ssid);
   saveEEPROM(ADDR_pass, password);
   saveEEPROM(ADDR_mIP, masterIP);
-  load();
+  load(message);
 }
 
-void Config::save(String tID, String tssid, String tpassword, String tmasterIP) {
+void Config::save(String tID, String tssid, String tpassword, String tmasterIP, String message) {
 
   saveEEPROM(ADDR_ID, tID);
   saveEEPROM(ADDR_ssid, tssid);
   saveEEPROM(ADDR_pass, tpassword);
   saveEEPROM(ADDR_mIP, tmasterIP);
-  load();
+  load(message);
 }
 
-void Config::save(String tssid, String tpassword, String tmasterIP) { // Not saving ID, or overriding ID with ""
+void Config::save(String tssid, String tpassword, String tmasterIP, String message) { // Not saving ID, or overriding ID with ""
 
   saveEEPROM(ADDR_ssid, tssid);
   saveEEPROM(ADDR_pass, tpassword);
   saveEEPROM(ADDR_mIP, tmasterIP);
-  load();
+  load(message);
 }
 
-void Config::load() {
+void Config::load(String message) {
 
   ID = loadEEPROM(ADDR_ID);
   ssid = loadEEPROM(ADDR_ssid);
   password = loadEEPROM(ADDR_pass);
   masterIP = loadEEPROM(ADDR_mIP);
 
-  printCFG("Loaded config");
+  printCFG(message);
 }
 
 void Config::saveEEPROM(int address, String str) {
@@ -108,8 +108,7 @@ void Config::initialise() {
   password = init_password;
   masterIP = init_masterIP;
   
-  save();
-  printCFG("Initialised config");
+  save("Initialised config");
 }
 
 void Config::printCFG(String message) {

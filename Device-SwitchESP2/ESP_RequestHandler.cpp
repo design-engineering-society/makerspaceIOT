@@ -15,10 +15,9 @@ extern Network* net;
 ESP_RequestHandler::ESP_RequestHandler() {
 }
 
-String getConfigInfo() {
+String getConfigInfo(String message) {
 
-  cfg->save();
-  cfg->load();
+  //cfg->save(message);
 
   char jsonData[1024];
   DynamicJsonDocument doc(1024);
@@ -52,7 +51,7 @@ void ESP_RequestHandler::reconfigNetwork() {
   cfg->ssid = server.arg("ssid");
   cfg->password = server.arg("password");
   cfg->masterIP = server.arg("masterIP");
-  cfg->save();
+  cfg->save("saved after reconfig network");
   Serial.println("Updated config");
 
   net->setupWiFi();
@@ -96,8 +95,8 @@ void ESP_RequestHandler::switchRelay() {
   }
   Serial.println(String("Relay switched to ") + gpio->readRelay());
   
-  char jsonData[1024];
-  DynamicJsonDocument doc(1024);
+  char jsonData[128];
+  DynamicJsonDocument doc(128);
   doc["Relay"] = gpio->readRelay();
   serializeJson(doc, jsonData);
   String jsonString = String(jsonData);
@@ -108,7 +107,7 @@ void ESP_RequestHandler::switchRelay() {
 
 void ESP_RequestHandler::update() {
 
-  DynamicJsonDocument json(1024);
+  DynamicJsonDocument json(256);
   DeserializationError error = deserializeJson(json, server.arg("plain"));
   if (error) {
     Serial.println("Not working hmmmmmm");
@@ -118,21 +117,21 @@ void ESP_RequestHandler::update() {
   cfg->ssid = json["ssid"].as<String>();
   cfg->password = json["password"].as<String>();
   cfg->masterIP = json["masterIP"].as<String>();
-  cfg->save();
+  cfg->save("saved after update");
   Serial.println("Updated config");
   
   server.sendHeader("Access-Control-Allow-Origin", "*");
-  server.send(200, "text/plain", getConfigInfo());
+  server.send(200, "text/plain", getConfigInfo("config info for update"));
 }
 
 void ESP_RequestHandler::info() {
 
   String mode = server.arg("mode");
 
-  char jsonData[2048];
-  DynamicJsonDocument doc(1024);
-  DynamicJsonDocument docConfig(1024);
-  DeserializationError errorConfig = deserializeJson(docConfig, getConfigInfo());
+  char jsonData[1024];
+  DynamicJsonDocument doc(512);
+  DynamicJsonDocument docConfig(256);
+  DeserializationError errorConfig = deserializeJson(docConfig, getConfigInfo(String("get config info for info: ") + String(mode)));
 
   if (mode == "all") {
     doc["config"] = docConfig;

@@ -42,7 +42,7 @@ void setup() {
   reqSend = new ESP_RequestSender();
   util = new Utilities();
 
-  gpio->blink(6,0.2);
+  gpio->blink(1,1);
   Interrupt::setup();
 
   if (!cfg->ID || cfg->ID == "") {
