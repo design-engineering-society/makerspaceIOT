@@ -52,7 +52,7 @@ function addPopupU_AU() {
     createPopupLbl(P_grid, ["Study Date Start:", "INPUT", "", "U_AU_sds"]);
     createPopupLbl(P_grid, ["Study Date End:", "INPUT", "", "U_AU_sde"]);
     createPopupLbl(P_grid, ["Study Year:", "INPUT", "", "U_AU_studyyear"]);
-    createPopupLbl(P_grid, ["Role:", "SELECT", "", "U_AU_role", ["user", "rep"]]);
+    createPopupLbl(P_grid, ["Role:", "SELECT", "", "U_AU_role", ["/s/ user", "rep"]]);
     createPopupLbl(P_grid, ["Equipment Type Access:", "INPUT", "", "U_AU_eta"]);
     createPopupLbl(P_grid, ["Credit:", "INPUT", "", "U_AU_credit"]);
     createPopupLbl(P_grid, ["Date User Inducted:", "INPUT", "", "U_AU_dui"]);

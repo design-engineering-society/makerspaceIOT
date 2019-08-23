@@ -13,9 +13,7 @@ const ssid = "TP-Link_6F62";
 const password = "78059757";
 
 const MongoClient = require('mongodb').MongoClient;
-var mongoURL = `mongodb://${masterIP}:27017/`;
 var ESPDoc;
-
 
 app.use(express.static(__dirname)); // use / as root directory
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -208,6 +206,15 @@ app.get("/loadPlugs", (req, res) => { // load the ESP data from database
         });
     });
 });
+
+app.get("/testDB", (req, res) => {
+
+    dbUtil.find2(dbres => {
+        console.log(dbres);
+        sendCORS(res, 200, dbres);
+    });
+});
+
 
 function IPIndexESPData(data) {
 
