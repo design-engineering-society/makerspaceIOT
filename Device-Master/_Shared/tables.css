@@ -18,6 +18,25 @@
 
 /* Dashobard Grid */
 
+#DG_title {
+    display: block;
+    width: 100%;
+    height: 150px;
+
+    color: var(--makerspaceColor);
+
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    text-decoration: none;
+    font-size: 3rem;
+    font-family: var(--makerspaceFont);
+
+    font-weight: 600;
+}
+
 #DG {
     position: relative;
     display: inline-block;
@@ -211,25 +230,6 @@
 
 /* Elements */
 
-.title {
-    display: block;
-    width: 100%;
-    height: 150px;
-
-    color: var(--makerspaceColor);
-
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-
-    text-decoration: none;
-    font-size: 3rem;
-    font-family: var(--makerspaceFont);
-
-    font-weight: 600;
-}
-
 /* Popup */
 
 #P_wrapper {
@@ -283,7 +283,7 @@
 #P_grid {
 
     display: grid;
-    grid-template-columns: 1fr 2.5fr;
+    grid-template-columns: 1fr 3.3fr;
     font-family: var(--makerspaceFont);
     text-decoration: none;
 }
@@ -330,17 +330,32 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
+
+    overflow: hidden;
 }
 
 .P_input {
 
-    height:25px;
+    height: 25px;
     padding: 0px 10px;
     margin: auto 20px;
 
     text-align: left;
     text-decoration: none;
     font-size: 1em;
+}
+
+.P_select {
+
+    height: 29px;
+    padding: 0px 10px;
+    margin: auto 20px;
+
+    text-align: left;
+    text-decoration: none;
+    font-size: 0.8em;
+
+    overflow: hidden;
 }
 
 #P_update_wrap {

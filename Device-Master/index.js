@@ -7,14 +7,15 @@ const app = express(); // creates an instance of express. it is like the swrver 
 const dbUtil = require('./dbUtil.js');
 const util = require('./util.js');
 
-const MongoClient = require('mongodb').MongoClient;
-var mongoURL = "mongodb://192.168.0.110:27017/";
-var ESPDoc;
-
 const routerIP = "192.168.0.254";
 const masterIP = "192.168.0.110"; //ip of josh laptop
 const ssid = "TP-Link_6F62";
 const password = "78059757";
+
+const MongoClient = require('mongodb').MongoClient;
+var mongoURL = `mongodb://${masterIP}:27017/`;
+var ESPDoc;
+
 
 app.use(express.static(__dirname)); // use / as root directory
 app.use(bodyParser.urlencoded({ extended: true }));

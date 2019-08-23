@@ -31,11 +31,13 @@ tables = {
     }
 };
 
-const serverIP = "192.168.0.110:5000";
+const serverIP = "localhost:5000"; // 192.168.0.110
 
 var data;
 var DG; // Dashboard Grid
 var DG_container; // Dashboard Grid Container
+var DG_title;
+var AB_wrapper;
 var type; // Type of Table e.g. Plugs - used for debugging
 var info; // All relavent information on the table
 var headers = []; // Array of header text
@@ -79,7 +81,8 @@ function generateTable(loadFunction) {
     }
 
     DG_container = createElem("DIV", [["class", "DG_container"]], "");
-    document.getElementsByClassName("title")[0].innerHTML = DG.getAttribute("type");
+    DG_title = document.getElementById("DG_title");
+    DG_title.innerHTML = DG.getAttribute("type");
 
     // Header
     var DG_header = createElem("DIV", [["class", "DG_header"], ["style", gridTemplateColumns]], "");
@@ -95,9 +98,25 @@ function generateTable(loadFunction) {
 
     DG.appendChild(DG_container);
     document.getElementsByClassName("wrapper")[0].appendChild(DG);
-
+    generateActionBar(type);
     loadFunction();
+}
 
+function generateActionBar(type) {
+
+    if (type == "Users") {
+        AB_wrapper = createElem("DIV", [["class", "AB_wrapper"]], "");
+        insertAfter(AB_wrapper, DG_title);
+        var AB_container = createElem("DIV", [["class", "AB_container"]], AB_wrapper);
+        createElem("DIV", [["class", "AB_button NS P"], ["innerHTML", "Add User"], ["onclick", "addPopupU_AU()"]], AB_container);
+        createElem("DIV", [["class", "AB_button NS P"], ["innerHTML", "Remove User(s)"]], AB_container);
+        createElem("DIV", [["class", "AB_button NS P"], ["innerHTML", "Add Credit"]], AB_container);
+        createElem("DIV", [["class", "AB_button NS P"], ["innerHTML", "Filter"]], AB_container);
+    }
+}
+
+function insertAfter(newNode, referenceNode) {
+    referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
 }
 
 function refreshTable(type) {
@@ -274,4 +293,26 @@ function removeLoadingScreen() {
 function setLoadingText(text) {
     loadingText = document.getElementById("loadingText");
     loadingText.innerHTML = text;
+}
+
+function createPopupLbl(P_grid, data) { // 0: label text, 1: input type, 2: input placeholder, 3: input id, 4: select elements
+
+    var P_label = createElem("DIV", [["class", "P_label NS"], ["innerHTML", data[0]]], P_grid);
+    if (data[1] == "DIV") {
+        var P_data = createElem("DIV", [["class", "P_label"], ["id", data[3]], ["innerHTML", data[2]], ["style", "text-align:left; font-size: 0.9rem;"]], P_grid);
+    } else if (data[1] == "INPUT") {
+        var P_data_wrap = createElem("DIV", [["class", "P_input_wrap"]], P_grid);
+        var P_data = createElem("INPUT", [["class", "P_input"], ["id", data[3]], ["value", data[2]]], P_data_wrap);
+    } else if (data[1] == "SELECT") {
+        var P_data_wrap = createElem("DIV", [["class", "P_input_wrap"]], P_grid);
+        var P_data = createElem("SELECT", [["class", "P_select"], ["id", data[3]], ["value", data[2]]], P_data_wrap);
+        for (let i = 0; i < data[4].length; i++) {
+            if (data[4][i].includes("/s/ ")) {
+                let str = data[4][i].replace('/s/ ', '');
+                createElem("OPTION", [["value", data[4][i]], ["innerHTML", str], ["selected", ""]], P_data);
+            } else {
+                createElem("OPTION", [["value", data[4][i]], ["innerHTML", data[4][i]]], P_data);
+            }
+        }
+    }
 }

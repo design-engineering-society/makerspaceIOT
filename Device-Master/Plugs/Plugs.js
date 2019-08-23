@@ -157,17 +157,6 @@ function updateRelayCell(data, elem) {
     elem.innerHTML = data["relay"];
 }
 
-function createPopupLbl(P_grid, data) {
-
-    var P_label = createElem("DIV", [["class", "P_label NS"], ["innerHTML", data[0]]], P_grid);
-    if (data[1] == "DIV") {
-        var P_data = createElem("DIV", [["class", "P_label"], ["id", data[3]], ["innerHTML", data[2]], ["style", "text-align:left; font-size: 0.9rem;"]], P_grid);
-    } else if (data[1] == "INPUT") {
-        var P_data_wrap = createElem("DIV", [["class", "P_input_wrap"]], P_grid);
-        var P_data = createElem("INPUT", [["class", "P_input"], ["id", data[3]], ["value", data[2]]], P_data_wrap);
-    }
-}
-
 function addPopup(id) {
 
     let popupData = findRecord(id);
