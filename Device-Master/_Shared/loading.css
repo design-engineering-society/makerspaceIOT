@@ -1,0 +1,60 @@
+#loadingPopup {
+    position: absolute;
+    z-index:1000;
+    background-color: rgba(0, 0, 0, 0.7);
+    top: var(--headerHeight);
+    right: 0px;
+    bottom: 0px;
+    left: 0px;
+
+    border: none;
+    padding: 0px;
+
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+#loadingImg {
+    position: relative;
+    display: inline-block;
+    z-index:1000;
+    width:10rem;
+    height:10rem;
+    margin: auto;
+    -webkit-animation: rotation 2s infinite linear;
+    animation: rotation 2s infinite linear;
+}
+
+#loadingText {
+
+    position: absolute;
+    display: block;
+    width: 100%;
+    height: auto;
+    margin: auto;
+    top: calc(50% + 120px);
+
+    color: #ffffff;
+
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    text-decoration: none;
+    font-size: 1.5rem;
+    font-family: var(--makerspaceFont);
+
+    font-weight: 200;
+}
+
+@keyframes rotation {
+    from {
+            transform: rotate(0deg);
+    }
+    to {
+            transform: rotate(359deg);
+    }
+}

@@ -3,7 +3,7 @@
 function loadPlugs(mode) { // Requests to load all the ESP data from the database
 
     //  console.log("loading Plugs");
-    if (mode != "background") { setLoadingText("loading"); }
+    if (mode != "background") { setLoadingText("Loading plug data"); }
 
     var xhr = new XMLHttpRequest();
     xhr.onload = function () {
@@ -155,16 +155,6 @@ function updateRelayCell(data, elem) {
         elem.setAttribute("style", "background-color: #ff6464");
     }
     elem.innerHTML = data["relay"];
-}
-
-function removeLoadingScreen() {
-    popup = document.getElementById("loadingPopup");
-    popup.parentNode.removeChild(popup);
-}
-
-function setLoadingText(text) {
-    loadingText = document.getElementById("loadingText");
-    loadingText.innerHTML = text;
 }
 
 function createPopupLbl(P_grid, data) {

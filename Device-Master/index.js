@@ -8,7 +8,7 @@ const dbUtil = require('./dbUtil.js');
 const util = require('./util.js');
 
 const MongoClient = require('mongodb').MongoClient;
-var mongoURL = "mongodb://localhost:27017/";
+var mongoURL = "mongodb://192.168.0.110:27017/";
 var ESPDoc;
 
 const routerIP = "192.168.0.254";
@@ -55,7 +55,7 @@ app.post("/connect", (req, res) => {
             }
         }
         console.log(`Recieved a connect request from device with IP: ${IP} and ID: ${ID}`);
-        res.status(200).send(`Connected`);
+        sendCORS(res, 200, "Connected");
     });
 });
 
@@ -71,8 +71,7 @@ app.get("/registerCard", (req, res) => {
     var userDetails = { "firstname": firstname, "lastname": lastname };
 
     dbUtil.upsert("Users", dbquery, userDetails, dbres => {
-        res.setHeader("Access-Control-Allow-Origin", "*");
-        res.status(200).send(`User '${firstname} ${lastname}' registered`);
+        sendCORS(res, 200, `User '${firstname} ${lastname}' registered`);
     });
 });
 
@@ -85,7 +84,7 @@ app.get("/authenticateCard", (req, res) => {
     dbUtil.find("Users", { "cardid": cardid }, dbres => {
         msg = (dbres.length == 0) ? "false" : true;
         console.log(msg);
-        res.status(200).send(msg);
+        sendCORS(res, 200, msg);
     });
 });
 
@@ -97,8 +96,7 @@ app.get("/addTimestamp", (req, res) => {
 
     dbUtil.add("Timestamp", requestData, () => {
         console.log(`Timestamp added`);
-        res.setHeader("Access-Control-Allow-Origin", "*");
-        res.status(200).send(`Timestamp added`);
+        sendCORS(res, 200, "Timestamp added");
     });
 });
 
@@ -119,8 +117,7 @@ app.post("/updatePlug", (req, res) => {
         obj["IP"] = req.body["IP"];
         updatePlugConfig(obj);
 
-        res.setHeader("Access-Control-Allow-Origin", "*");
-        res.status(200).send("1 document updated");
+        sendCORS(res, 200, "1 document updated");
     });
 });
 
@@ -160,8 +157,7 @@ app.get("/addUser", (req, res) => {
     };
 
     dbUtil.add("Users", obj, dbres => {
-        res.setHeader("Access-Control-Allow-Origin", "*");
-        res.status(200).send("1 document updated");
+        sendCORS(res, 200, "1 document updated");
     });
 });
 
@@ -169,7 +165,7 @@ app.get("/loadUsers", (req, res) => {
 
     dbUtil.find("Users", {}, dbres => {
         console.log(dbres);
-        res.status(200).send(dbres);
+        sendCORS(res, 200, dbres);
     });
 });
 
@@ -198,14 +194,13 @@ app.get("/loadPlugs", (req, res) => { // load the ESP data from database
 
                         resultArray.sort((a, b) => {
 
-                            if(a["name"] < b["name"]) return -1;
-                            if(a["name"] > b["name"]) return 1;
+                            if (a["name"] < b["name"]) return -1;
+                            if (a["name"] > b["name"]) return 1;
                             return 0;
                         });
-
-                        res.status(200).send(JSON.stringify(resultArray, undefined, 3));
+                        sendCORS(res, 200, JSON.stringify(resultArray, undefined, 3));
                     } else {
-                        res.status(200).send("{\"error\": \"no Plugs found\"}");
+                        sendCORS(res, 200, "{\"error\": \"no Plugs found\"}");
                     }
                 }
             });
@@ -225,6 +220,11 @@ function IPIndexESPData(data) {
     });
 
     return ipIndexedData;
+}
+
+function sendCORS(res, code, message) {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.status(code).send(message);
 }
 
 const PORT = process.env.PORT || 5000;

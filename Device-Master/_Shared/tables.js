@@ -31,7 +31,7 @@ tables = {
     }
 };
 
-const serverIP = "localhost:5000";
+const serverIP = "192.168.0.110:5000";
 
 var data;
 var DG; // Dashboard Grid
@@ -150,13 +150,14 @@ function initRow(id) {
 function createCell(type, ID, header, row) {
 
     var DG_body_cell;
+    var data = findRecord(ID);
 
     if (type == "DIV") {
         DG_body_cell = createElem("DIV", [["class", "DG_body_cell"], ["id", `${ID} | ${header}`]], "");
     } else if (type == "toggle") {
-        DG_body_cell = createElem("DIV", [["class", "DG_body_cell_btn NS P"], ["id", `${ID} | ${header}`], ["onclick", `toggle("${ID}", "${ID}")`]], "");
+        DG_body_cell = createElem("DIV", [["class", "DG_body_cell_btn NS P"], ["id", `${ID} | ${header}`], ["onclick", `toggle("${ID}", "${data["IP"]}")`]], "");
     } else if (type == "button") {
-        DG_body_cell = createElem("DIV", [["class", "DG_body_cell_btn NS P"], ["id", `${ID} | ${header}`], ["onclick", `blink("${ID}", "${ID}")`]], "");
+        DG_body_cell = createElem("DIV", [["class", "DG_body_cell_btn NS P"], ["id", `${ID} | ${header}`], ["onclick", `blink("${ID}", "${data["IP"]}")`]], "");
     }
     row.appendChild(DG_body_cell);
 }
@@ -263,4 +264,14 @@ function updateRow(recordData) {
 
     console.log(recordData);
     document.getElementById(`${recordData["ID"]} | Name`).innerHTML = recordData["name"];
+}
+
+function removeLoadingScreen() {
+    popup = document.getElementById("loadingPopup");
+    popup.parentNode.removeChild(popup);
+}
+
+function setLoadingText(text) {
+    loadingText = document.getElementById("loadingText");
+    loadingText.innerHTML = text;
 }

@@ -4,6 +4,8 @@ function Users_loadFunction() {
 
 function loadUsers() { // Requests to load all the ESP data from the database
 
+    setLoadingText("Loading user data");
+
     var xhr = new XMLHttpRequest();
     xhr.onload = function () {
 
@@ -19,6 +21,7 @@ function loadUsers() { // Requests to load all the ESP data from the database
                 console.log("No Users found");
             }
             refreshTable("Users");
+            removeLoadingScreen();
         }
     };
 
