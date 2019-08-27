@@ -17,7 +17,7 @@ function loadPlugs(mode) { // Requests to load all the ESP data from the databas
 
             } else {
                 data = [];
-                console.log("No ESPs found");
+                console.log("Error loading Plugs");
             }
             if (mode != "background") { removeLoadingScreen(); }
             refreshTable("Plugs");
@@ -62,7 +62,7 @@ function toggle(ID, IP) {
 
     console.log(`Togglig relay on plug with IP: ${IP}`);
 
-    var data = findRecord(ID);
+    var data = findRecord(ID, "ID");
     data["relay"] = "...";
     updateCell(ID, "Relay", elem => { updateRelayCell(data, elem); });
 
@@ -157,9 +157,9 @@ function updateRelayCell(data, elem) {
     elem.innerHTML = data["relay"];
 }
 
-function addPopup(id) {
+function addPopup_E(id) {
 
-    let popupData = findRecord(id);
+    let popupData = findRecord(id, "ID");
 
     const P_wrapper = createElem("DIV", [["id", "P_wrapper"]], "body");
     const P_back = createElem("DIV", [["id", "P_back"], ["onclick", "fadeOutPopup()"]], P_wrapper);

@@ -1,4 +1,4 @@
-tables = {
+var tables = {
     Plugs: {
         attributes: [
             ["Name", "200px"],
@@ -28,8 +28,17 @@ tables = {
             ["Date User Inducted", "240px"],
             ["Remarks", "200px"]
         ]
+    },
+    Equipment: {
+        attributes: [
+            ["Name", "200px"],
+            ["Description", "300px"],
+            ["Plug", "200px"]
+        ]
     }
 };
+
+var tablesFilter = JSON.parse(JSON.stringify(tables));
 
 const serverIP = "localhost:5000"; // 192.168.0.110
 
@@ -40,8 +49,8 @@ var DG_title;
 var AB_wrapper;
 var type; // Type of Table e.g. Plugs - used for debugging
 var info; // All relavent information on the table
-var headers = []; // Array of header text
-var gridTemplateColumns = "grid-template-columns: 50px " // Layout of table
+var headers; // Array of header text
+var gridTemplateColumns; // Layout of table
 
 function checkPlugsPeriodic() {
     setInterval(() => {
@@ -72,8 +81,11 @@ function generateTable(loadFunction) {
 
     // Initialise
     DG = document.getElementById("DG");
+    resetDG();
     type = DG.getAttribute("type");
-    info = tables[type];
+    info = tablesFilter[type];
+    headers = [];
+    gridTemplateColumns = "grid-template-columns: 50px ";
 
     for (var i = 0; i < info["attributes"].length; i++) {
         headers.push(info["attributes"][i][0]);
@@ -109,9 +121,10 @@ function generateActionBar(type) {
         insertAfter(AB_wrapper, DG_title);
         var AB_container = createElem("DIV", [["class", "AB_container"]], AB_wrapper);
         createElem("DIV", [["class", "AB_button NS P"], ["innerHTML", "Add User"], ["onclick", "addPopupU_AU()"]], AB_container);
-        createElem("DIV", [["class", "AB_button NS P"], ["innerHTML", "Remove User(s)"]], AB_container);
-        createElem("DIV", [["class", "AB_button NS P"], ["innerHTML", "Add Credit"]], AB_container);
-        createElem("DIV", [["class", "AB_button NS P"], ["innerHTML", "Filter"]], AB_container);
+        createElem("DIV", [["class", "AB_button NS P"], ["innerHTML", "Remove Users"], ["onclick", "addPopupU_RU()"]], AB_container);
+        createElem("DIV", [["class", "AB_button NS P"], ["innerHTML", "Add Credit"], ["onclick", "addPopupU_AC()"]], AB_container);
+        createElem("DIV", [["class", "AB_button NS P"], ["innerHTML", "Filter Rows"]], AB_container);
+        createElem("DIV", [["class", "AB_button NS P"], ["innerHTML", "Filter Columns"], ["onclick", "addPopupU_FC()"]], AB_container);
     }
 }
 
@@ -127,9 +140,9 @@ function refreshTable(type) {
     }
 
     for (var i = 0; i < data.length; i++) { // Create Rows
-        var DG_body_row = initRow(data[i]["ID"]);
 
         if (type == "Plugs") {
+            var DG_body_row = initRow(data[i]["ID"]);
             for (var j = 0; j < headers.length; j++) { // Create Cells for each rows
                 if (headers[j] == "Blink") {
                     createCell("button", data[i]["ID"], headers[j], DG_body_row);
@@ -140,6 +153,7 @@ function refreshTable(type) {
                 }
             }
         } else if (type == "Users") {
+            var DG_body_row = initRow(data[i]["Card ID"]);
             for (var j = 0; j < headers.length; j++) { // Create Cells for each rows
                 createCell("DIV", data[i]["Card ID"], headers[j], DG_body_row);
             }
@@ -148,6 +162,15 @@ function refreshTable(type) {
     }
     DG.appendChild(DG_container);
     updateTable(type);
+}
+
+function resetDG() {
+    while (DG.firstChild) {
+        DG.removeChild(DG.firstChild);
+    }
+    if (AB_wrapper) {
+        AB_wrapper.parentNode.removeChild(AB_wrapper);
+    }
 }
 
 function resetBody() {
@@ -160,7 +183,7 @@ function resetBody() {
 
 function initRow(id) {
     var DG_body_row = createElem("DIV", [["class", "DG_body_row"], ["style", gridTemplateColumns]], "");
-    var DG_body_cell = createElem("button", [["class", "DG_body_edit P"], ["onclick", `addPopup("${id}")`]], DG_body_row);
+    var DG_body_cell = createElem("button", [["class", "DG_body_edit P"], ["onclick", `addPopup_E("${id}")`]], DG_body_row);
     var DG_edit_img = createElem("IMG", [["class", "DG_edit_img NS"], ["src", "../_Shared/options.svg"]], DG_body_cell);
 
     return DG_body_row;
@@ -169,7 +192,7 @@ function initRow(id) {
 function createCell(type, ID, header, row) {
 
     var DG_body_cell;
-    var data = findRecord(ID);
+    var data = findRecord(ID, "ID");
 
     if (type == "DIV") {
         DG_body_cell = createElem("DIV", [["class", "DG_body_cell"], ["id", `${ID} | ${header}`]], "");
@@ -224,6 +247,7 @@ function updateTable(type) {
 
 function updateCell(ID, header, func) {
     elem = document.getElementById(`${ID} | ${header}`);
+    if (!elem) {return;}
     func(elem);
 }
 
@@ -256,10 +280,10 @@ function fadeInPopup(element) {
     }, 8);
 }
 
-function findRecord(id) {
+function findRecord(id, label) {
 
     for (let i = 0; i < data.length; i++) {
-        if (data[i]["ID"] == id) {
+        if (data[i][label] == id) {
             return data[i];
         }
     }
@@ -314,5 +338,21 @@ function createPopupLbl(P_grid, data) { // 0: label text, 1: input type, 2: inpu
                 createElem("OPTION", [["value", data[4][i]], ["innerHTML", data[4][i]]], P_data);
             }
         }
+    } else if (data[1] == "CHECKBOX") {
+        var P_data_wrap = createElem("DIV", [["class", "P_input_wrap"]], P_grid);
+        var P_data = createElem("INPUT", [["type", "checkbox"], ["id", `check | ${data[0]}`]], P_data_wrap);
+        P_data.checked = true;
     }
+    return P_data;
+}
+
+function autoSelect(dataString, list) {
+
+    for (var i = 0; i < list.length; i++) {
+        if (dataString == list[i]) {
+            list[i] = `/s/ ${list[i]}`;
+            break;
+        }
+    }
+    return list;
 }

@@ -21,22 +21,11 @@ app.use(bodyParser.json());
 app.use(express.json());       // to support JSON-encoded bodies
 app.use(express.urlencoded({ extended: true })); // to support URL-encoded bo
 
-app.get("/yeet", (req, res) => { // Loads the root or 'index' page
-    res.sendFile(path.join(__dirname + "/root.html"));
-});
-
-app.get("/operator", (req, res) => { // Loads the operator page
-    res.sendFile(path.join(__dirname + "/operator/operator.html"));
-});
-
-app.get("/plugs", (req, res) => { // Loads the operator page
-    res.sendFile(path.join(__dirname + "/Plugs/Plugs.html"));
-});
-
-app.get("/users", (req, res) => { // Loads the operator page
-    res.sendFile(path.join(__dirname + "/Users/Users.html"));
-});
-
+app.get("/yeet", (req, res) => { res.sendFile(path.join(__dirname + "/root.html")); });
+app.get("/operator", (req, res) => { res.sendFile(path.join(__dirname + "/operator/operator.html")); });
+app.get("/plugs", (req, res) => { res.sendFile(path.join(__dirname + "/Plugs/Plugs.html")); });
+app.get("/users", (req, res) => { res.sendFile(path.join(__dirname + "/Users/Users.html")); });
+app.get("/equipment", (req, res) => { res.sendFile(path.join(__dirname + "/Equipment/Equipment.html")); });
 
 app.post("/connect", (req, res) => {
     var IP = (req.headers['x-forwarded-for'] || req.connection.remoteAddress).replace("::ffff:", "");
@@ -69,7 +58,7 @@ app.get("/registerCard", (req, res) => {
     var dbquery = { "cardid": cardID };
     var userDetails = { "firstname": firstname, "lastname": lastname };
 
-    dbUtil.upsert("Users", dbquery, userDetails, dbres => {
+    dbUtil.upsertExt("User_Info", dbquery, userDetails, dbres => {
         sendCORS(res, 200, `User '${firstname} ${lastname}' registered`);
     });
 });
@@ -80,7 +69,7 @@ app.get("/authenticateCard", (req, res) => {
 
     console.log(req.query);
 
-    dbUtil.find("Users", { "cardid": cardid }, dbres => {
+    dbUtil.findExt("User_Info", { "cardid": cardid }, dbres => {
         msg = (dbres.length == 0) ? "false" : true;
         console.log(msg);
         sendCORS(res, 200, msg);
@@ -155,14 +144,22 @@ app.get("/addUser", (req, res) => {
         "Remarks": "India"
     };
 
-    dbUtil.add("Users", obj, dbres => {
+    dbUtil.addExt("User_Info", obj, dbres => {
         sendCORS(res, 200, "1 document updated");
     });
 });
 
 app.get("/loadUsers", (req, res) => {
 
-    dbUtil.find("Users", {}, dbres => {
+    dbUtil.findExt("User_info", {}, dbres => {
+        console.log(dbres);
+        sendCORS(res, 200, dbres);
+    });
+});
+
+app.get("/loadEquipment", (req, res) => {
+
+    dbUtil.findExt("Equipment_info", {}, dbres => {
         console.log(dbres);
         sendCORS(res, 200, dbres);
     });
