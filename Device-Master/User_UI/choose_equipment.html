@@ -10,71 +10,16 @@
     <link rel="stylesheet" type="text/css" href="../_Shared/headers.css" />
     <link rel="stylesheet" type="text/css" href="../_Shared/tables.css" />
     <link rel="stylesheet" type="text/css" href="../_Shared/loading.css" />
-    <script src="../_Shared/tables.js"></script>
+    <script src="../User_UI/choose_equipment.js"></script>
     <title>Welcome!</title>
 </head>
 
-<body>
+<body onload="generateEqupmentTable()">
     <div class="header">
-        <div class="header_title">Welcome Hardik! Choose equipment</div>
+        <div class="header_title">Welcome Michael! Choose equipment</div>
         <img class="headerImg" src="../_Shared/IDEAS LAB 3.svg">
     </div>
-    <div class="equipment_grid">
-        <div class="equipment_cell">
-            <img class="equipment_image" src="../User_UI/Icons/CE_Prusa2.svg">
-        </div>
-        <div class="equipment_cell">
-            <img class="equipment_image" src="../User_UI/Icons/CE_Prusa2.svg">
-        </div>
-        <div class="equipment_cell">
-            <img class="equipment_image" src="../User_UI/Icons/CE_Prusa2.svg">
-        </div>
-        <div class="equipment_cell">
-            <img class="equipment_image" src="../User_UI/Icons/CE_Prusa2.svg">
-        </div>
-        <div class="equipment_cell">
-            <img class="equipment_image" src="../User_UI/Icons/CE_Prusa2.svg">
-        </div>
-        <div class="equipment_cell">
-            <img class="equipment_image" src="../User_UI/Icons/CE_Prusa2.svg">
-        </div>
-        <div class="equipment_cell">
-            <img class="equipment_image" src="../User_UI/Icons/CE_Prusa2.svg">
-        </div>
-        <div class="equipment_cell">
-            <img class="equipment_image" src="../User_UI/Icons/CE_Prusa2.svg">
-        </div>
-        <div class="equipment_cell">
-            <img class="equipment_image" src="../User_UI/Icons/CE_Prusa2.svg">
-        </div>
-        <div class="equipment_cell">
-            <img class="equipment_image" src="../User_UI/Icons/CE_Prusa2.svg">
-        </div>
-        <div class="equipment_cell">
-            <img class="equipment_image" src="../User_UI/Icons/CE_Prusa2.svg">
-        </div>
-        <div class="equipment_cell">
-            <img class="equipment_image" src="../User_UI/Icons/CE_Prusa2.svg">
-        </div>
-        <div class="equipment_cell">
-            <img class="equipment_image" src="../User_UI/Icons/CE_Ultimaker.svg">
-        </div>
-        <div class="equipment_cell">
-            <img class="equipment_image" src="../User_UI/Icons/CE_Ultimaker.svg">
-        </div>
-        <div class="equipment_cell">
-            <img class="equipment_image" src="../User_UI/Icons/CE_Markforged.svg">
-        </div>
-        <div class="equipment_cell">
-            <img class="equipment_image" src="../User_UI/Icons/CE_Formlabs.svg">
-        </div>
-        <div class="equipment_cell">
-            <img class="equipment_image" src="../User_UI/Icons/CE_Lazercutter.svg">
-        </div>
-        <div class="equipment_cell"></div>
-        <div class="equipment_cell"></div>
-        <div class="equipment_cell"></div>
-    </div>
+    <div id="equipment_grid"></div>
 </body>
 
 </html>
