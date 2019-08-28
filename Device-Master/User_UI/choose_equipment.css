@@ -1,0 +1,39 @@
+.equipment_grid {
+    position: relative;
+    box-sizing:content-box;
+    padding: 20px;
+    margin: 100px auto;
+    text-align:left;
+
+    width: 80%;
+    max-width: 1000px;
+
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-gap: 10px;
+}
+
+.equipment_cell {
+    width: 100%;
+    height: 200px;
+
+    border: 5px solid rgb(200,200,200);
+
+    box-sizing: border-box;
+
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.equipment_image {
+    position: relative;
+    
+    width: 80%;
+    height: 100%;
+
+    margin: auto;
+    
+    object-fit: cover;
+}
