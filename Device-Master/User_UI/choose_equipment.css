@@ -34,7 +34,7 @@
 }
 
 .equipment_cell:hover > .equipment_cell_bottom {
-    border-top: 3px solid rgb(54, 54, 54);
+    border-top: 5px solid rgb(54, 54, 54);
 }
 
 .equipment_cell_top {

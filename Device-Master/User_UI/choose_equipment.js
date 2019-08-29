@@ -1,33 +1,86 @@
-var equipment =
-    [
-        { name: "Prusa A1", model: "Prusa" },
-        { name: "Prusa A2", model: "Prusa" },
-        { name: "Prusa A3", model: "Prusa" },
-        { name: "Prusa A4", model: "Prusa" },
-        { name: "Prusa B1", model: "Prusa" },
-        { name: "Prusa B2", model: "Prusa" },
-        { name: "Prusa B3", model: "Prusa" },
-        { name: "Prusa B4", model: "Prusa" },
-        { name: "Prusa C1", model: "Prusa" },
-        { name: "Prusa C2", model: "Prusa" },
-        { name: "Prusa C3", model: "Prusa" },
-        { name: "Prusa C4", model: "Prusa" },
-        { name: "Ultimaker 1", model: "Ultimaker" },
-        { name: "Ultimaker 2", model: "Ultimaker" },
-        { name: "Markforged", model: "Markforged" },
-        { name: "Formlabs", model: "Formlabs" },
-        { name: "Lasercutter", model: "Lasercutter" },
-        { name: "Vinylcutter", model: "Vinylcutter" },
-        { name: "Roland CNC", model: "Roland CNC" },
-        { name: "Stepcraft CNC", model: "Stepcraft CNC" }
-    ];
+var serverIP = "localhost:5000";
+var equipment = [];
+var models = [];
+
+function loadModels() { // Requests to load all the ESP data from the database
+
+    var xhr = new XMLHttpRequest();
+    xhr.onload = function () {
+
+        if (this.status == 200) {
+
+            var data = JSON.parse(this.responseText);
+            if (!data["error"]) {
+                console.log(data);
+                console.log(`Loaded ${Object.keys(data).length} Equipment(s) from database`);
+                models = data;
+            } else {
+                data = [];
+                console.log("Error loading models");
+            }
+            loadEquipment();
+        }
+    };
+
+    xhr.open('GET', `http://${serverIP}/load?collection=Model_info`, true); // Retrive ESP data
+    xhr.send();
+}
+
+function loadEquipment() { // Requests to load all the ESP data from the database
+
+    var xhr = new XMLHttpRequest();
+    xhr.onload = function () {
+
+        if (this.status == 200) {
+
+            var data = JSON.parse(this.responseText);
+            if (!data["error"]) {
+                console.log(data);
+                console.log(`Loaded ${Object.keys(data).length} Equipment(s) from database`);
+                equipment = data;
+                combineEquipmentData();
+
+                equipment.sort((a, b) => {
+
+                    if (a["precedent"] < b["precedent"]) return -1;
+                    if (a["precedent"] > b["precedent"]) return 1;
+                    
+                    if (a["name"] < b["name"]) return -1;
+                    if (a["name"] > b["name"]) return 1;
+                    return 0;
+                });
+
+            } else {
+                data = [];
+                console.log("Error loading equipment");
+            }
+            generateEqupmentTable();
+        }
+    };
+
+    xhr.open('GET', `http://${serverIP}/load?collection=Equipment_info`, true); // Retrive ESP data
+    xhr.send();
+}
+
+function combineEquipmentData() {
+
+    for (var i = 0; i < equipment.length; i++) {
+
+        for (var j = 0; j < models.length; j++) {
+            if (equipment[i]["model"] == models[j]["name"] ) {
+                equipment[i]["precedent"] = models[j]["precedent"];
+                break;
+            }
+        }
+    }
+}
 
 function generateEqupmentTable() {
 
     var grid = document.getElementById("equipment_grid");
     for (var i = 0; i < equipment.length; i++) {
 
-        var cell = createElem("DIV", [["class", "equipment_cell"], ["onclick", `testClick("${equipment[i]["name"]}")`]], grid);
+        var cell = createElem("DIV", [["class", "equipment_cell"], ["onclick", `sendEquipmentSelectionData("${equipment[i]["id"]}")`]], grid);
         var cellTop = createElem("DIV", [["class", "equipment_cell_top"]], cell);
         var cellImg = createElem("IMG", [["class", "equipment_image"], ["src", loadImage(equipment[i]["model"])]], cellTop);
         var cellBottom = createElem("DIV", [["class", "equipment_cell_bottom"], ["innerHTML", equipment[i]["name"]]], cell);
@@ -36,16 +89,10 @@ function generateEqupmentTable() {
 
 function loadImage(model) {
 
-    switch (model) {
-        case "Prusa": return "../User_UI/Icons/CE_Prusa.svg";
-        case "Ultimaker": return "../User_UI/Icons/CE_Ultimaker.svg";
-        case "Markforged": return "../User_UI/Icons/CE_Markforged.svg";
-        case "Formlabs": return "../User_UI/Icons/CE_Formlabs.svg";
-        case "Lasercutter": return "../User_UI/Icons/CE_Lasercutter.svg";
-        case "Vinylcutter": return "../User_UI/Icons/CE_Vinylcutter.svg";
-        case "Roland CNC": return "../User_UI/Icons/CE_CNC_Roland.svg";
-        case "Stepcraft CNC": return "../User_UI/Icons/CE_CNC_Stepcraft.svg";
-        default: return "nah";
+    for (var i = 0; i < models.length; i++) {
+        if (models[i]["name"] == model) {
+            return models[i]["image"];
+        }
     }
 }
 
@@ -68,6 +115,14 @@ function createElem(type, attributes, parent) {
     return elem
 }
 
-function testClick(str) {
-    console.log(str);
+function sendEquipmentSelectionData(id) {
+
+    var data = {
+        card_id: "",
+        equipment_id: id
+    };
+
+    sessionStorage.equipmentSelectionData = JSON.stringify(data, undefined, 3);
+    sessionStorage.equipment = JSON.stringify(equipment, undefined, 3);
+    window.location.href = 'http://localhost:5000/testStorage/';
 }
