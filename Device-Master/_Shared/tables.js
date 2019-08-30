@@ -11,22 +11,14 @@ var tables = {
     },
     Users: {
         attributes: [
-            ["Card ID", "200px"],
-            ["CID", "200px"],
-            ["Username", "200px"],
+            ["Card ID", "150px"],
+            ["CID", "150px"],
             ["First Name", "240px"],
             ["Last Name", "240px"],
-            ["Department", "350px"],
-            ["Program", "200px"],
-            ["Description", "250px"],
-            ["Study Date Start", "200px"],
-            ["Study Date End", "200px"],
-            ["Study Year", "200px"],
-            ["Role", "200px"],
-            ["Equipment Type Access", "300px"],
-            ["Credit", "150px"],
-            ["Date User Inducted", "240px"],
-            ["Remarks", "200px"]
+            ["Email", "240px"],
+            ["Role", "120px"],
+            ["Permissions", "450px"],
+            ["Credit", "120px"],
         ]
     },
     Equipment: {
@@ -123,8 +115,7 @@ function generateActionBar(type) {
         createElem("DIV", [["class", "AB_button NS P"], ["innerHTML", "Add User"], ["onclick", "addPopupU_AU()"]], AB_container);
         createElem("DIV", [["class", "AB_button NS P"], ["innerHTML", "Remove Users"], ["onclick", "addPopupU_RU()"]], AB_container);
         createElem("DIV", [["class", "AB_button NS P"], ["innerHTML", "Add Credit"], ["onclick", "addPopupU_AC()"]], AB_container);
-        createElem("DIV", [["class", "AB_button NS P"], ["innerHTML", "Filter Rows"]], AB_container);
-        createElem("DIV", [["class", "AB_button NS P"], ["innerHTML", "Filter Columns"], ["onclick", "addPopupU_FC()"]], AB_container);
+        createElem("DIV", [["class", "AB_button NS P"], ["innerHTML", "Filter"], ["onclick", "addPopupU_F()"]], AB_container);
     }
 }
 
@@ -225,22 +216,18 @@ function updateTable(type) {
         }
     } else if (type == "Users") {
         for (var i = 0; i < data.length; i++) {
-            updateCell(data[i]["Card ID"], "Card ID", elem => { elem.innerHTML = data[i]["Card ID"] });
-            updateCell(data[i]["Card ID"], "CID", elem => { elem.innerHTML = data[i]["CID"] });
-            updateCell(data[i]["Card ID"], "Username", elem => { elem.innerHTML = data[i]["Username"] });
+
             updateCell(data[i]["Card ID"], "First Name", elem => { elem.innerHTML = data[i]["First Name"] });
             updateCell(data[i]["Card ID"], "Last Name", elem => { elem.innerHTML = data[i]["Last Name"] });
-            updateCell(data[i]["Card ID"], "Department", elem => { elem.innerHTML = data[i]["Department"] });
-            updateCell(data[i]["Card ID"], "Program", elem => { elem.innerHTML = data[i]["Program"] });
-            updateCell(data[i]["Card ID"], "Description", elem => { elem.innerHTML = data[i]["Description"] });
-            updateCell(data[i]["Card ID"], "Study Date Start", elem => { elem.innerHTML = data[i]["Study Date Start"] });
-            updateCell(data[i]["Card ID"], "Study Date End", elem => { elem.innerHTML = data[i]["Study Date End"] });
-            updateCell(data[i]["Card ID"], "Study Year", elem => { elem.innerHTML = data[i]["Study Year"] });
+            updateCell(data[i]["Card ID"], "Email", elem => { elem.innerHTML = data[i]["Email"] });
+            updateCell(data[i]["Card ID"], "Card ID", elem => { elem.innerHTML = data[i]["Card ID"] });
+            updateCell(data[i]["Card ID"], "CID", elem => { elem.innerHTML = data[i]["CID"] });
             updateCell(data[i]["Card ID"], "Role", elem => { elem.innerHTML = data[i]["Role"] });
-            updateCell(data[i]["Card ID"], "Equipment Type Access", elem => { elem.innerHTML = data[i]["Equipment Type Access"] });
+            updateCell(data[i]["Card ID"], "Permissions", elem => { 
+                elem.innerHTML = JSON.stringify(data[i]["Permissions"], undefined, 3);
+                elem.setAttribute("style", "font-size: 0.5em;");
+            });
             updateCell(data[i]["Card ID"], "Credit", elem => { elem.innerHTML = data[i]["Credit"] });
-            updateCell(data[i]["Card ID"], "Date User Inducted", elem => { elem.innerHTML = data[i]["Date User Inducted"] });
-            updateCell(data[i]["Card ID"], "Remarks", elem => { elem.innerHTML = data[i]["Remarks"] });
         }
     }
 }

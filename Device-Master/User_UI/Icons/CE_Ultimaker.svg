@@ -3,24 +3,21 @@
 <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 viewBox="0 0 1417.3 1417.3" style="enable-background:new 0 0 1417.3 1417.3;" xml:space="preserve">
 <style type="text/css">
-	.st0{fill:#3C3C3B;}
-	.st1{fill:none;stroke:#3C3C3B;stroke-width:38;stroke-miterlimit:10;}
-	.st2{fill:none;stroke:#FFFFFF;stroke-width:38;stroke-miterlimit:10;}
-	.st3{fill:none;stroke:#3C3C3B;stroke-width:10;stroke-miterlimit:10;}
+	.st0{fill:#282828;}
+	.st1{fill:none;stroke:#282828;stroke-width:10;stroke-miterlimit:10;}
 </style>
 <rect x="238.6" y="273.1" class="st0" width="70.9" height="932.9"/>
 <rect x="1100.6" y="273.1" class="st0" width="70.9" height="932.9"/>
-<rect x="646" y="-165.4" transform="matrix(-1.836970e-16 1 -1 -1.836970e-16 1006.0382 -403.9624)" class="st0" width="117.9" height="932.9"/>
-<line class="st1" x1="260.7" y1="408.7" x2="358.2" y2="311.3"/>
-<line class="st1" x1="1051.8" y1="311.3" x2="1149.3" y2="408.7"/>
+<rect x="238.5" y="242" class="st0" width="932.9" height="117.9"/>
+<rect x="240.5" y="341" transform="matrix(0.7075 -0.7067 0.7067 0.7075 -163.9042 324.015)" class="st0" width="137.8" height="38"/>
+<rect x="1081.6" y="291.1" transform="matrix(0.7067 -0.7075 0.7075 0.7067 68.0543 884.1781)" class="st0" width="38" height="137.8"/>
 <rect x="298" y="1026" class="st0" width="814" height="140.9"/>
-<line class="st2" x1="214.6" y1="444.1" x2="117.1" y2="541.6"/>
 <polygon class="st0" points="381.1,1002.9 415.7,864 995.7,864 1036.2,1002.9 "/>
 <path class="st0" d="M309.4,1205.9c0,0,30.4-39,94.4-39s-42.8-58.5-42.8-58.5l-94.1,12.5v66L309.4,1205.9z"/>
 <path class="st0" d="M1100.6,1205.9c0,0-30.4-39-94.4-39s42.8-58.5,42.8-58.5l94.1,12.5v66L1100.6,1205.9z"/>
-<line class="st1" x1="260.7" y1="977.3" x2="358.2" y2="1074.7"/>
-<line class="st1" x1="1149.3" y1="977.3" x2="1051.8" y2="1074.7"/>
+<rect x="290.4" y="957.1" transform="matrix(0.7067 -0.7075 0.7075 0.7067 -635.1171 519.8102)" class="st0" width="38" height="137.8"/>
+<rect x="1031.6" y="1007" transform="matrix(0.7075 -0.7067 0.7067 0.7075 -403.1765 1077.8949)" class="st0" width="137.8" height="38"/>
 <rect x="415.7" y="304" class="st0" width="578.3" height="560"/>
-<path class="st3" d="M705,301c0,0-23-239-107-257S438.4,268,438.4,268"/>
-<path class="st3" d="M708.7,301c0,0,23-239,107-257s159.6,224,159.6,224"/>
+<path class="st1" d="M705,301c0,0-23-239-107-257S438.4,268,438.4,268"/>
+<path class="st1" d="M708.7,301c0,0,23-239,107-257s159.6,224,159.6,224"/>
 </svg>

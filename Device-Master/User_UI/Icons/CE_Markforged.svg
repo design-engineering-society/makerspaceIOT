@@ -3,13 +3,10 @@
 <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 viewBox="0 0 1417.3 1417.3" style="enable-background:new 0 0 1417.3 1417.3;" xml:space="preserve">
 <style type="text/css">
-	.st0{fill:#3C3C3B;}
-	.st1{fill:none;stroke:#3C3C3B;stroke-width:16;stroke-miterlimit:10;}
-	.st2{fill:none;stroke:#3C3C3B;stroke-width:10;stroke-miterlimit:10;}
-	.st3{fill:#FFFFFF;}
-	.st4{fill:none;stroke:#FFFFFF;stroke-width:25;stroke-linecap:round;stroke-miterlimit:10;}
+	.st0{fill:#282828;}
+	.st1{fill:none;stroke:#282828;stroke-width:16;stroke-miterlimit:10;}
+	.st2{fill:none;stroke:#282828;stroke-width:10;stroke-miterlimit:10;}
 </style>
-<rect x="142.7" y="386" class="st0" width="1132" height="111.6"/>
 <rect x="142.7" y="961.1" class="st0" width="1132" height="91.9"/>
 <polygon class="st0" points="1007,899 426,899 480,829 952,829 "/>
 <line class="st1" x1="554" y1="438" x2="554" y2="976"/>
@@ -19,9 +16,11 @@
 <rect x="1259.3" y="438" class="st0" width="15.3" height="591"/>
 <rect x="539.3" y="794" class="st0" width="29.3" height="70"/>
 <rect x="859.3" y="800" class="st0" width="29.3" height="70"/>
-<circle class="st0" cx="337.5" cy="719.7" r="80.8"/>
-<circle class="st3" cx="337.5" cy="718" r="51.5"/>
+<path class="st0" d="M337.5,638.9c-44.6,0-80.8,36.2-80.8,80.8s36.2,80.8,80.8,80.8c44.6,0,80.8-36.2,80.8-80.8
+	S382.1,638.9,337.5,638.9z M337.5,769.5c-28.4,0-51.5-23.1-51.5-51.5s23.1-51.5,51.5-51.5c28.4,0,51.5,23.1,51.5,51.5
+	S365.9,769.5,337.5,769.5z"/>
 <polygon class="st0" points="1274.7,961.1 142.7,961.1 187.1,915.5 1217.6,915.5 "/>
-<line class="st4" x1="666.7" y1="386" x2="760" y2="386"/>
+<path class="st0" d="M772.5,386L772.5,386c0,6.9-5.6,12.5-12.5,12.5h-93.3c-6.9,0-12.5-5.6-12.5-12.5l0,0H142.7v111.6h1132V386
+	H772.5z"/>
 <polygon class="st0" points="655.3,506.3 760,506.3 760,548.9 680,548.9 632.7,506.3 643.3,497.6 "/>
 </svg>

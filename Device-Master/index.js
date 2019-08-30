@@ -27,6 +27,7 @@ app.get("/plugs", (req, res) => { res.sendFile(path.join(__dirname + "/Plugs/Plu
 app.get("/users", (req, res) => { res.sendFile(path.join(__dirname + "/Users/Users.html")); });
 app.get("/equipment", (req, res) => { res.sendFile(path.join(__dirname + "/Equipment/Equipment.html")); });
 app.get("/welcome", (req, res) => { res.sendFile(path.join(__dirname + "/User_UI/choose_equipment.html")); });
+app.get("/testStorage", (req, res) => { res.sendFile(path.join(__dirname + "/User_UI/test_storage.html")); });
 
 app.post("/connect", (req, res) => {
     var IP = (req.headers['x-forwarded-for'] || req.connection.remoteAddress).replace("::ffff:", "");
@@ -124,33 +125,112 @@ function updatePlugConfig(data) {
     })
 }
 
-app.get("/addUser", (req, res) => {
+app.post("/addUser", (req, res) => {
 
     const obj = {
-        "Card ID": "3456876399",
-        "CID": "04346633",
-        "Username": "India",
-        "First Name": "Hardik",
-        "Last Name": "Aggarwal",
-        "Department": "Electronic and Information Engineering",
-        "Program": "MEng",
-        "Description": "",
-        "Study Date Start": "October 2017",
-        "Study Date End": "June 2021",
-        "Study Year": "3",
-        "Role": "Rep",
-        "Equipment Type Access": "...",
-        "Credit": "-50000.00",
-        "Date User Inducted": "01/02/1993",
-        "Remarks": "India"
+        "First Name": req.body["First Name"],
+        "Last Name": req.body["Last Name"],
+        "Email": req.body["Email"],
+        "Card ID": req.body["Card ID"],
+        "CID": req.body["CID"],
+        "Role": req.body["Role"],
+        "Credit": Number(req.body["Credit"]),
+        "Permissions": req.body["Permissions"]
     };
 
-    dbUtil.addExt("User_Info", obj, dbres => {
-        sendCORS(res, 200, "1 document updated");
+    dbUtil.addExt("User_info", obj, dbres => {
+        dbUtil.findExt("User_info", {}, dbres => {
+            sendCORS(res, 200, dbres);
+        });
     });
 });
 
+app.post("/editUser", (req, res) => {
+
+    //console.log(req.body["Card ID"]);
+
+    const query = { "Card ID": req.body["Card ID"] }
+    const obj = {
+        "First Name": req.body["First Name"],
+        "Last Name": req.body["Last Name"],
+        "Email": req.body["Email"],
+        "CID": req.body["CID"],
+        "Role": req.body["Role"],
+        "Credit": Number(req.body["Credit"]),
+        "Permissions": req.body["Permissions"]
+    };
+
+    dbUtil.updateExt("User_info", query, obj, (dbres) => {
+        console.log(dbres);
+        dbUtil.findExt("User_info", {}, dbres => {
+            sendCORS(res, 200, dbres);
+        });
+    });
+});
+
+app.post("/filterUsers", (req, res) => {
+
+    query = {};
+
+    for (var queryItem in req.body) {
+
+        if (req.body[queryItem] == "") { continue; }
+
+        query[queryItem] = { $regex: `.*${req.body[queryItem]}.*`, $options: 'i' };
+    }
+
+    console.log(query);
+
+    dbUtil.findExt("User_info", query, dbres => {
+        sendCORS(res, 200, dbres);
+    });
+});
+
+app.post("/removeUsers", (req, res) => { // DANGEROUS
+
+    query = {};
+
+    for (var queryItem in req.body) {
+
+        if (req.body[queryItem] == "") { continue; }
+
+        query[queryItem] = { $regex: `.*${req.body[queryItem]}.*`, $options: 'i' };
+    }
+
+    console.log(query);
+
+    if (query != {}) {
+        dbUtil.deleteExt("User_info", query, dbres => {
+            dbUtil.findExt("User_info", {}, dbres => {
+                sendCORS(res, 200, dbres);
+            });
+        });
+    }
+});
+
+app.post("/addCreditToUsers", (req, res) => {
+
+    query = {};
+
+    for (var queryItem in req.body) {
+
+        if (queryItem != "Credit") {
+            if (req.body[queryItem] == "") { continue; }
+            query[queryItem] = { $regex: `.*${req.body[queryItem]}.*`, $options: 'i' };
+        }
+    }
+
+    dbUtil.incExt("User_info", query, { "Credit": Number(req.body["Credit"]) }, dbres => {
+        dbUtil.findExt("User_info", {}, dbres => {
+            sendCORS(res, 200, dbres);
+        });
+    });
+});
+
+
 app.get("/loadUsers", (req, res) => {
+
+    console.log("loading users");
 
     dbUtil.findExt("User_info", {}, dbres => {
         console.log(dbres);
@@ -158,10 +238,75 @@ app.get("/loadUsers", (req, res) => {
     });
 });
 
-app.get("/loadEquipment", (req, res) => {
+app.post("/findUser", (req, res) => {
 
-    dbUtil.findExt("Equipment_info", {}, dbres => {
+    cardID = req.body["Card ID"];
+
+    console.log(`finding user with card ID: ${cardID}`);
+
+    dbUtil.findExt("User_info", { "Card ID": cardID }, dbres => {
+        sendCORS(res, 200, dbres);
+    });
+});
+
+app.get("/createCollection", (req, res) => {
+
+    dbUtil.createExt("Model_info", () => {
+        console.log("Created collection");
+        sendCORS(res, 200, "Created collection");
+    });
+});
+
+app.get("/addTo", (req, res) => {
+
+    var obj = [
+        { name: "Prusa", image: "../User_UI/Icons/CE_Prusa.svg" },
+        { name: "Ultimaker", image: "../User_UI/Icons/CE_Ultimaker.svg" },
+        { name: "Markforged", image: "../User_UI/Icons/CE_Markforged.svg" },
+        { name: "Formlabs", image: "../User_UI/Icons/CE_Formlabs.svg" },
+        { name: "Lasercutter", image: "../User_UI/Icons/CE_Lasercutter.svg" },
+        { name: "Vinylcutter", image: "../User_UI/Icons/CE_Vinylcutter.svg" },
+        { name: "Roland CNC", image: "../User_UI/Icons/CE_CNC_Roland.svg" },
+        { name: "Stepcraft CNC", image: "../User_UI/Icons/CE_CNC_Stepcraft.svg" }
+    ];
+
+    for (var i = 0; i < obj.length; i++) {
+        dbUtil.addExt("Model_info", obj[i], (dbres) => {
+            //console.log(dbres);
+            if (i == (obj.length - 1)) {
+                sendCORS(res, 200, dbres);
+            }
+        });
+    }
+});
+
+app.get("/deleteFrom", (req, res) => {
+
+    var query = { "CID": "88483210" };
+
+    dbUtil.deleteExt("User_info", query, (dbres) => {
         console.log(dbres);
+        sendCORS(res, 200, dbres);
+    });
+});
+
+app.get("/updateRecord", (req, res) => {
+
+    var query = { "First Name": "Hardik" };
+    var obj = { "Role": "Rep" };
+
+    dbUtil.updateExt("User_info", query, obj, (dbres) => {
+        console.log(dbres);
+        sendCORS(res, 200, dbres);
+    });
+});
+
+app.get("/load", (req, res) => {
+
+    var collection = req.query["collection"];
+
+    dbUtil.findExt(collection, {}, dbres => {
+        //console.log(dbres);
         sendCORS(res, 200, dbres);
     });
 });

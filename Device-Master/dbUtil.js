@@ -8,88 +8,141 @@ const app = express();
 const masterIP = "localhost";
 const MongoClient = require('mongodb').MongoClient;
 var mongoURL = `mongodb://${masterIP}:27017/`;//`mongodb://${masterIP}:27017/`; - "mongodb://joshua:gtd@cluster0-2iznk.mongodb.net/test?retryWrites=true&w=majority"
-var mongoURI = "mongodb+srv://joshua:gtd@cluster0-2iznk.mongodb.net/test?retryWrites=true&w=majority"; // Check permissions
+var mongoURI = "mongodb+srv://Joshua:hardik@cluster0-xkiex.mongodb.net/test?retryWrites=true&w=majority"; // "mongodb+srv://joshua:gtd@cluster0-2iznk.mongodb.net/test?retryWrites=true&w=majority"
 
 module.exports = {
 
     findExt: function (coll, query, responsefunc) {
 
-        /*const client = new MongoClient(mongoURI, { useNewUrlParser: true });
-        client.connect((err, db) => {
-            const collection = db.collection(coll);
-
-            collection.find(query).toArray((err, dbres) => {
-                if (err) throw err;
-                console.log("documents found");
-                db.close();
-                responsefunc(dbres);
-            });
-            client.close();
-        });*/
-
         MongoClient.connect(mongoURI, { useNewUrlParser: true }, (err, client) => {
-            if (!err) {
 
+            if (!err) {
                 db = client.db('Ideas_lab');
                 db.collection(coll).find(query).toArray((err, dbres) => {
                     if (err) throw err;
-                    console.log("documents found?");
+                    console.log("documents found");
                     client.close();
                     responsefunc(dbres);
                 });
+            } else {
+                console.log(err);
+            }
+        });
+    },
+
+    createExt: function (coll, responsefunc) {
+
+        MongoClient.connect(mongoURI, { useNewUrlParser: true }, (err, client) => {
+
+            if (!err) {
+                db = client.db('Ideas_lab');
+                db.createCollection(coll, (err, res) => {
+                    if (err) throw err;
+                    client.close();
+                    responsefunc();
+                });
+            } else {
+                console.log(err);
             }
         });
     },
 
     addExt: function (coll, obj, responsefunc) {
 
-        const client = new MongoClient(mongoURI, { useNewUrlParser: true });
-        client.connect(err => {
-            const collection = client.db("Ideas_lab").collection(coll);
+        MongoClient.connect(mongoURI, { useNewUrlParser: true }, (err, client) => {
 
-            collection.insertOne(obj, (err, dbres) => {
-                if (err) throw err;
-                console.log("1 document inserted");
-                db.close();
-                responsefunc(dbres);
-            });
-            client.close();
+            if (!err) {
+                db = client.db('Ideas_lab');
+                db.collection(coll).insertOne(obj, (err, dbres) => {
+                    if (err) throw err;
+                    console.log("1 document inserted");
+                    client.close();
+                    responsefunc(dbres);
+                });
+            } else {
+                console.log(err);
+            }
         });
     },
 
     upsertExt: function (coll, query, obj, responsefunc) {
 
-        const client = new MongoClient(mongoURI, { useNewUrlParser: true });
-        client.connect(err => {
-            const collection = client.db("Ideas_lab").collection(coll);
+        MongoClient.connect(mongoURI, { useNewUrlParser: true }, (err, client) => {
 
-            var setObj = { $set: obj };
+            if (!err) {
+                db = client.db('Ideas_lab');
 
-            collection.updateOne(query, setObj, { upsert: true }, function (err, dbres) {
-                if (err) throw err;
-                console.log("1 document upserted");
-                db.close();
-                responsefunc(dbres);
-            });
-            client.close();
+                var setObj = { $set: obj };
+
+                db.collection(coll).updateOne(query, setObj, { upsert: true }, function (err, dbres) {
+                    if (err) throw err;
+                    console.log("1 document upserted");
+                    client.close();
+                    responsefunc(dbres);
+                });
+            } else {
+                console.log(err);
+            }
         });
     },
 
     updateExt: function (coll, query, obj, responsefunc) {
 
-        const client = new MongoClient(mongoURI, { useNewUrlParser: true });
-        client.connect(err => {
-            const collection = client.db("Ideas_lab").collection(coll);
+        MongoClient.connect(mongoURI, { useNewUrlParser: true }, (err, client) => {
 
-            var setObj = { $set: obj };
+            if (!err) {
+                db = client.db('Ideas_lab');
 
-            collection.updateOne(query, setObj, function (err, dbres) {
-                if (err) throw err;
-                console.log("1 document updated");
-                db.close();
-                responsefunc(dbres);
-            });
-            client.close();
+                var setObj = { $set: obj };
+
+                db.collection(coll).updateOne(query, setObj, function (err, dbres) {
+                    if (err) throw err;
+                    console.log("1 document updated");
+                    client.close();
+                    responsefunc(dbres);
+                });
+            } else {
+                console.log(err);
+            }
+        });
+    },
+
+    incExt: function (coll, query, obj, responsefunc) {
+
+        MongoClient.connect(mongoURI, { useNewUrlParser: true }, (err, client) => {
+
+            if (!err) {
+                db = client.db('Ideas_lab');
+
+                var setObj = { $inc: obj };
+
+                db.collection(coll).updateMany(query, setObj, function (err, dbres) {
+                    if (err) throw err;
+                    console.log("1 document updated");
+                    client.close();
+                    responsefunc(dbres);
+                });
+            } else {
+                console.log(err);
+            }
+        });
+    },
+
+    deleteExt: function (coll, query, responsefunc) {
+
+        MongoClient.connect(mongoURI, { useNewUrlParser: true }, (err, client) => {
+
+            if (!err) {
+                db = client.db('Ideas_lab');
+                db.collection(coll).deleteMany(query, (err, dbres) => {
+                    if (err) throw err;
+                    console.log("documents deleted");
+                    client.close();
+                    responsefunc(dbres);
+                });
+            } else {
+                console.log(err);
+            }
         });
     },
 

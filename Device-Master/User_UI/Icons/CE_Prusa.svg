@@ -3,16 +3,23 @@
 <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 viewBox="0 0 1417.3 1417.3" style="enable-background:new 0 0 1417.3 1417.3;" xml:space="preserve">
 <style type="text/css">
-	.st0{fill:#3C3C3B;}
-	.st1{fill:#FFFFFF;}
-	.st2{fill:none;stroke:#3C3C3B;stroke-width:9;stroke-miterlimit:10;}
+	.st0{fill:#282828;}
+	.st1{fill:none;stroke:#282828;stroke-width:14;stroke-miterlimit:10;}
+	.st2{fill:none;stroke:#282828;stroke-width:23;stroke-miterlimit:10;}
 </style>
-<rect x="235.7" y="180.8" class="st0" width="932.9" height="932.9"/>
-<rect x="380.4" y="287.9" class="st1" width="643.6" height="825.7"/>
-<line class="st2" x1="349.1" y1="424.8" x2="1057.8" y2="424.8"/>
-<line class="st2" x1="362.9" y1="472.1" x2="1071.6" y2="472.1"/>
-<rect x="687.3" y="385.1" class="st0" width="157.8" height="146.9"/>
-<rect x="395.7" y="1040.2" class="st0" width="612.9" height="145.8"/>
-<rect x="580.3" y="1153.8" class="st0" width="243.8" height="82.8"/>
-<rect x="676.9" y="369.5" class="st0" width="108.4" height="108.4"/>
+<rect x="294.9" y="277.6" class="st0" width="850.5" height="126.6"/>
+<rect x="368.3" y="391.6" transform="matrix(0.7071 -0.7071 0.7071 0.7071 -164.0218 425.1165)" class="st0" width="125.7" height="38"/>
+<rect x="995.3" y="352.2" transform="matrix(0.7071 -0.7071 0.7071 0.7071 3.5833 838.7512)" class="st0" width="38" height="125.7"/>
+<polygon class="st0" points="1021.5,1057.3 419,1057.3 450.1,980.8 988.8,980.8 "/>
+<line class="st1" x1="397.4" y1="536.3" x2="1057.4" y2="536.3"/>
+<line class="st1" x1="403.8" y1="617.7" x2="1063.8" y2="617.7"/>
+<path class="st0" d="M593.8,649.8h-72.5c-6.8,0-12.3-5.5-12.3-12.3V510.3c0-6.8,5.5-12.3,12.3-12.3h72.5c6.8,0,12.3,5.5,12.3,12.3
+	v127.2C606.1,644.3,600.7,649.8,593.8,649.8z"/>
+<rect x="409.3" y="1063.3" class="st0" width="617.6" height="64.7"/>
+<polygon class="st0" points="932.4,1169.5 498.5,1169.5 507.8,1079.7 922.5,1079.7 "/>
+<polygon class="st0" points="295,277.6 295,1103.6 319.5,1128.1 421.6,1128.1 421.6,277.6 "/>
+<polygon class="st0" points="1145.5,1101.1 1145.5,277.6 1018.9,277.6 1018.9,1128.1 1118.5,1128.1 "/>
+<polygon class="st0" points="255.6,506.1 228.6,533.1 228.6,635.7 358.2,635.7 358.2,506.1 "/>
+<path class="st2" d="M272.4,574c0,0-5.5,126.5-32.8,237.7s114.9,245.8,114.9,245.8"/>
+<path class="st2" d="M397.4,468.7c0,0,102.8-12.8,150.2,49.2"/>
 </svg>

@@ -3,16 +3,13 @@
 <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 viewBox="0 0 1417.3 1417.3" style="enable-background:new 0 0 1417.3 1417.3;" xml:space="preserve">
 <style type="text/css">
-	.st0{fill:#3C3C3B;}
-	.st1{fill:#FFFFFF;}
+	.st0{fill:#282828;}
 </style>
-<rect x="238.7" y="353" class="st0" width="940" height="434"/>
 <polygon class="st0" points="1178.7,353 238.7,353 274.7,283 1146.7,283 "/>
 <rect x="238.7" y="787" class="st0" width="80" height="325.9"/>
 <rect x="1098.7" y="787" class="st0" width="80" height="325.9"/>
 <rect x="243.2" y="1122" class="st0" width="70.9" height="52"/>
 <rect x="1103.2" y="1122" class="st0" width="70.9" height="52"/>
-<polygon class="st1" points="740,417.2 658.7,571 723.3,545.2 668,674.3 773.3,508.3 705.3,533.2 "/>
-<rect x="274.7" y="229.6" class="st0" width="872" height="45.4"/>
-<rect x="653.3" y="244" class="st1" width="114.7" height="16.6"/>
+<path class="st0" d="M238.7,353v434h940V353H238.7z M668,674.3l55.3-129.1L658.7,571L740,417.2l-34.7,116l68-24.9L668,674.3z"/>
+<path class="st0" d="M274.7,229.6V275h872v-45.4H274.7z M768,260.6H653.3V244H768V260.6z"/>
 </svg>
