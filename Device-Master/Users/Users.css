@@ -177,3 +177,29 @@
     text-decoration: none;
     font-size: 18px;
 }
+
+
+
+
+
+#P_RU_filter_header {
+
+    height: 30px;
+    padding: 0px;
+
+    color: #222222;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    border-top: 1px solid rgb(129, 129, 129);
+    border-bottom: 1px solid rgb(129, 129, 129);
+
+    text-align: center;
+    font-size: 1rem;
+    
+    font-family: 'Open Sans', sans-serif;;
+
+    font-weight: 200;
+}

@@ -1,6 +1,33 @@
 var serverIP = "localhost:5000";
 var equipment = [];
 var models = [];
+var userData;
+
+function findUser(cardID) {
+
+    json = { "Card ID": cardID };
+
+    var xhr = new XMLHttpRequest();
+    xhr.onload = function () {
+
+        if (this.status == 200) {
+
+            userData = JSON.parse(this.responseText)[0];
+            if (!userData["error"]) {
+                console.log(userData);
+
+            } else {
+                userData = [];
+                console.log("Error loading Users");
+            }
+            loadModels();
+        }
+    };
+
+    xhr.open('POST', `http://${serverIP}/findUser`, true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.send(JSON.stringify(json));
+}
 
 function loadModels() { // Requests to load all the ESP data from the database
 
@@ -84,6 +111,15 @@ function generateEqupmentTable() {
         var cellTop = createElem("DIV", [["class", "equipment_cell_top"]], cell);
         var cellImg = createElem("IMG", [["class", "equipment_image"], ["src", loadImage(equipment[i]["model"])]], cellTop);
         var cellBottom = createElem("DIV", [["class", "equipment_cell_bottom"], ["innerHTML", equipment[i]["name"]]], cell);
+
+        if (!userData["Permissions"].includes(equipment[i]["model"])) {
+            cell.setAttribute("class", "equipment_cell_unavailable");
+            cell.setAttribute("onclick", "");
+            cellImg.setAttribute("style", "opacity: 0.5");
+            console.log(`No permission for ${equipment[i]["model"]}`);
+        } else {
+            console.log(`Permission for ${equipment[i]["model"]}`);
+        }        
     }
 }
 

@@ -134,7 +134,7 @@ app.post("/addUser", (req, res) => {
         "Card ID": req.body["Card ID"],
         "CID": req.body["CID"],
         "Role": req.body["Role"],
-        "Credit": req.body["Credit"],
+        "Credit": Number(req.body["Credit"]),
         "Permissions": req.body["Permissions"]
     };
 
@@ -156,7 +156,7 @@ app.post("/editUser", (req, res) => {
         "Email": req.body["Email"],
         "CID": req.body["CID"],
         "Role": req.body["Role"],
-        "Credit": req.body["Credit"],
+        "Credit": Number(req.body["Credit"]),
         "Permissions": req.body["Permissions"]
     };
 
@@ -176,7 +176,7 @@ app.post("/filterUsers", (req, res) => {
 
         if (req.body[queryItem] == "") { continue; }
 
-        query[queryItem] = {$regex : `.*${req.body[queryItem]}.*`, $options : 'i'};
+        query[queryItem] = { $regex: `.*${req.body[queryItem]}.*`, $options: 'i' };
     }
 
     console.log(query);
@@ -186,12 +186,65 @@ app.post("/filterUsers", (req, res) => {
     });
 });
 
+app.post("/removeUsers", (req, res) => { // DANGEROUS
+
+    query = {};
+
+    for (var queryItem in req.body) {
+
+        if (req.body[queryItem] == "") { continue; }
+
+        query[queryItem] = { $regex: `.*${req.body[queryItem]}.*`, $options: 'i' };
+    }
+
+    console.log(query);
+
+    if (query != {}) {
+        dbUtil.deleteExt("User_info", query, dbres => {
+            dbUtil.findExt("User_info", {}, dbres => {
+                sendCORS(res, 200, dbres);
+            });
+        });
+    }
+});
+
+app.post("/addCreditToUsers", (req, res) => {
+
+    query = {};
+
+    for (var queryItem in req.body) {
+
+        if (queryItem != "Credit") {
+            if (req.body[queryItem] == "") { continue; }
+            query[queryItem] = { $regex: `.*${req.body[queryItem]}.*`, $options: 'i' };
+        }
+    }
+
+    dbUtil.incExt("User_info", query, { "Credit": Number(req.body["Credit"]) }, dbres => {
+        dbUtil.findExt("User_info", {}, dbres => {
+            sendCORS(res, 200, dbres);
+        });
+    });
+});
+
+
 app.get("/loadUsers", (req, res) => {
 
     console.log("loading users");
 
     dbUtil.findExt("User_info", {}, dbres => {
         console.log(dbres);
+        sendCORS(res, 200, dbres);
+    });
+});
+
+app.post("/findUser", (req, res) => {
+
+    cardID = req.body["Card ID"];
+
+    console.log(`finding user with card ID: ${cardID}`);
+
+    dbUtil.findExt("User_info", { "Card ID": cardID }, dbres => {
         sendCORS(res, 200, dbres);
     });
 });
@@ -239,7 +292,7 @@ app.get("/deleteFrom", (req, res) => {
 
 app.get("/updateRecord", (req, res) => {
 
-    var query = { "First Name":"Hardik" };
+    var query = { "First Name": "Hardik" };
     var obj = { "Role": "Rep" };
 
     dbUtil.updateExt("User_info", query, obj, (dbres) => {

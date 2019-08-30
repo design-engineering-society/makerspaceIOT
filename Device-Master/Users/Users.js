@@ -1,9 +1,11 @@
 var models = [];
 var userPermissions = [];
 
+
 function Users_loadFunction() {
     loadUsers();
 }
+
 
 function loadUsers() {
 
@@ -30,6 +32,7 @@ function loadUsers() {
     xhr.open('GET', `http://${serverIP}/loadUsers`, true); // Retrive ESP data
     xhr.send();
 }
+
 
 function loadModels() {
 
@@ -62,6 +65,7 @@ function loadModels() {
     xhr.open('GET', `http://${serverIP}/load?collection=Model_info`, true); // Retrive ESP data
     xhr.send();
 }
+
 
 function addEditUser(mode) {
 
@@ -105,7 +109,17 @@ function addEditUser(mode) {
     xhr.send(JSON.stringify(userData));
 }
 
-function filterUsers() {
+
+function filterUsers(mode) {
+
+    var URI;
+
+    switch (mode) {
+        case "filter": URI = `http://${serverIP}/filterUsers`; break;
+        case "remove": URI = `http://${serverIP}/removeUsers`; break;
+        case "addCredit": URI = `http://${serverIP}/addCreditToUsers`; break;
+        default: URI = `http://${serverIP}/error`; break;
+    }
 
     const userData = {
         "First Name": document.getElementById("F_Firstname").value,
@@ -123,7 +137,6 @@ function filterUsers() {
     xhr.onload = function () {
 
         if (this.status == 200) {
-
             data = JSON.parse(this.responseText);
             if (!data["error"]) {
                 console.log(data);
@@ -137,10 +150,11 @@ function filterUsers() {
         }
     };
 
-    xhr.open('POST', `http://${serverIP}/filterUsers`, true);
+    xhr.open('POST', URI, true);
     xhr.setRequestHeader('Content-Type', 'application/json');
     xhr.send(JSON.stringify(userData));
 }
+
 
 function addPopupU_AU() {
 
@@ -181,30 +195,27 @@ function addPopupU_AU() {
 
 function addPopupU_RU() {
 
-    //let popupData = findRecord(id);
-
     const P_wrapper = createElem("DIV", [["id", "P_wrapper"]], "body");
     const P_back = createElem("DIV", [["id", "P_back"], ["onclick", "fadeOutPopup()"]], P_wrapper);
     const P_panel = createElem("DIV", [["id", "P_panel"]], P_wrapper);
-    const P_grid = createElem("DIV", [["id", "P_grid"]], P_panel);
-    const P_title = createElem("DIV", [["id", "P_title"], ["innerHTML", "Remove Users"], ["class", "NS"]], P_grid);
+    const P_title = createElem("DIV", [["id", "P_AU_title"], ["innerHTML", "Remove Users"], ["class", "NS"]], P_panel);
 
-    createPopupLbl(P_grid, ["Filter:", "DIV", ""]);
-    createPopupLbl(P_grid, ["Department:", "SELECT", "", "U_RU_department",
-        ["/s/  -", "Design Engineering",
-            "Electronic and Information Engineering"]]);
-    createPopupLbl(P_grid, ["Program:", "SELECT", "", "U_RU_program",
-        ["/s/  -", "BEng", "BA", "BSc", "MEng", "MA", "MSc"]]);
-    createPopupLbl(P_grid, ["Study Date Start:", "INPUT", "", "U_RU_sds"]);
-    createPopupLbl(P_grid, ["Study Date End:", "INPUT", "", "U_RU_sde"]);
-    createPopupLbl(P_grid, ["Study Year:", "INPUT", "", "U_RU_studyyear"]);
-    createPopupLbl(P_grid, ["Role:", "SELECT", "", "U_RU_role", ["/s/ -", "user", "rep"]]);
+    const P_filter_header = createElem("DIV", [["id", "P_RU_filter_header"], ["innerHTML", "Filter"], ["class", "NS"]], P_panel);
+    const P_grid_filter = createElem("DIV", [["id", "P_AU_grid_info"], ["style", "margin: 10px 30px 0px 30px;"]], P_panel);
+    createPopupLbl_AU(P_grid_filter, ["Firstname:", "INPUT", "", "F_Firstname"]);
+    createPopupLbl_AU(P_grid_filter, ["Lastname:", "INPUT", "", "F_Lastname"]);
+    createPopupLbl_AU(P_grid_filter, ["Email:", "INPUT", "", "F_Email"]);
+    createPopupLbl_AU(P_grid_filter, ["Card ID:", "INPUT", "", "F_Card_ID"]);
+    createPopupLbl_AU(P_grid_filter, ["CID:", "INPUT", "", "F_CID"]);
+    createPopupLbl_AU(P_grid_filter, ["Role:", "SELECT", "", "F_Role", ["/s/ ", "User", "Rep", "Admin"]]);
+    createPopupLbl_AU(P_grid_filter, ["Credit:", "INPUT", "", "F_Credit"]);
 
-    const P_add_wrap = createElem("DIV", [["id", "P_update_wrap"]], P_grid);
-    const P_add = createElem("BUTTON", [["id", "P_update"], ["innerHTML", "Remove Users"]], P_update_wrap);
+    const P_filter_wrap = createElem("DIV", [["id", "P_AU_update_wrap"]], P_panel);
+    const P_filter = createElem("BUTTON", [["id", "P_AU_update"], ["class", "P"], ["innerHTML", "Remove"], ["onclick", "filterUsers('remove')"]], P_filter_wrap);
 
     fadeInPopup(P_wrapper);
 }
+
 
 function addPopup_E(id) {
 
@@ -251,32 +262,30 @@ function addPopup_E(id) {
     fadeInPopup(P_wrapper);
 }
 
-function addPopupU_AC() {
 
-    //let popupData = findRecord(id);
+function addPopupU_AC() {
 
     const P_wrapper = createElem("DIV", [["id", "P_wrapper"]], "body");
     const P_back = createElem("DIV", [["id", "P_back"], ["onclick", "fadeOutPopup()"]], P_wrapper);
     const P_panel = createElem("DIV", [["id", "P_panel"]], P_wrapper);
-    const P_grid = createElem("DIV", [["id", "P_grid"]], P_panel);
-    const P_title = createElem("DIV", [["id", "P_title"], ["innerHTML", "Add credit"], ["class", "NS"]], P_grid);
+    const P_title = createElem("DIV", [["id", "P_AU_title"], ["innerHTML", "Add Credit To Users"], ["class", "NS"]], P_panel);
 
-    createPopupLbl(P_grid, ["Department:", "SELECT", "", "U_AC_department",
-        ["/s/  -", "Design Engineering",
-            "Electronic and Information Engineering"]]);
-    createPopupLbl(P_grid, ["Program:", "SELECT", "", "U_AC_program",
-        ["/s/  -", "BEng", "BA", "BSc", "MEng", "MA", "MSc"]]);
-    createPopupLbl(P_grid, ["Study Date Start:", "INPUT", "", "U_AC_sds"]);
-    createPopupLbl(P_grid, ["Study Date End:", "INPUT", "", "U_AC_sde"]);
-    createPopupLbl(P_grid, ["Study Year:", "INPUT", "", "U_AC_studyyear"]);
-    createPopupLbl(P_grid, ["Role:", "SELECT", "", "U_AC_role", ["/s/ -", "user", "rep"]]);
-    createPopupLbl(P_grid, ["Credit to add (£):", "INPUT", "", "U_AC_credit"]);
+    const P_filter_header = createElem("DIV", [["id", "P_RU_filter_header"], ["innerHTML", "Filter"], ["class", "NS"]], P_panel);
+    const P_grid_filter = createElem("DIV", [["id", "P_AU_grid_info"], ["style", "margin: 10px 30px 0px 30px;"]], P_panel);
+    createPopupLbl_AU(P_grid_filter, ["Firstname:", "INPUT", "", "F_Firstname"]);
+    createPopupLbl_AU(P_grid_filter, ["Lastname:", "INPUT", "", "F_Lastname"]);
+    createPopupLbl_AU(P_grid_filter, ["Email:", "INPUT", "", "F_Email"]);
+    createPopupLbl_AU(P_grid_filter, ["Card ID:", "INPUT", "", "F_Card_ID"]);
+    createPopupLbl_AU(P_grid_filter, ["CID:", "INPUT", "", "F_CID"]);
+    createPopupLbl_AU(P_grid_filter, ["Role:", "SELECT", "", "F_Role", ["/s/ ", "User", "Rep", "Admin"]]);
+    createPopupLbl_AU(P_grid_filter, ["Credit:", "INPUT", "", "F_Credit"]);
 
-    const P_add_wrap = createElem("DIV", [["id", "P_update_wrap"]], P_grid);
-    const P_add = createElem("BUTTON", [["id", "P_update"], ["innerHTML", "Add credit"]], P_update_wrap);
+    const P_filter_wrap = createElem("DIV", [["id", "P_AU_update_wrap"]], P_panel);
+    const P_filter = createElem("BUTTON", [["id", "P_AU_update"], ["class", "P"], ["innerHTML", "Add Credit"], ["onclick", "filterUsers('addCredit')"]], P_filter_wrap);
 
     fadeInPopup(P_wrapper);
 }
+
 
 function addPopupU_F() {
 
@@ -285,20 +294,21 @@ function addPopupU_F() {
     const P_panel = createElem("DIV", [["id", "P_panel"]], P_wrapper);
     const P_title = createElem("DIV", [["id", "P_AU_title"], ["innerHTML", "Filter Display"], ["class", "NS"]], P_panel);
 
-    const P_grid_info = createElem("DIV", [["id", "P_AU_grid_info"]], P_panel);
-    createPopupLbl_AU(P_grid_info, ["Firstname:", "INPUT", "", "F_Firstname"]);
-    createPopupLbl_AU(P_grid_info, ["Lastname:", "INPUT", "", "F_Lastname"]);
-    createPopupLbl_AU(P_grid_info, ["Email:", "INPUT", "", "F_Email"]);
-    createPopupLbl_AU(P_grid_info, ["Card ID:", "INPUT", "", "F_Card_ID"]);
-    createPopupLbl_AU(P_grid_info, ["CID:", "INPUT", "", "F_CID"]);
-    createPopupLbl_AU(P_grid_info, ["Role:", "SELECT", "", "F_Role", ["/s/ ", "User", "Rep", "Admin"]]);
-    createPopupLbl_AU(P_grid_info, ["Credit:", "INPUT", "", "F_Credit"]);
+    const P_grid_filter = createElem("DIV", [["id", "P_AU_grid_info"]], P_panel);
+    createPopupLbl_AU(P_grid_filter, ["Firstname:", "INPUT", "", "F_Firstname"]);
+    createPopupLbl_AU(P_grid_filter, ["Lastname:", "INPUT", "", "F_Lastname"]);
+    createPopupLbl_AU(P_grid_filter, ["Email:", "INPUT", "", "F_Email"]);
+    createPopupLbl_AU(P_grid_filter, ["Card ID:", "INPUT", "", "F_Card_ID"]);
+    createPopupLbl_AU(P_grid_filter, ["CID:", "INPUT", "", "F_CID"]);
+    createPopupLbl_AU(P_grid_filter, ["Role:", "SELECT", "", "F_Role", ["/s/ ", "User", "Rep", "Admin"]]);
+    createPopupLbl_AU(P_grid_filter, ["Credit:", "INPUT", "", "F_Credit"]);
 
     const P_filter_wrap = createElem("DIV", [["id", "P_AU_update_wrap"]], P_panel);
-    const P_filter = createElem("BUTTON", [["id", "P_AU_update"], ["class", "P"], ["innerHTML", "Filter"], ["onclick", "filterUsers()"]], P_filter_wrap);
+    const P_filter = createElem("BUTTON", [["id", "P_AU_update"], ["class", "P"], ["innerHTML", "Filter"], ["onclick", "filterUsers('filter')"]], P_filter_wrap);
 
     fadeInPopup(P_wrapper);
 }
+
 
 function createPopupLbl_AU(P_grid, data) { // 0: label text, 1: input type, 2: input placeholder, 3: input id, 4: select elements
 
@@ -335,6 +345,7 @@ function createPopupLbl_AU(P_grid, data) { // 0: label text, 1: input type, 2: i
     return P_data;
 }
 
+
 function P_AU_toggle_tab(mode) {
 
     var permissionsGrid = document.getElementById("P_AU_grid_permissions");
@@ -354,6 +365,7 @@ function P_AU_toggle_tab(mode) {
         infoButton.setAttribute("style", "font-weight: 200;")
     }
 }
+
 
 function P_AU_update_Permission_UI(modelName) {
 

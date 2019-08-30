@@ -107,6 +107,27 @@ module.exports = {
         });
     },
 
+    incExt: function (coll, query, obj, responsefunc) {
+
+        MongoClient.connect(mongoURI, { useNewUrlParser: true }, (err, client) => {
+
+            if (!err) {
+                db = client.db('Ideas_lab');
+
+                var setObj = { $inc: obj };
+
+                db.collection(coll).updateMany(query, setObj, function (err, dbres) {
+                    if (err) throw err;
+                    console.log("1 document updated");
+                    client.close();
+                    responsefunc(dbres);
+                });
+            } else {
+                console.log(err);
+            }
+        });
+    },
+
     deleteExt: function (coll, query, responsefunc) {
 
         MongoClient.connect(mongoURI, { useNewUrlParser: true }, (err, client) => {
