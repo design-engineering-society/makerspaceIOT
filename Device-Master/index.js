@@ -8,7 +8,7 @@ const dbUtil = require('./dbUtil.js');
 const util = require('./util.js');
 
 const routerIP = "192.168.0.254";
-const masterIP = "192.168.0.110"; //ip of josh laptop
+const masterIP = "192.168.0.160"; //ip of Michael's Mac
 const ssid = "TP-Link_6F62";
 const password = "78059757";
 
