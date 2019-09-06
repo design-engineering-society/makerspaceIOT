@@ -14,8 +14,10 @@
 extern ESP8266WebServer server;
 
 const char* init_ssid = "TP-Link_6F62";
+
+
 const char* init_password = "78059757";
-const char* init_masterIP = "192.168.0.110";
+const char* init_masterIP = "192.168.0.160";
 
 const char* APssid = "Plug - ";
 const char* APpassword = "esp";

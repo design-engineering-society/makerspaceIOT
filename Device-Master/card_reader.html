@@ -36,7 +36,7 @@
 <h2>Register a new user</h2>
 
 <input type="button" onclick="location.href = 
-'file:///Users/hardy/Desktop/makerspaceIOT/user_registration_page.html?cradid=${input.value}';" value="Click to Register a new user" />
+'file:///Users/hardy/Desktop/makerspaceIOT/user_registration_page.html?';" value="Click to Register a new user" />
 
 
 <script>
@@ -59,7 +59,7 @@ input.addEventListener("keyup", function(event) {
     card_reader();
     //console.log("checkpoint 2");
     //var hardik = input.value;
-    //input.value="";
+    input.value="";
     //console.log("checkpoint 1");
     //console.log(hardik.value);
   }
@@ -104,7 +104,8 @@ xhr.onload = function () {
         //reloadDisplay();
         if(card_data=="true"){
             //console.log("checkpoint 4");
-            window.location.replace("file:///Users/hardy/Desktop/makerspaceIOT/Device-Master/index.html")
+            //window.location.replace("file:///Users/hardy/Desktop/makerspaceIOT/Device-Master/index.html?cardid=${input.value}")
+            window.location.replace('index.html?cardid=${input.value}');
             //ESP_onOff();
             //console.log("checkpoint 5");
         }else{
@@ -113,7 +114,7 @@ xhr.onload = function () {
     }
 };
 //http://192.168.0.110:5000/registerCard?cardid=${input.value}&firstname=Joshua&lastname=Anderson
-xhr.open('GET', `http://192.168.0.160:5001/authenticateCard?cardid=${input.value}`, true); // Retrive ESP data
+xhr.open('GET', `http://192.168.0.161:5001/authenticateCard?cardid=${input.value}`, true); // Retrive ESP data
 xhr.send();
 }
 
@@ -159,7 +160,7 @@ function Addstamp(){
     //var timestamp= date.getTime();
     //console.log(input_clone.value);
 
-    xhr.open('GET', `http://192.168.0.160:5001/addTimestamp?cardid=${input.value}&date=${date}`, true);
+    xhr.open('GET', `http://192.168.0.161:5001/addTimestamp?cardid=${input.value}&date=${date}`, true);
     xhr.send();
 
     //xhr.open('GET', `http://192.168.0.158:80/onOff?plug=1}`, true);
