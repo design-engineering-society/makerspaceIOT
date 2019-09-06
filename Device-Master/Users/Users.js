@@ -29,6 +29,7 @@ function loadUsers() {
         }
     };
 
+    console.log(xhr);
     xhr.open('GET', `http://${serverIP}/loadUsers`, true); // Retrive ESP data
     xhr.send();
 }

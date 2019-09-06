@@ -1,8 +1,8 @@
 var tables = {
     Plugs: {
         attributes: [
-            ["Name", "200px"],
-            ["UUID", "370px"],
+            ["Equipment", "200px"],
+            ["ID", "370px"],
             ["IP", "200px"],
             ["WiFi Status", "200px"],
             ["Relay", "200px"],
@@ -24,8 +24,9 @@ var tables = {
     Equipment: {
         attributes: [
             ["Name", "200px"],
-            ["Description", "300px"],
-            ["Plug", "200px"]
+            ["Model", "200px"],
+            ["ID", "300px"],
+            ["Plug", "300px"]
         ]
     }
 };
@@ -43,12 +44,6 @@ var type; // Type of Table e.g. Plugs - used for debugging
 var info; // All relavent information on the table
 var headers; // Array of header text
 var gridTemplateColumns; // Layout of table
-
-function checkPlugsPeriodic() {
-    setInterval(() => {
-        loadPlugs("background");
-    }, 10000);
-};
 
 function createElem(type, attributes, parent) {
     var elem = document.createElement(type);
@@ -116,7 +111,12 @@ function generateActionBar(type) {
         createElem("DIV", [["class", "AB_button NS P"], ["innerHTML", "Remove Users"], ["onclick", "addPopupU_RU()"]], AB_container);
         createElem("DIV", [["class", "AB_button NS P"], ["innerHTML", "Add Credit"], ["onclick", "addPopupU_AC()"]], AB_container);
         createElem("DIV", [["class", "AB_button NS P"], ["innerHTML", "Filter"], ["onclick", "addPopupU_F()"]], AB_container);
-    }
+    } else if (type == "Equipment") {
+        AB_wrapper = createElem("DIV", [["class", "AB_wrapper"]], "");
+        insertAfter(AB_wrapper, DG_title);
+        var AB_container = createElem("DIV", [["class", "AB_container"]], AB_wrapper);
+        createElem("DIV", [["class", "AB_button NS P"], ["innerHTML", "Add Equipment"], ["onclick", "addPopupE_AE()"]], AB_container);
+    } 
 }
 
 function insertAfter(newNode, referenceNode) {
@@ -147,6 +147,11 @@ function refreshTable(type) {
             var DG_body_row = initRow(data[i]["Card ID"]);
             for (var j = 0; j < headers.length; j++) { // Create Cells for each rows
                 createCell("DIV", data[i]["Card ID"], headers[j], DG_body_row);
+            }
+        } else if (type == "Equipment") {
+            var DG_body_row = initRow(data[i]["id"]);
+            for (var j = 0; j < headers.length; j++) { // Create Cells for each rows
+                createCell("DIV", data[i]["id"], headers[j], DG_body_row);
             }
         }
         DG_body.appendChild(DG_body_row);
@@ -199,8 +204,8 @@ function updateTable(type) {
 
     if (type == "Plugs") {
         for (var i = 0; i < data.length; i++) {
-            updateCell(data[i]["ID"], "Name", elem => { elem.innerHTML = data[i]["name"] });
-            updateCell(data[i]["ID"], "UUID", elem => { elem.innerHTML = data[i]["ID"] });
+            updateCell(data[i]["ID"], "Equipment", elem => { elem.innerHTML = (data[i]["equipment_name"] != null) ? data[i]["equipment_name"] : "-" });
+            updateCell(data[i]["ID"], "ID", elem => { elem.innerHTML = data[i]["ID"] });
             updateCell(data[i]["ID"], "IP", elem => { elem.innerHTML = data[i]["IP"] });
             updateCell(data[i]["ID"], "WiFi Status", elem => {
 
@@ -228,6 +233,24 @@ function updateTable(type) {
                 elem.setAttribute("style", "font-size: 0.5em;");
             });
             updateCell(data[i]["Card ID"], "Credit", elem => { elem.innerHTML = data[i]["Credit"] });
+        }
+    } else if (type == "Equipment") {
+        for (var i = 0; i < data.length; i++) {
+
+            updateCell(data[i]["id"], "ID", elem => { elem.innerHTML = data[i]["id"]; elem.setAttribute("style", "font-size: 0.8em;"); });
+            updateCell(data[i]["id"], "Name", elem => { elem.innerHTML = data[i]["name"] });
+            updateCell(data[i]["id"], "Model", elem => { elem.innerHTML = data[i]["model"] });
+            updateCell(data[i]["id"], "Plug", elem => {
+                
+                elem.innerHTML = "-";
+                for (var j = 0; j < plugs.length; j++) {
+                    if (data[i]["id"] == plugs[j]["equipment_id"]) {
+                        elem.innerHTML = plugs[j]["ID"];
+                        elem.setAttribute("style", "font-size: 0.8em;");
+                        break;
+                    }
+                }
+            });
         }
     }
 }
@@ -281,7 +304,8 @@ function updateRecord(recordData) {
 
     for (let i = 0; i < data.length; i++) {
         if (data[i]["ID"] == recordData["ID"]) {
-            data[i]["name"] = recordData["name"];
+            data[i]["equipment_name"] = recordData["equipment_name"];
+            data[i]["equipment_id"] = recordData["equipment_id"];
             data[i]["ssid"] = recordData["ssid"];
             data[i]["password"] = recordData["password"];
             data[i]["masterIP"] = recordData["masterIP"];
@@ -293,7 +317,7 @@ function updateRecord(recordData) {
 function updateRow(recordData) {
 
     console.log(recordData);
-    document.getElementById(`${recordData["ID"]} | Name`).innerHTML = recordData["name"];
+    document.getElementById(`${recordData["ID"]} | Equipment`).innerHTML = recordData["equipment_name"];
 }
 
 function removeLoadingScreen() {

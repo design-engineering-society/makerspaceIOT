@@ -95,13 +95,14 @@ app.post("/updatePlug", (req, res) => {
     var id = req.body["ID"];
 
     const obj = {
-        name: req.body["name"],
+        equipment_name: req.body["equipment_name"],
+        equipment_id: req.body["equipment_id"],
         ssid: req.body["ssid"],
         password: req.body["password"],
         masterIP: req.body["masterIP"]
     };
 
-    dbUtil.update("Plugs", { "ID": id }, obj, dbres => {
+    dbUtil.updateExt("Plug_info", { "ID": id }, obj, dbres => {
 
         obj["ID"] = id;
         obj["IP"] = req.body["IP"];
@@ -240,7 +241,7 @@ app.get("/loadUsers", (req, res) => {
 
 app.post("/findUser", (req, res) => {
 
-    cardID = req.body["Card ID"];
+    cardID = req.body["Card ID"]; // req.query works n hardiks laptop
 
     console.log(`finding user with card ID: ${cardID}`);
 
@@ -259,32 +260,29 @@ app.get("/createCollection", (req, res) => {
 
 app.get("/addTo", (req, res) => {
 
-    var obj = [
-        { name: "Prusa", image: "../User_UI/Icons/CE_Prusa.svg" },
-        { name: "Ultimaker", image: "../User_UI/Icons/CE_Ultimaker.svg" },
-        { name: "Markforged", image: "../User_UI/Icons/CE_Markforged.svg" },
-        { name: "Formlabs", image: "../User_UI/Icons/CE_Formlabs.svg" },
-        { name: "Lasercutter", image: "../User_UI/Icons/CE_Lasercutter.svg" },
-        { name: "Vinylcutter", image: "../User_UI/Icons/CE_Vinylcutter.svg" },
-        { name: "Roland CNC", image: "../User_UI/Icons/CE_CNC_Roland.svg" },
-        { name: "Stepcraft CNC", image: "../User_UI/Icons/CE_CNC_Stepcraft.svg" }
-    ];
+    var obj = {
+        ID: "b7a53b47-7fa7-428e-a9f7-72c4819a7083",
+        equipment_name: "-",
+        equipment_id: "-",
+        operating_mode: "normal",
+        status: "available",
+        IP: "192.168.0.106",
+        ssid: "TP-Link_6F62",
+        password: "78059757",
+        masterIP: "192.168.0.110"
+    };
 
-    for (var i = 0; i < obj.length; i++) {
-        dbUtil.addExt("Model_info", obj[i], (dbres) => {
-            //console.log(dbres);
-            if (i == (obj.length - 1)) {
-                sendCORS(res, 200, dbres);
-            }
-        });
-    }
+    dbUtil.addExt("Plug_info", obj, (dbres) => {
+
+        sendCORS(res, 200, dbres);
+    });
 });
 
 app.get("/deleteFrom", (req, res) => {
 
     var query = { "CID": "88483210" };
 
-    dbUtil.deleteExt("User_info", query, (dbres) => {
+    dbUtil.deleteExt("Plug_info", {}, (dbres) => {
         console.log(dbres);
         sendCORS(res, 200, dbres);
     });
@@ -292,10 +290,10 @@ app.get("/deleteFrom", (req, res) => {
 
 app.get("/updateRecord", (req, res) => {
 
-    var query = { "First Name": "Hardik" };
-    var obj = { "Role": "Rep" };
+    var query = { "IP": "192.168.0.133" };
+    var obj = { "ID": "58e9aa3d-9bcf-484f-ab56-f205ce9da5ff" };
 
-    dbUtil.updateExt("User_info", query, obj, (dbres) => {
+    dbUtil.updateExt("Plug_info", query, obj, (dbres) => {
         console.log(dbres);
         sendCORS(res, 200, dbres);
     });
@@ -313,7 +311,7 @@ app.get("/load", (req, res) => {
 
 app.get("/loadPlugs", (req, res) => { // load the ESP data from database
 
-    dbUtil.find("Plugs", {}, dbres => {
+    dbUtil.findExt("Plug_info", {}, dbres => {
 
         var msg = "";
         var count = 0;
@@ -336,8 +334,11 @@ app.get("/loadPlugs", (req, res) => { // load the ESP data from database
 
                         resultArray.sort((a, b) => {
 
-                            if (a["name"] < b["name"]) return -1;
-                            if (a["name"] > b["name"]) return 1;
+                            if (a["equipment_name"] < b["equipment_name"]) return -1;
+                            if (a["equipment_name"] > b["equipment_name"]) return 1;
+
+                            if (a["ID"] < b["ID"]) return -1;
+                            if (a["ID"] > b["ID"]) return 1;
                             return 0;
                         });
                         sendCORS(res, 200, JSON.stringify(resultArray, undefined, 3));

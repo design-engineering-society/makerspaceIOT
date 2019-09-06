@@ -20,6 +20,9 @@ function findUser(cardID) {
                 userData = [];
                 console.log("Error loading Users");
             }
+
+            document.getElementsByClassName("header_title")[0].innerHTML = `Welcome ${userData["First Name"]}! Choose equipment`;
+
             loadModels();
         }
     };

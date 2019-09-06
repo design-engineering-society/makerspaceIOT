@@ -1,4 +1,103 @@
+var equipment;
+var availableEquipment = [];
+var empty = [null, ""];
+
 /////// REQUESTS ///////
+
+function loadModels() { // Requests to load all the ESP data from the database
+
+    var xhr = new XMLHttpRequest();
+    xhr.onload = function () {
+
+        if (this.status == 200) {
+
+            var data = JSON.parse(this.responseText);
+            if (!data["error"]) {
+                console.log(data);
+                console.log(`Loaded ${Object.keys(data).length} Models(s) from database`);
+                models = data;
+            } else {
+                data = [];
+                console.log("Error loading models");
+            }
+            loadEquipment();
+        }
+    };
+
+    xhr.open('GET', `http://${serverIP}/load?collection=Model_info`, true); // Retrive ESP data
+    xhr.send();
+}
+
+function loadEquipment() { // Requests to load all the ESP data from the database
+
+    availableEquipment = [];
+
+    var xhr = new XMLHttpRequest();
+    xhr.onload = function () {
+
+        if (this.status == 200) {
+
+            equipment = JSON.parse(this.responseText);
+            if (!equipment["error"]) {
+                console.log(equipment);
+                console.log(`Loaded ${Object.keys(equipment).length} Equipment(s) from database`);
+
+                combineEquipmentData();
+
+                equipment.sort((a, b) => {
+
+                    if (a["precedent"] < b["precedent"]) return -1;
+                    if (a["precedent"] > b["precedent"]) return 1;
+
+                    if (a["name"] < b["name"]) return -1;
+                    if (a["name"] > b["name"]) return 1;
+                    return 0;
+                });
+
+            } else {
+                equipment = [];
+                console.log("Error loading equipment");
+            }
+
+            for (var i = 0; i < equipment.length; i++) {
+
+                var available = true;
+
+                for (var j = 0; j < data.length; j++) {
+                    if (equipment[i]["id"] == data[j]["equipment_id"]) { // if a plug has an equipment id, that equipment is not available
+                        available = false;
+                        break;
+                    }
+                }
+
+                if (available) {
+                    availableEquipment.push(equipment[i]);
+                }
+            }
+            console.log(availableEquipment);
+            console.log("available ^");
+
+            refreshTable("Plugs");
+            checkRelays();
+        }
+    };
+
+    xhr.open('GET', `http://${serverIP}/load?collection=Equipment_info`, true); // Retrive ESP data
+    xhr.send();
+}
+
+function combineEquipmentData() {
+
+    for (var i = 0; i < equipment.length; i++) {
+
+        for (var j = 0; j < models.length; j++) {
+            if (equipment[i]["model"] == models[j]["name"]) {
+                equipment[i]["precedent"] = models[j]["precedent"];
+                break;
+            }
+        }
+    }
+}
 
 function loadPlugs(mode) { // Requests to load all the ESP data from the database
 
@@ -20,8 +119,7 @@ function loadPlugs(mode) { // Requests to load all the ESP data from the databas
                 console.log("Error loading Plugs");
             }
             if (mode != "background") { removeLoadingScreen(); }
-            refreshTable("Plugs");
-            checkRelays();
+            loadModels();
         }
     };
 
@@ -109,19 +207,24 @@ function checkRelays() {
 
 function updatePlug() {
 
+    var equipmentSelected = findEquipmentWithName(document.getElementById("PI_equipment").value)
+
     var recordData = {
         "ID": document.getElementById("PI_ID").innerHTML,
         "IP": document.getElementById("PI_IP").innerHTML,
-        "name": document.getElementById("PI_name").value,
+        "equipment_id": equipmentSelected["id"],
+        "equipment_name": equipmentSelected["name"],
         "ssid": document.getElementById("PI_ssid").value,
         "password": document.getElementById("PI_password").value,
         "masterIP": document.getElementById("PI_masterIP").value
     }
 
+    console.log(recordData);
+
     updateRecord(recordData);
     updateRow(recordData);
     fadeOutPopup();
-    console.log(`Updating Plug with IP: ${recordData["IP"]}`);
+    //console.log(`Updating Plug with IP: ${recordData["IP"]}`);
 
     var xhr = new XMLHttpRequest();
     xhr.onload = function () {
@@ -140,7 +243,7 @@ function updatePlug() {
 
 ///// Plug Table
 function Plugs_loadFunction() {
-    loadPlugs("initial");
+    loadPlugs();
     checkPlugsPeriodic();
 }
 
@@ -169,7 +272,7 @@ function addPopup_E(id) {
 
     createPopupLbl(P_grid, ["ID:", "DIV", popupData["ID"], "PI_ID"]);
     createPopupLbl(P_grid, ["IP:", "DIV", popupData["IP"], "PI_IP"]);
-    createPopupLbl(P_grid, ["Name:", "INPUT", popupData["name"], "PI_name"]);
+    createPopupLbl(P_grid, ["Equipment:", "SELECT", popupData["equipment_name"], "PI_equipment", AEText(popupData)]);
     createPopupLbl(P_grid, ["SSID:", "INPUT", popupData["ssid"], "PI_ssid"]);
     createPopupLbl(P_grid, ["Password:", "INPUT", popupData["password"], "PI_password"]);
     createPopupLbl(P_grid, ["Master IP:", "INPUT", popupData["masterIP"], "PI_masterIP"]);
@@ -179,3 +282,33 @@ function addPopup_E(id) {
 
     fadeInPopup(P_wrapper);
 }
+
+function AEText(popupData) {
+
+    var str = [popupData["equipment_name"]];
+
+    for (var i = 0; i < availableEquipment.length; i++) {
+        if (popupData["equipment_name"] == availableEquipment[i]["name"]) {
+            str.push(`/s/ ${availableEquipment[i]["name"]}`);
+        } else {
+            str.push(availableEquipment[i]["name"]);
+        }
+    }
+    return str;
+}
+
+function findEquipmentWithName(name) {
+
+    for (var i = 0; i < availableEquipment.length; i++) {
+        
+        if (availableEquipment[i]["name"] == name) {
+            return availableEquipment[i];
+        }
+    }
+}
+
+function checkPlugsPeriodic() {
+    setInterval(() => {
+        loadPlugs("background");
+    }, 10000);
+};

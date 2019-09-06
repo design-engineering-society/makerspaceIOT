@@ -233,7 +233,7 @@
 /* Popup */
 
 #P_wrapper {
-    position:absolute;
+    position:fixed;
     z-index:1000;
     background-color: rgba(0, 0, 0, 0);
     top: 0px;
@@ -352,7 +352,7 @@
 
     text-align: left;
     text-decoration: none;
-    font-size: 0.8em;
+    font-size: 1em;
 
     overflow: hidden;
 }

@@ -20,7 +20,7 @@ module.exports = {
                 db = client.db('Ideas_lab');
                 db.collection(coll).find(query).toArray((err, dbres) => {
                     if (err) throw err;
-                    console.log("documents found");
+                    //console.log("documents found");
                     client.close();
                     responsefunc(dbres);
                 });
