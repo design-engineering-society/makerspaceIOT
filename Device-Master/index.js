@@ -311,6 +311,18 @@ app.get("/load", (req, res) => {
     });
 });
 
+app.get("/loadEquipment", (req, res) => {
+
+    // var collection = req.query["collection"];
+
+    // dbUtil.findExt(collection, {}, dbres => {
+    //     //console.log(dbres);
+    //     sendCORS(res, 200, dbres);
+    // });
+
+    console.log("hello world");
+});
+
 app.get("/loadPlugs", (req, res) => { // load the ESP data from database
 
     dbUtil.find("Plugs", {}, dbres => {

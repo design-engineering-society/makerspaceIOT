@@ -7,7 +7,7 @@ const app = express();
 
 const masterIP = "localhost";
 const MongoClient = require('mongodb').MongoClient;
-var mongoURL = `mongodb://${masterIP}:27017/`;//`mongodb://${masterIP}:27017/`; - "mongodb://joshua:gtd@cluster0-2iznk.mongodb.net/test?retryWrites=true&w=majority"
+//var mongoURL = `mongodb://${masterIP}:27017/`;//`mongodb://${masterIP}:27017/`; - "mongodb://joshua:gtd@cluster0-2iznk.mongodb.net/test?retryWrites=true&w=majority"
 var mongoURI = "mongodb+srv://Joshua:hardik@cluster0-xkiex.mongodb.net/test?retryWrites=true&w=majority"; // "mongodb+srv://joshua:gtd@cluster0-2iznk.mongodb.net/test?retryWrites=true&w=majority"
 
 module.exports = {
@@ -148,7 +148,7 @@ module.exports = {
 
     find: function (collection, query, responsefunc) {
 
-        MongoClient.connect(mongoURL, { useNewUrlParser: true }, (err, db) => {
+        MongoClient.connect(mongoURI, { useNewUrlParser: true }, (err, db) => {
             if (err) throw err;
 
             var dbo = db.db("makerspace");
@@ -161,7 +161,7 @@ module.exports = {
 
     add: function (collection, obj, responsefunc) {
 
-        MongoClient.connect(mongoURL, { useNewUrlParser: true }, function (err, db) {
+        MongoClient.connect(mongoURI, { useNewUrlParser: true }, function (err, db) {
             if (err) throw err;
             var dbo = db.db("makerspace");
 
@@ -176,7 +176,7 @@ module.exports = {
 
     upsert: function (collection, query, obj, responsefunc) {
 
-        MongoClient.connect(mongoURL, { useNewUrlParser: true }, function (err, db) {
+        MongoClient.connect(mongoURI, { useNewUrlParser: true }, function (err, db) {
             if (err) throw err;
 
             var dbo = db.db("makerspace");
@@ -192,7 +192,7 @@ module.exports = {
 
     update: function (collection, query, obj, responsefunc) {
 
-        MongoClient.connect(mongoURL, { useNewUrlParser: true }, function (err, db) {
+        MongoClient.connect(mongoURI, { useNewUrlParser: true }, function (err, db) {
             if (err) throw err;
 
             var dbo = db.db("makerspace");
