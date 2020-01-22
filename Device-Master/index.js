@@ -1,26 +1,29 @@
-const express = require('express');
-const request = require('request');
-const bodyParser = require("body-parser"); // For parsing data in POST request
-const path = require('path');
-const ping = require('ping');
+// --- IMPORTING MODULES AND DEFINING GLOBAL VARIABLES/CONSTANTS --- ///
+const express = require('express'); // Express Framework
+const request = require('request'); // sending and hadling HTTP/HTTPS requests
+const bodyParser = require("body-parser"); // Parses data in POST request
+const path = require('path'); // Paths / directories
+const ping = require('ping'); // Generates ping requests 
 const app = express(); // creates an instance of express. it is like the swrver object
-const dbUtil = require('./dbUtil.js');
-const util = require('./util.js');
+const dbUtil = require('./dbUtil.js'); // Utility functions for the database 
+const util = require('./util.js'); // Utility functions for general stuff
 
 const routerIP = "192.168.0.254";
 const masterIP = "192.168.0.160"; //ip of michaels mac
 const ssid = "TP-Link_6F62";
 const password = "78059757";
 
-const MongoClient = require('mongodb').MongoClient;
-var ESPDoc;
+const MongoClient = require('mongodb').MongoClient; // Creates a new Mongodb client instance, which is used throughout
+var ESPDoc; // Variable for storing data about an ESP (this may be deletable)
 
+// --- ESTABLISHING MIDDLEWARE --- //
 app.use(express.static(__dirname)); // use / as root directory
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.json());       // to support JSON-encoded bodies
 app.use(express.urlencoded({ extended: true })); // to support URL-encoded bo
 
+// --- ROUTING REQUESTS TO FUNCTIONS --- //
 app.get("/yeet", (req, res) => { res.sendFile(path.join(__dirname + "/root.html")); });
 app.get("/operator", (req, res) => { res.sendFile(path.join(__dirname + "/operator/operator.html")); });
 app.get("/plugs", (req, res) => { res.sendFile(path.join(__dirname + "/Plugs/Plugs.html")); });
@@ -29,6 +32,7 @@ app.get("/equipment", (req, res) => { res.sendFile(path.join(__dirname + "/Equip
 app.get("/welcome", (req, res) => { res.sendFile(path.join(__dirname + "/User_UI/choose_equipment.html")); });
 app.get("/testStorage", (req, res) => { res.sendFile(path.join(__dirname + "/User_UI/test_storage.html")); });
 
+// Tells the Master Device that an ESP has connected an updates the database with data for the connected ESP //
 app.post("/connect", (req, res) => {
     var IP = (req.headers['x-forwarded-for'] || req.connection.remoteAddress).replace("::ffff:", "");
     var ID = req.body["ID"];
@@ -49,6 +53,7 @@ app.post("/connect", (req, res) => {
     });
 });
 
+// Registers a user by updating user_info in the database //
 app.get("/registerCard", (req, res) => {
 
     var cardID = req.query["cardid"];
@@ -65,6 +70,7 @@ app.get("/registerCard", (req, res) => {
     });
 });
 
+// Checks if a card is registered in the database //
 app.get("/authenticateCard", (req, res) => {
 
     var cardID = req.query["cardid"];
@@ -78,6 +84,7 @@ app.get("/authenticateCard", (req, res) => {
     });
 });
 
+// Adds a timestamp to the database //
 app.get("/addTimestamp", (req, res) => {
 
     var requestData = req.query;
@@ -90,6 +97,7 @@ app.get("/addTimestamp", (req, res) => {
     });
 });
 
+// Updates information about a given plug in the database //
 app.post("/updatePlug", (req, res) => {
 
     var id = req.body["ID"];
@@ -112,6 +120,7 @@ app.post("/updatePlug", (req, res) => {
     });
 });
 
+// Sends a request to an ESP to update the config file //
 function updatePlugConfig(data) {
 
     console.log(`Updating Config in Plug with IP: ${data["IP"]}`);
@@ -126,6 +135,7 @@ function updatePlugConfig(data) {
     })
 }
 
+// Adds a user to the database //
 app.post("/addUser", (req, res) => {
 
     const obj = {
@@ -146,6 +156,7 @@ app.post("/addUser", (req, res) => {
     });
 });
 
+// Edits a users information in the database //
 app.post("/editUser", (req, res) => {
 
     //console.log(req.body["Card ID"]);
@@ -169,6 +180,7 @@ app.post("/editUser", (req, res) => {
     });
 });
 
+// Returns a filtered list of user information based on a filterd input //
 app.post("/filterUsers", (req, res) => {
 
     query = {};
@@ -187,6 +199,7 @@ app.post("/filterUsers", (req, res) => {
     });
 });
 
+// Removes users based on a filterd input //
 app.post("/removeUsers", (req, res) => { // DANGEROUS
 
     query = {};
@@ -209,6 +222,7 @@ app.post("/removeUsers", (req, res) => { // DANGEROUS
     }
 });
 
+// Adds credit to users based on a filterd input //
 app.post("/addCreditToUsers", (req, res) => {
 
     query = {};
@@ -228,7 +242,7 @@ app.post("/addCreditToUsers", (req, res) => {
     });
 });
 
-
+// Returns a list of information on all users in the database //
 app.get("/loadUsers", (req, res) => {
 
     console.log("loading users");
@@ -239,6 +253,7 @@ app.get("/loadUsers", (req, res) => {
     });
 });
 
+// Returns a user from the database based on their card id //
 app.post("/findUser", (req, res) => {
 
     cardID = req.body["Card ID"]; // req.query works n hardiks laptop
@@ -250,6 +265,7 @@ app.post("/findUser", (req, res) => {
     });
 });
 
+// Utility function to ceate a new collection (table) in the database //
 app.get("/createCollection", (req, res) => {
 
     dbUtil.createExt("Model_info", () => {
@@ -258,6 +274,7 @@ app.get("/createCollection", (req, res) => {
     });
 });
 
+// Utility function to add info an arbitrary collection //
 app.get("/addTo", (req, res) => {
 
     var obj = {
@@ -278,6 +295,7 @@ app.get("/addTo", (req, res) => {
     });
 });
 
+// Utility function to delete a record based on a query //
 app.get("/deleteFrom", (req, res) => {
 
     var query = { "CID": "88483210" };
@@ -288,6 +306,7 @@ app.get("/deleteFrom", (req, res) => {
     });
 });
 
+// Utility function to update a record based on a query //
 app.get("/updateRecord", (req, res) => {
 
     var query = { "IP": "192.168.0.133" };
@@ -299,6 +318,7 @@ app.get("/updateRecord", (req, res) => {
     });
 });
 
+// Loads from a specified collection //
 app.get("/load", (req, res) => {
 
     var collection = req.query["collection"];
@@ -309,6 +329,7 @@ app.get("/load", (req, res) => {
     });
 });
 
+// (Defunct) //
 app.get("/loadEquipment", (req, res) => {
 
     // var collection = req.query["collection"];
@@ -321,6 +342,7 @@ app.get("/loadEquipment", (req, res) => {
     console.log("hello world");
 });
 
+// Loads the status and information about all plugs by sending a request to all plugs on the database //
 app.get("/loadPlugs", (req, res) => { // load the ESP data from database
 
     dbUtil.findExt("Plug_info", {}, dbres => {
@@ -371,7 +393,7 @@ app.get("/testDB", (req, res) => {
     });
 });
 
-
+// Reshuffles a record from the database into a more readable format //
 function IPIndexESPData(data) {
 
     var ipIndexedData = {};
@@ -386,6 +408,7 @@ function IPIndexESPData(data) {
     return ipIndexedData;
 }
 
+// Utility function to send a CORS message for authentication //
 function sendCORS(res, code, message) {
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.status(code).send(message);
